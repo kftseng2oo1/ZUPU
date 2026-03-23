@@ -56,6 +56,9 @@
     box-shadow: var(--shadow);
   }
   .logo {
+    background: none;
+    border: none;
+    padding: 0;
     font-family: 'Noto Serif TC', serif;
     font-weight: 700;
     font-size: 17px;
@@ -63,6 +66,8 @@
     letter-spacing: 1px;
     white-space: nowrap;
     flex-shrink: 0;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
   }
   .logo span { color: var(--gold); }
   .logo:hover span { color: var(--accent2); }
@@ -80,6 +85,7 @@
     cursor: pointer;
     transition: all 0.2s;
     display: flex; align-items: center; gap: 6px;
+    -webkit-tap-highlight-color: transparent;
   }
   nav button:hover { background: var(--surface2); color: var(--text); }
   nav button.active { background: var(--accent-light); color: var(--accent); font-weight: 500; }
@@ -524,14 +530,15 @@
   .tree-connector { width: 2px; height: 24px; background: var(--border); }
   .tree-children {
     display: flex;
-    gap: 20px;
+    gap: 24px;
     align-items: flex-start;
     position: relative;
+    flex-wrap: nowrap;
   }
   .tree-children::before {
     content: '';
     position: absolute;
-    top: 0; left: 0; right: 0;
+    top: 0; left: 10%; right: 10%;
     height: 2px;
     background: var(--border);
   }
@@ -720,6 +727,232 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
+  /* ── 儀式感首頁 ── */
+  .shrine-hall {
+    position: relative;
+    min-height: 82vh;
+    background: linear-gradient(160deg, #120800 0%, #2a1608 40%, #3a2008 70%, #1a0c04 100%);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    box-shadow: inset 0 0 120px rgba(0,0,0,0.85), 0 0 0 4px #c9993a, 0 0 0 7px #3a2008, 0 0 0 9px #c9993a;
+    border: 1px solid #c9993a;
+  }
+  /* 漸層光暈（燭光模擬） */
+  .shrine-hall::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 50% 20%, rgba(201,153,58,0.13) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 60% at 20% 80%, rgba(180,60,30,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 60% at 80% 80%, rgba(180,60,30,0.08) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 1;
+  }
+  /* 細格紋底紋 */
+  .shrine-hall::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 29px, rgba(201,153,58,0.04) 29px, rgba(201,153,58,0.04) 30px),
+      repeating-linear-gradient(90deg, transparent, transparent 29px, rgba(201,153,58,0.04) 29px, rgba(201,153,58,0.04) 30px);
+    pointer-events: none;
+    z-index: 1;
+  }
+  .shrine-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    width: 100%;
+    max-width: 820px;
+    padding: 48px 32px;
+  }
+  .shrine-header { margin-bottom: 52px; }
+  .shrine-deco-line {
+    display: flex; align-items: center; justify-content: center;
+    gap: 12px; margin-bottom: 20px;
+  }
+  .shrine-deco-line::before,
+  .shrine-deco-line::after {
+    content: '';
+    flex: 1; max-width: 80px;
+    height: 1px;
+    background: linear-gradient(to right, transparent, #c9993a, transparent);
+  }
+  .shrine-deco-diamond {
+    width: 8px; height: 8px;
+    background: #c9993a;
+    transform: rotate(45deg);
+  }
+  .shrine-title-main {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(32px, 7vw, 54px);
+    color: #f0d89a;
+    text-shadow: 0 0 30px rgba(201,153,58,0.5), 0 2px 4px rgba(0,0,0,0.8);
+    letter-spacing: clamp(8px, 2vw, 16px);
+    margin-bottom: 12px;
+    animation: shimmer 4s ease-in-out infinite;
+  }
+  @keyframes shimmer {
+    0%,100% { text-shadow: 0 0 20px rgba(201,153,58,0.4), 0 2px 4px rgba(0,0,0,0.8); }
+    50%      { text-shadow: 0 0 40px rgba(201,153,58,0.7), 0 2px 4px rgba(0,0,0,0.8); }
+  }
+  .shrine-title-sub {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(13px, 3vw, 18px);
+    color: #c4956a;
+    letter-spacing: 5px;
+    margin-bottom: 22px;
+  }
+  .shrine-motto {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 12px;
+    color: #7a6040;
+    max-width: 480px;
+    margin: 0 auto;
+    line-height: 2;
+    letter-spacing: 1px;
+  }
+
+  /* ── 匾額按鈕 ── */
+  .shrine-actions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 52px;
+  }
+  .shrine-btn.plaque {
+    background: linear-gradient(160deg, #5a0808 0%, #3d0404 100%);
+    border: 2px solid #c9993a;
+    padding: 28px 20px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex; flex-direction: column; gap: 8px;
+    position: relative;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(201,153,58,0.2);
+    border-radius: 4px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .shrine-btn.plaque::before {
+    content: '';
+    position: absolute;
+    top: 5px; left: 5px; right: 5px; bottom: 5px;
+    border: 1px solid rgba(201,153,58,0.35);
+    border-radius: 2px;
+    pointer-events: none;
+  }
+  .shrine-btn.plaque::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(201,153,58,0.08), transparent 70%);
+    border-radius: 4px;
+    pointer-events: none;
+  }
+  .shrine-btn.plaque:hover {
+    transform: translateY(-4px) scale(1.02);
+    background: linear-gradient(160deg, #700a0a 0%, #500505 100%);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.6), 0 0 24px rgba(201,153,58,0.25);
+    border-color: #f0d89a;
+  }
+  .shrine-btn.plaque:active { transform: translateY(-1px) scale(1.01); }
+  .plaque-icon { font-size: 22px; margin-bottom: 4px; }
+  .plaque-text {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(18px, 4vw, 24px);
+    font-weight: 700;
+    color: #f0d89a;
+    letter-spacing: 3px;
+    text-shadow: 0 0 10px rgba(201,153,58,0.4);
+  }
+  .plaque-desc {
+    font-size: 11px;
+    color: rgba(196,149,106,0.7);
+    letter-spacing: 1px;
+  }
+
+  /* ── 香爐 ── */
+  .shrine-footer { color: #6a5030; font-size: 13px; letter-spacing: 3px; }
+  .incense-wrap {
+    display: flex; align-items: flex-end; justify-content: center;
+    gap: 10px; margin-bottom: 16px;
+  }
+  .incense-stick {
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .smoke-trail {
+    width: 2px;
+    height: 36px;
+    background: linear-gradient(to top, rgba(240,216,154,0.25), transparent);
+    filter: blur(1px);
+    transform-origin: bottom center;
+  }
+  .smoke-trail:nth-child(1) { animation: sway1 3.2s ease-in-out infinite; }
+  .smoke-trail:nth-child(2) { animation: sway2 2.8s ease-in-out infinite 0.4s; }
+  .smoke-trail:nth-child(3) { animation: sway1 3.5s ease-in-out infinite 0.8s; }
+  @keyframes sway1 {
+    0%,100% { transform: translateX(0) scaleY(1); opacity:0.6; }
+    50%      { transform: translateX(4px) scaleY(1.3); opacity:1; }
+  }
+  @keyframes sway2 {
+    0%,100% { transform: translateX(0) scaleY(1); opacity:0.6; }
+    50%      { transform: translateX(-4px) scaleY(1.2); opacity:1; }
+  }
+  .incense-body { width: 2px; height: 50px; background: linear-gradient(to bottom, #c9993a, #8b5e3c); }
+  .burner-body {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 28px;
+    color: #c9993a;
+    text-shadow: 0 0 12px rgba(201,153,58,0.5);
+    margin-top: 4px;
+  }
+  .shrine-footer-text { margin-top: 8px; }
+
+  /* ── 燭光粒子 ── */
+  .candle-wrap {
+    position: absolute;
+    bottom: 32px;
+    display: flex; gap: 8px; align-items: flex-end;
+  }
+  .candle-wrap.left  { left: 32px; }
+  .candle-wrap.right { right: 32px; }
+  .candle { display: flex; flex-direction: column; align-items: center; }
+  .candle-flame {
+    width: 10px; height: 16px;
+    background: radial-gradient(ellipse at 50% 80%, #f0d060 0%, #e07020 60%, transparent 100%);
+    border-radius: 50% 50% 20% 20%;
+    animation: flicker 1.8s ease-in-out infinite;
+    filter: blur(0.5px);
+  }
+  .candle-flame.small { width: 7px; height: 11px; }
+  @keyframes flicker {
+    0%,100% { transform: scaleX(1) scaleY(1); opacity:1; }
+    30%      { transform: scaleX(0.85) scaleY(1.1); opacity:0.9; }
+    70%      { transform: scaleX(1.1) scaleY(0.95); opacity:1; }
+  }
+  .candle-body { width: 14px; height: 44px; background: linear-gradient(to bottom,#f5ede3,#e0d0b0); border-radius: 2px; }
+  .candle-body.small { width: 10px; height: 30px; }
+
+  @media (max-width: 600px) {
+    .shrine-actions-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .shrine-btn.plaque { padding: 20px 12px; }
+    .candle-wrap { display: none; }
+    .shrine-content { padding: 32px 16px; }
+  }
+
+  /* ── 列印樣式 ── */
+  @media print {
+    header, nav, .toolbar, .btn, .page-title { display: none !important; }
+    body { background: white; }
+    .tree-container { box-shadow: none; border: none; }
+    .view { display: block !important; }
+    .view:not(#view-tree) { display: none !important; }
+  }
+
   /* scrollbar */
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -765,9 +998,9 @@
 <body>
 
 <header>
-  <div class="logo" onclick="switchView('history', null)" style="cursor:pointer" title="點擊查看家族沿革">📖 <span>族譜</span></div>
+  <button class="logo" onclick="goHome()" title="返回首頁紀念堂">📖 <span>族譜</span></button>
   <nav>
-    <button class="active" data-view="ancestors" onclick="switchView('ancestors',this)">
+    <button data-view="ancestors" onclick="switchView('ancestors',this)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       祖先名冊
     </button>
@@ -787,8 +1020,93 @@
 </header>
 
 <main>
+  <!-- 首頁紀念堂 -->
+  <div class="view active" id="view-home">
+    <div class="shrine-hall">
+      <!-- 燭光（左） -->
+      <div class="candle-wrap left">
+        <div class="candle">
+          <div class="candle-flame small"></div>
+          <div class="candle-body small"></div>
+        </div>
+        <div class="candle" style="margin-bottom:6px">
+          <div class="candle-flame"></div>
+          <div class="candle-body"></div>
+        </div>
+      </div>
+      <!-- 燭光（右） -->
+      <div class="candle-wrap right">
+        <div class="candle" style="margin-bottom:6px">
+          <div class="candle-flame"></div>
+          <div class="candle-body"></div>
+        </div>
+        <div class="candle">
+          <div class="candle-flame small"></div>
+          <div class="candle-body small"></div>
+        </div>
+      </div>
+
+      <div class="shrine-content">
+        <!-- 標題 -->
+        <div class="shrine-header">
+          <div class="shrine-deco-line"><div class="shrine-deco-diamond"></div></div>
+          <div class="shrine-title-main">武城衍派</div>
+          <div class="shrine-title-sub">曾氏家族紀念大堂</div>
+          <div class="shrine-deco-line"><div class="shrine-deco-diamond"></div></div>
+          <div class="shrine-motto">「吾日三省吾身：為人謀而不忠乎？與朋友交而不信乎？傳不習乎？」— 宗聖曾子</div>
+        </div>
+
+        <!-- 匾額按鈕 -->
+        <div class="shrine-actions-grid">
+          <button class="shrine-btn plaque" onclick="switchView('ancestors', null)">
+            <div class="plaque-icon">👥</div>
+            <div class="plaque-text">歷代祖先</div>
+            <div class="plaque-desc">查閱名冊與生平</div>
+          </button>
+          <button class="shrine-btn plaque" onclick="switchView('shrine', null)">
+            <div class="plaque-icon">🏛️</div>
+            <div class="plaque-text">靈骨安位</div>
+            <div class="plaque-desc">管理塔位與編號</div>
+          </button>
+          <button class="shrine-btn plaque" onclick="switchView('tree', null)">
+            <div class="plaque-icon">🌳</div>
+            <div class="plaque-text">族譜樹狀</div>
+            <div class="plaque-desc">世代傳承脈絡圖</div>
+          </button>
+          <button class="shrine-btn plaque" onclick="switchView('reminders', null)">
+            <div class="plaque-icon">🔔</div>
+            <div class="plaque-text">祭祀提醒</div>
+            <div class="plaque-desc">忌日與傳統節日</div>
+          </button>
+        </div>
+
+        <!-- 香爐 -->
+        <div class="shrine-footer">
+          <div class="incense-wrap">
+            <div class="incense-stick">
+              <div class="smoke-trail"></div>
+              <div class="incense-body"></div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center">
+              <div class="incense-stick" style="margin-bottom:4px">
+                <div class="smoke-trail"></div>
+                <div class="incense-body"></div>
+              </div>
+              <div class="burner-body">鼎</div>
+            </div>
+            <div class="incense-stick">
+              <div class="smoke-trail"></div>
+              <div class="incense-body"></div>
+            </div>
+          </div>
+          <div class="shrine-footer-text">百代春秋・薪火相傳</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- 祖先名冊 -->
-  <div class="view active" id="view-ancestors">
+  <div class="view" id="view-ancestors">
     <div class="page-title">歷代祖先名冊</div>
     <div class="toolbar">
       <div class="search-box">
@@ -850,7 +1168,25 @@
   <!-- 族譜 -->
   <div class="view" id="view-tree">
     <div class="page-title">家族族譜樹狀圖</div>
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden">
+      <!-- 工具列 -->
+      <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span style="font-size:13px;color:var(--text2);margin-right:4px">族譜圖：</span>
+        <button class="btn btn-secondary" onclick="printTree()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          列印 / PDF
+        </button>
+        <button class="btn btn-secondary" onclick="exportTreeSvg()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          儲存圖片
+        </button>
+        <button class="btn btn-secondary" onclick="shareTreeUrl()" title="複製族譜文字或呼叫系統分享">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          複製分享
+        </button>
+        <span id="treeExportStatus" style="font-size:12px;color:var(--text3);display:none"></span>
+      </div>
+      <!-- 樹狀圖容器 -->
       <div style="overflow:auto;padding:24px;min-height:300px">
         <div id="familyTree" style="min-width:500px"></div>
       </div>
@@ -1111,7 +1447,7 @@
 
 <script>
 // ─── Data Store ───────────────────────────────────────────────
-const STORAGE_KEY = 'ancestorApp_v14';
+const STORAGE_KEY = 'ancestorApp_v16';
 
 function loadData() {
   try {
@@ -1136,17 +1472,20 @@ function getDefaultAncestors() {
     { id: 'g3', name: '武六', alias: '', birth: '', death: '',
       gen: 3, parent: '奎德', origin: '', bio: '',
       tablet: '顯三世祖考諱武六之神位', avatar: '' },
-    { id: 'g4', name: '呈獅', alias: '', birth: '', death: '',
+    { id: 'g4', name: '曾呈獅', alias: '呈獅', birth: '', death: '',
       gen: 4, parent: '武六', origin: '', bio: '',
-      tablet: '顯四世祖考諱呈獅之神位', avatar: '' },
-    { id: 'g5', name: '水陀', alias: '', birth: '', death: '',
-      gen: 5, parent: '呈獅', origin: '', bio: '',
-      tablet: '顯五世祖考諱水陀之神位', avatar: '' },
-    { id: 'g6', name: '瑞麟', alias: '', birth: '', death: '',
-      gen: 6, parent: '水陀', origin: '', bio: '',
-      tablet: '顯六世祖考諱瑞麟之神位', avatar: '' },
+      tablet: '顯四世祖考曾公諱呈獅之神位', avatar: '' },
+    { id: 'g5', name: '曾水陀', alias: '水陀', birth: '', death: '',
+      gen: 5, parent: '曾呈獅', origin: '', bio: '',
+      tablet: '顯五世祖考曾公諱水陀之神位', avatar: '' },
+    { id: 'g6', name: '曾瑞麟', alias: '瑞麟', birth: '', death: '',
+      gen: 6, parent: '曾水陀', origin: '', bio: '',
+      tablet: '顯六世祖考曾公諱瑞麟之神位', avatar: '' },
+    { id: 'g6b', name: '曾實', alias: '', birth: '', death: '',
+      gen: 6, parent: '曾水陀', origin: '', bio: '',
+      tablet: '顯六世祖考曾公諱實之神位', avatar: '' },
     { id: 'g7', name: '曾人定', alias: '', birth: '', death: '',
-      gen: 7, parent: '瑞麟', origin: '', bio: '',
+      gen: 7, parent: '曾瑞麟', origin: '', bio: '',
       tablet: '顯七世祖考曾公諱人定之神位', avatar: '' },
   ];
 }
@@ -1166,14 +1505,25 @@ function switchView(view, btn) {
   const viewEl = document.getElementById('view-' + view);
   if (viewEl) viewEl.classList.add('active');
   if (btn && btn.classList && btn.classList.contains) btn.classList.add('active');
-  // Logo highlight when history active
   const logo = document.querySelector('.logo');
-  if (logo) logo.style.color = view === 'history' ? 'var(--gold)' : '';
+  if (logo) {
+    logo.style.color = view === 'history' ? 'var(--gold)' : '';
+    // 在首頁時 logo 變淡表示不可點；其他頁顯示正常可點狀態
+    logo.style.opacity = view === 'home' ? '0.45' : '1';
+    logo.style.cursor  = view === 'home' ? 'default' : 'pointer';
+    logo.title = view === 'home' ? '' : '返回首頁紀念堂';
+  }
   if (view === 'shrine') renderColumbarium();
   if (view === 'tree') renderTree();
   if (view === 'history') loadHistory();
   if (view === 'reminders') renderReminders();
   if (view === 'ancestors') renderAncestors();
+}
+
+function goHome() {
+  const homeView = document.getElementById('view-home');
+  if (homeView && homeView.classList.contains('active')) return; // 已在首頁，無動作
+  switchView('home', null);
 }
 
 // ─── Ancestor CRUD ────────────────────────────────────────────
@@ -2105,28 +2455,201 @@ function applyHistoryResult(text, fileName) {
   showNotif('✓ 族系沿革已從「' + fileName + '」匯入完成');
 }
 
+// ─── 族譜圖 列印 / 匯出 / 分享（純離線，不需外部庫）─────────────
+function printTree() {
+  const treeEl = document.getElementById('familyTree');
+  if (!treeEl || !treeEl.children.length) { showNotif('尚無族譜資料'); return; }
+
+  // 收集目前所有 CSS
+  const styles = Array.from(document.styleSheets).map(ss => {
+    try { return Array.from(ss.cssRules).map(r => r.cssText).join('\n'); }
+    catch(e) { return ''; }
+  }).join('\n');
+
+  const title = '武城衍派 曾氏族譜世系圖';
+  const html = `<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>${title}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+${styles}
+* { box-sizing: border-box; }
+body { background: #f7f4ef; margin: 0; padding: 32px; font-family: 'Noto Serif TC', serif; }
+.print-title {
+  text-align: center;
+  font-family: 'Noto Serif TC', serif;
+  font-size: 24px; font-weight: 700;
+  color: #8b5e3c; letter-spacing: 6px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #c9993a;
+  margin-bottom: 32px;
+}
+.print-sub {
+  text-align: center; font-size: 13px;
+  color: #9c8e7a; margin-top: 6px; letter-spacing: 2px;
+}
+.print-footer {
+  text-align: center; margin-top: 40px;
+  font-size: 12px; color: #9c8e7a; letter-spacing: 2px;
+  border-top: 1px solid #e0d8cc; padding-top: 12px;
+}
+@media print {
+  body { padding: 16px; }
+  .print-title { font-size: 20px; }
+}
+</style>
+</head>
+<body>
+<div class="print-title">
+  武城衍派 曾氏族譜世系圖
+  <div class="print-sub">百代春秋・薪火相傳</div>
+</div>
+${treeEl.outerHTML}
+<div class="print-footer">列印日期：${new Date().toLocaleDateString('zh-TW')} ／ 家族資料僅供內部參考</div>
+</body>
+</html>`;
+
+  // 先提示使用者，再開視窗（避免彈出視窗被封鎖）
+  let w;
+  try { w = window.open('', '_blank', 'width=1000,height=800'); } catch(e) {}
+  if (!w) {
+    showNotif('⚠️ 瀏覽器封鎖彈出視窗，請在網址列允許後再試，或直接使用瀏覽器的列印功能（Ctrl+P）');
+    return;
+  }
+  w.document.write(html);
+  w.document.close();
+  w.focus();
+  // 等字體載入後列印
+  setTimeout(() => {
+    w.print();
+    // 列印後可選擇關閉
+    // w.close();
+  }, 800);
+}
+
+function exportTreeSvg() {
+  const treeEl = document.getElementById('familyTree');
+  if (!treeEl || !treeEl.children.length) { showNotif('尚無族譜資料'); return; }
+
+  // 收集 CSS
+  const styles = Array.from(document.styleSheets).map(ss => {
+    try { return Array.from(ss.cssRules).map(r => r.cssText).join('\n'); }
+    catch(e) { return ''; }
+  }).join('\n');
+
+  const title = '武城衍派 曾氏族譜世系圖';
+  const date = new Date().toLocaleDateString('zh-TW');
+  const w = treeEl.scrollWidth + 96;
+  const h = treeEl.scrollHeight + 160;
+
+  // 用 foreignObject 把 HTML 樹狀圖嵌入 SVG
+  const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+    width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+  <defs>
+    <style>
+      ${styles}
+      body { margin: 0; padding: 0; background: #f7f4ef; }
+    </style>
+  </defs>
+  <rect width="${w}" height="${h}" fill="#f7f4ef"/>
+  <text x="${w/2}" y="36" font-family="serif" font-size="20" font-weight="bold"
+    fill="#8b5e3c" text-anchor="middle" letter-spacing="6">${title}</text>
+  <line x1="48" y1="52" x2="${w-48}" y2="52" stroke="#c9993a" stroke-width="1.5"/>
+  <foreignObject x="48" y="68" width="${w-96}" height="${h-120}">
+    <div xmlns="http://www.w3.org/1999/xhtml" style="background:#f7f4ef;padding:8px">
+      ${treeEl.innerHTML}
+    </div>
+  </foreignObject>
+  <text x="${w/2}" y="${h-16}" font-family="serif" font-size="11"
+    fill="#9c8e7a" text-anchor="middle">列印日期：${date} ／ 百代春秋・薪火相傳</text>
+</svg>`;
+
+  // 下載 SVG（可在 Inkscape / Illustrator 開啟，也可直接在瀏覽器檢視）
+  const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `曾氏族譜_${date.replace(/\//g,'-')}.svg`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showNotif('✓ SVG 已下載（可用瀏覽器開啟或截圖）');
+}
+
+async function shareTreeUrl() {
+  // 先嘗試 Web Share API，但要防止 iframe 環境報錯
+  try {
+    if (navigator.share && navigator.canShare) {
+      await navigator.share({
+        title: '武城衍派 曾氏族譜世系圖',
+        text: '百代春秋・薪火相傳\n曾氏家族歷代世系圖',
+        url: window.location.href,
+      });
+      showNotif('✓ 已分享');
+      return;
+    }
+  } catch(e) {
+    // iframe 或不支援：靜默處理，走備用方案
+    if (e.name === 'AbortError') return; // 使用者取消，不做任何事
+  }
+
+  // 備用：產生分享文字並複製到剪貼簿
+  const ancestors = appData.ancestors || [];
+  const lines = ['【武城衍派 曾氏族譜】', '百代春秋・薪火相傳', ''];
+  ancestors.forEach(a => {
+    lines.push(`第${a.gen||'?'}世　${a.name}${a.alias ? '（'+a.alias+'）' : ''}${a.spouse ? '　配偶：'+a.spouse : ''}`);
+  });
+  lines.push('');
+  lines.push(`（共 ${ancestors.length} 代，資料日期：${new Date().toLocaleDateString('zh-TW')}）`);
+  const text = lines.join('\n');
+
+  try {
+    await navigator.clipboard.writeText(text);
+    showNotif('✓ 族譜世系文字已複製，可貼至 LINE / 記事本分享');
+  } catch(e) {
+    // 最終備用：開新視窗顯示可手動複製的文字
+    const w = window.open('', '_blank', 'width=600,height=500');
+    if (w) {
+      w.document.write('<html><head><meta charset="UTF-8"><title>族譜世系</title></head><body><pre style="font-family:serif;font-size:15px;line-height:2;padding:20px">' + text.replace(/</g,'&lt;') + '</pre><p style="color:#999;font-size:12px;padding:0 20px">請全選文字後複製（Ctrl+A → Ctrl+C）</p></body></html>');
+      w.document.close();
+    } else {
+      showNotif('請允許彈出視窗，或手動截圖分享');
+    }
+  }
+}
+
 // ─── Family Tree ───────────────────────────────────────────────
 function renderTree() {
   const container = document.getElementById('familyTree');
-
-  // Build hierarchy
-  const roots = [];
-  const childrenMap = {};
-  const ancestorMap = {};
-  appData.ancestors.forEach(a => { ancestorMap[a.name] = a; });
-  appData.ancestors.forEach(a => {
-    if (!a.parent || !ancestorMap[a.parent]) {
-      roots.push(a);
-    } else {
-      if (!childrenMap[a.parent]) childrenMap[a.parent] = [];
-      childrenMap[a.parent].push(a);
-    }
-  });
 
   if (appData.ancestors.length === 0) {
     container.innerHTML = '<div style="text-align:center;padding:60px;color:var(--text3)">尚無資料，請先在「祖先名冊」新增祖先</div>';
     return;
   }
+
+  // Build hierarchy — match by name OR id
+  const roots = [];
+  const childrenMap = {};
+  const ancestorByName = {};
+  const ancestorById = {};
+  appData.ancestors.forEach(a => {
+    ancestorByName[a.name] = a;
+    ancestorById[a.id] = a;
+  });
+  appData.ancestors.forEach(a => {
+    const parentName = (a.parent || '').trim();
+    const parentExists = parentName && (ancestorByName[parentName] || ancestorById[parentName]);
+    if (!parentExists) {
+      roots.push(a);
+    } else {
+      const key = parentName;
+      if (!childrenMap[key]) childrenMap[key] = [];
+      // avoid duplicates
+      if (!childrenMap[key].find(x => x.id === a.id)) childrenMap[key].push(a);
+    }
+  });
 
   function renderNode(a) {
     const children = childrenMap[a.name] || [];
@@ -2135,11 +2658,11 @@ function renderTree() {
 
     const childrenHtml = children.length > 0 ? `
       <div class="tree-connector"></div>
-      <div class="tree-children">
-        ${children.map(c => `
+      <div class="tree-children" style="${children.length > 1 ? 'justify-content:center' : ''}">
+        ${children.map((ch, ci) => `
           <div class="tree-child-wrap">
             <div class="tree-child-connector"></div>
-            ${renderNode(c)}
+            ${renderNode(ch)}
           </div>
         `).join('')}
       </div>
@@ -2570,7 +3093,7 @@ async function restoreData(e) {
       const data = JSON.parse(ev.target.result);
       if (!data.ancestors) throw new Error('格式錯誤');
       appData = data;
-      localStorage.setItem('ancestorApp_v14', JSON.stringify(appData));
+      localStorage.setItem('ancestorApp_v16', JSON.stringify(appData));
       renderAncestors();
       showNotif('✓ 資料已從備份檔復原，共 ' + appData.ancestors.length + ' 筆');
     } catch(err) {
@@ -2591,6 +3114,11 @@ function checkAutoBackupHint() {
 
 // ─── Init ──────────────────────────────────────────────────────
 renderAncestors();
+// Logo 初始狀態：首頁時淡化
+(function() {
+  const logo = document.querySelector('.logo');
+  if (logo) { logo.style.opacity = '0.45'; logo.style.cursor = 'default'; logo.title = ''; }
+})();
 </script>
 
 <!-- Assign Columbarium Modal -->
