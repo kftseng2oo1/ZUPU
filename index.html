@@ -1,0 +1,2655 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>家譜紀念堂</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;600;700&family=Noto+Sans+TC:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #f7f4ef;
+    --surface: #ffffff;
+    --surface2: #f0ece4;
+    --border: #e0d8cc;
+    --text: #2c2416;
+    --text2: #6b5e4a;
+    --text3: #9c8e7a;
+    --accent: #8b5e3c;
+    --accent2: #c4956a;
+    --accent-light: #f5ede3;
+    --gold: #c9993a;
+    --gold-light: #f9f0dc;
+    --red: #c0392b;
+    --red-light: #fdf0ee;
+    --green: #2d6a4f;
+    --green-light: #eaf4f0;
+    --shadow: 0 2px 12px rgba(44,36,22,0.08);
+    --shadow-md: 0 4px 24px rgba(44,36,22,0.12);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    height: 60px;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow);
+  }
+  .logo {
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 700;
+    font-size: 17px;
+    color: var(--accent);
+    letter-spacing: 1px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .logo span { color: var(--gold); }
+  .logo:hover span { color: var(--accent2); }
+  .logo:hover { opacity: 0.85; }
+
+  nav { display: flex; gap: 4px; flex: 1; justify-content: flex-end; }
+  nav button {
+    background: none;
+    border: none;
+    padding: 8px 14px;
+    border-radius: var(--radius-sm);
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 14px;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  nav button:hover { background: var(--surface2); color: var(--text); }
+  nav button.active { background: var(--accent-light); color: var(--accent); font-weight: 500; }
+  nav button svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+  /* ── Layout ── */
+  main { flex: 1; padding: 24px; max-width: 1200px; width: 100%; margin: 0 auto; }
+
+  .view { display: none; }
+  .view.active { display: block; }
+
+  .page-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .page-title::before {
+    content: '';
+    width: 4px; height: 22px;
+    background: var(--accent);
+    border-radius: 2px;
+    display: block;
+  }
+
+  /* ── Ancestor Cards ── */
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .search-box {
+    flex: 1; min-width: 200px;
+    display: flex;
+    align-items: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    gap: 8px;
+  }
+  .search-box input {
+    border: none; outline: none;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    background: transparent;
+    width: 100%;
+  }
+  .search-box svg { color: var(--text3); flex-shrink: 0; }
+
+  .btn {
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    border: none;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; gap: 6px;
+    font-weight: 500;
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: #7a4f2e; }
+  .btn-secondary { background: var(--surface); color: var(--text2); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: var(--surface2); }
+  .btn-ghost { background: transparent; color: var(--text2); }
+  .btn-ghost:hover { background: var(--surface2); }
+  .btn-danger { background: var(--red-light); color: var(--red); border: 1px solid #f5c6c2; }
+  .btn-danger:hover { background: #f9d8d6; }
+  .btn svg { width: 15px; height: 15px; }
+
+  .ancestor-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+  }
+
+  .ancestor-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: var(--shadow);
+    position: relative;
+  }
+  .ancestor-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--accent2); }
+
+  .card-gen {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text3);
+    background: var(--surface2);
+    padding: 2px 8px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+  }
+  .card-avatar {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+    margin-bottom: 12px;
+    border: 2px solid var(--border);
+    overflow: hidden;
+  }
+  .card-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .card-name {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .card-dates { font-size: 13px; color: var(--text3); margin-bottom: 10px; }
+  .card-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tag {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+  .tag-pos { background: var(--gold-light); color: var(--gold); }
+  .tag-mem { background: var(--green-light); color: var(--green); }
+  .card-actions {
+    position: absolute; top: 12px; right: 12px;
+    display: flex; gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .ancestor-card:hover .card-actions { opacity: 1; }
+  .card-actions button {
+    width: 28px; height: 28px;
+    border: none; border-radius: 6px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+  }
+  .card-actions button svg { width: 13px; height: 13px; }
+  .btn-edit-card { background: var(--surface2); color: var(--text2); }
+  .btn-edit-card:hover { background: var(--accent-light); color: var(--accent); }
+  .btn-del-card { background: var(--surface2); color: var(--text3); }
+  .btn-del-card:hover { background: var(--red-light); color: var(--red); }
+
+  .empty-state {
+    grid-column: 1/-1;
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text3);
+  }
+  .empty-state svg { width: 48px; height: 48px; margin-bottom: 16px; opacity: 0.4; }
+  .empty-state p { font-size: 15px; margin-bottom: 16px; }
+
+  /* ── Tablet Placement ── */
+  /* ── Columbarium ── */
+  .columbarium-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  .columbarium-header-bar {
+    display: flex; align-items: center; gap: 12px;
+    flex-wrap: wrap;
+  }
+  .col-tabs {
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .col-tab {
+    padding: 8px 18px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    font-size: 13px; font-weight: 500;
+    cursor: pointer; color: var(--text2);
+    transition: all 0.2s;
+  }
+  .col-tab:hover { border-color: var(--accent2); color: var(--accent); }
+  .col-tab.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+  .columbarium-body {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 20px;
+    align-items: start;
+  }
+  @media(max-width:700px){ .columbarium-body { grid-template-columns: 1fr; } }
+
+  .col-tower {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .col-tower-header {
+    padding: 14px 18px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .col-tower-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 15px; font-weight: 600;
+    letter-spacing: 1px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .col-tower-sub { font-size: 12px; color: var(--text3); }
+
+  .col-floors {
+    padding: 0 16px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .col-floor {
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+  .col-floor-label {
+    background: var(--surface2);
+    padding: 7px 14px;
+    font-size: 12px; font-weight: 600;
+    color: var(--text2);
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  .col-floor-count { font-size: 11px; color: var(--text3); font-weight: 400; }
+  .col-slots {
+    padding: 10px;
+    display: flex; flex-wrap: wrap; gap: 8px;
+    min-height: 56px;
+  }
+  .col-slot {
+    width: 64px;
+    background: var(--bg);
+    border: 1.5px dashed var(--border);
+    border-radius: 6px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 6px 4px;
+    font-size: 10px; color: var(--text3);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    min-height: 52px;
+    gap: 2px;
+  }
+  .col-slot:hover { border-color: var(--accent2); background: var(--accent-light); }
+  .col-slot.occupied {
+    background: linear-gradient(160deg, #3a2008 0%, #5a3318 100%);
+    border: 1.5px solid #8b5e3c;
+    color: #f0d89a;
+    cursor: default;
+  }
+  .col-slot.occupied:hover { transform: scale(1.04); }
+  .col-slot-name {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 12px; font-weight: 600;
+    color: #f5e6b8;
+    line-height: 1.3;
+  }
+  .col-slot-gen { font-size: 9px; color: #c9993a; }
+  .col-slot-numtag {
+    font-size: 9px; font-weight: 700;
+    background: rgba(0,0,0,0.25);
+    color: #f0d89a;
+    padding: 1px 5px; border-radius: 3px;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+  }
+  .col-slot-numtag.editable {
+    background: var(--surface2);
+    color: var(--text3);
+    cursor: text;
+    border: 1px dashed var(--border);
+  }
+  .col-slot-numtag.editable:hover { background: var(--accent-light); color: var(--accent); border-color: var(--accent2); }
+  .col-slot-urn-empty {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--accent2);
+    background: var(--accent-light);
+    border: 1px dashed var(--accent2);
+    border-radius: 3px;
+    padding: 1px 5px;
+    cursor: pointer;
+    margin-top: 2px;
+    letter-spacing: 0.5px;
+    transition: all 0.15s;
+  }
+  .col-slot-urn-empty:hover { background: var(--accent); color: white; border-color: var(--accent); }
+  .col-slot-urn-occ {
+    font-size: 10px;
+    font-weight: 700;
+    color: #f0d060;
+    background: rgba(0,0,0,0.25);
+    border-radius: 3px;
+    padding: 1px 5px;
+    cursor: pointer;
+    margin-top: 2px;
+    letter-spacing: 0.5px;
+    transition: background 0.15s;
+  }
+  .col-slot-urn-occ:hover { background: rgba(255,255,255,0.15); }
+  .col-slot-add { border-style: dashed !important; opacity: 0.6; }
+  .col-slot-add:hover { opacity: 1; }
+  .col-slot-empty-icon { font-size: 16px; opacity: 0.4; }
+
+  .col-unplaced {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    max-height: 560px;
+    overflow-y: auto;
+  }
+  .col-unplaced-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    font-weight: 500; font-size: 14px; color: var(--text2);
+    position: sticky; top: 0; background: var(--surface); z-index: 1;
+  }
+  .col-unplaced-list { padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+  .col-unplaced-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 10px;
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .col-unplaced-item:hover { background: var(--accent-light); }
+  .col-unplaced-avatar {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; flex-shrink: 0;
+  }
+  .col-assign-btn {
+    margin-left: auto; font-size: 11px;
+    padding: 4px 10px;
+    background: var(--accent); color: white;
+    border: none; border-radius: 4px; cursor: pointer;
+    white-space: nowrap;
+  }
+  .col-assign-btn:hover { background: #7a4f2e; }
+
+  /* ── Family Tree ── */
+  .tree-container {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: auto;
+    min-height: 400px;
+    padding: 30px;
+  }
+  #familyTree {
+    min-width: 600px;
+  }
+
+  .tree-couple-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+  .tree-spouse-wrap {
+    display: flex;
+    align-items: center;
+  }
+  .tree-spouse-line {
+    width: 20px;
+    height: 2px;
+    background: #c4956a;
+    position: relative;
+  }
+  .tree-spouse-line::before {
+    content: '♥';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 10px;
+    color: #c4956a;
+    background: var(--bg);
+    padding: 0 2px;
+    line-height: 1;
+  }
+  .tree-spouse-node {
+    cursor: default !important;
+    opacity: 0.9;
+  }
+  .tree-spouse-node:hover {
+    border-color: #c4956a80 !important;
+  }
+  .tree-node-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .tree-node {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: var(--shadow);
+    min-width: 120px;
+    text-align: left;
+  }
+  .tree-node:hover { border-color: var(--accent2); box-shadow: var(--shadow-md); }
+  .tree-node-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .tree-node-info {}
+  .tree-node-name {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .tree-node-sub { font-size: 11px; color: var(--text3); }
+  .tree-connector { width: 2px; height: 24px; background: var(--border); }
+  .tree-children {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    position: relative;
+  }
+  .tree-children::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--border);
+  }
+  .tree-child-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .tree-child-connector { width: 2px; height: 24px; background: var(--border); }
+
+  /* ── Reminders ── */
+  .reminders-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 700px) {
+    .reminders-grid { grid-template-columns: 1fr; }
+    .shrine-layout { grid-template-columns: 1fr; }
+  }
+
+  .reminder-section-title {
+    grid-column: 1/-1;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text2);
+    margin-top: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .reminder-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    box-shadow: var(--shadow);
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .reminder-date-box {
+    background: var(--accent);
+    color: white;
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+    text-align: center;
+    min-width: 52px;
+    flex-shrink: 0;
+  }
+  .reminder-month { font-size: 11px; opacity: 0.8; }
+  .reminder-day { font-size: 22px; font-weight: 700; line-height: 1; }
+  .reminder-info { flex: 1; }
+  .reminder-name {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 3px;
+  }
+  .reminder-type { font-size: 12px; color: var(--text3); margin-bottom: 4px; }
+  .reminder-days-left {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 20px;
+    display: inline-block;
+  }
+  .days-urgent { background: var(--red-light); color: var(--red); }
+  .days-soon { background: var(--gold-light); color: var(--gold); }
+  .days-future { background: var(--green-light); color: var(--green); }
+
+  /* ── Modal ── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 1000;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    width: 100%;
+    max-width: 520px;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: translateY(10px);
+    transition: transform 0.2s;
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .modal-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 18px;
+    font-weight: 600;
+  }
+  .modal-close {
+    width: 32px; height: 32px;
+    border: none; background: var(--surface2);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text2);
+    transition: background 0.15s;
+  }
+  .modal-close:hover { background: var(--border); }
+  .modal-body { padding: 20px 24px; }
+  .modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    display: flex; gap: 10px; justify-content: flex-end;
+  }
+
+  .form-group { margin-bottom: 16px; }
+  .form-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text2);
+    margin-bottom: 6px;
+  }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-input {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--surface);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .form-input:focus { border-color: var(--accent2); }
+  textarea.form-input { resize: vertical; min-height: 80px; }
+
+  .avatar-upload {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .avatar-preview {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    overflow: hidden;
+  }
+  .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* ── Notification ── */
+  .notif {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    background: var(--text);
+    color: white;
+    padding: 12px 20px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    z-index: 9999;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s;
+    box-shadow: var(--shadow-md);
+  }
+  .notif.show { transform: translateY(0); opacity: 1; }
+
+  /* history spinner */
+  .history-spinner {
+    width: 18px; height: 18px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ── Custom Confirm Dialog ── */
+  .confirm-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 9000;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.18s;
+  }
+  .confirm-overlay.open { opacity: 1; pointer-events: all; }
+  .confirm-box {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    width: 100%; max-width: 340px;
+    padding: 28px 24px 20px;
+    transform: scale(0.95);
+    transition: transform 0.18s;
+    text-align: center;
+  }
+  .confirm-overlay.open .confirm-box { transform: scale(1); }
+  .confirm-icon { font-size: 32px; margin-bottom: 12px; }
+  .confirm-msg {
+    font-size: 15px; color: var(--text);
+    line-height: 1.7; margin-bottom: 20px;
+    font-family: 'Noto Serif TC', serif;
+  }
+  .confirm-btns { display: flex; gap: 10px; justify-content: center; }
+  .confirm-btns button { min-width: 90px; }
+
+  /* import table */
+  #importTable tbody tr { border-bottom: 1px solid var(--border); }
+  #importTable tbody tr:hover { background: var(--surface2); }
+  #importTable tbody td { padding: 9px 12px; color: var(--text); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo" onclick="switchView('history', null)" style="cursor:pointer" title="點擊查看家族沿革">📖 <span>族譜</span></div>
+  <nav>
+    <button class="active" data-view="ancestors" onclick="switchView('ancestors',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      祖先名冊
+    </button>
+    <button data-view="shrine" onclick="switchView('shrine',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>
+      靈骨塔位
+    </button>
+    <button data-view="tree" onclick="switchView('tree',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6M12 22v-6M4 12H2M22 12h-2M6.34 6.34 4.93 4.93M19.07 19.07l-1.41-1.41M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/><circle cx="12" cy="12" r="4"/></svg>
+      族譜樹狀
+    </button>
+    <button data-view="reminders" onclick="switchView('reminders',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      祭祀提醒
+    </button>
+  </nav>
+</header>
+
+<main>
+  <!-- 祖先名冊 -->
+  <div class="view active" id="view-ancestors">
+    <div class="page-title">歷代祖先名冊</div>
+    <div class="toolbar">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" placeholder="搜尋姓名…" id="searchInput" oninput="filterAncestors()">
+      </div>
+      <button class="btn btn-secondary" onclick="document.getElementById('excelInput').click()" title="匯入 Excel (.xlsx/.xls/.csv)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Excel 匯入
+      </button>
+      <button class="btn btn-secondary" onclick="document.getElementById('pdfInput').click()" title="匯入 PDF">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15v-4h2a1.5 1.5 0 0 1 0 3H9"/><path d="M14 11v4"/><path d="M14 11h2"/><path d="M14 13h1.5"/></svg>
+        PDF 匯入
+      </button>
+      <input type="file" id="excelInput" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleExcelImport(event)">
+      <input type="file" id="pdfInput" accept=".pdf" style="display:none" onchange="handlePdfImport(event)">
+      <button class="btn btn-secondary" onclick="exportExcel()" title="匯出 Excel">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        匯出
+      </button>
+      <button class="btn btn-secondary" onclick="backupData()" title="備份所有資料為 JSON">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        備份
+      </button>
+      <button class="btn btn-secondary" onclick="document.getElementById('restoreInput').click()" title="從 JSON 復原資料">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        復原
+      </button>
+      <input type="file" id="restoreInput" accept=".json" style="display:none" onchange="restoreData(event)">
+      <button class="btn btn-primary" onclick="openAddModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        新增祖先
+      </button>
+    </div>
+    <div class="ancestor-grid" id="ancestorGrid"></div>
+  </div>
+
+  <!-- 靈骨塔位 -->
+  <div class="view" id="view-shrine">
+    <div class="page-title">靈骨塔存化位置</div>
+    <div class="columbarium-wrap">
+      <div class="columbarium-header-bar">
+        <div class="col-tabs">
+          <button class="col-tab active" onclick="switchTower('A',this)">🏛️ A｜口湖鄉公所靈骨塔</button>
+          <button class="col-tab" onclick="switchTower('B_new',this)">🏛️ B｜蚵寮新塔</button>
+          <button class="col-tab" onclick="switchTower('B_old',this)">🏛️ B｜蚵寮舊塔</button>
+        </div>
+      </div>
+      <div class="columbarium-body">
+        <div class="col-tower" id="colTower"></div>
+        <div class="col-unplaced">
+          <div class="col-unplaced-header">📋 尚未登記位置</div>
+          <div class="col-unplaced-list" id="colUnplacedList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 族譜 -->
+  <div class="view" id="view-tree">
+    <div class="page-title">家族族譜樹狀圖</div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)">
+      <div style="overflow:auto;padding:24px;min-height:300px">
+        <div id="familyTree" style="min-width:500px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 家族沿革 -->
+  <div class="view" id="view-history">
+    <div class="page-title">家族沿革</div>
+    <!-- 家族沿革 -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden">
+
+        <!-- 標題列 -->
+        <div style="padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <div style="font-family:'Noto Serif TC',serif;font-size:15px;font-weight:600;color:var(--text)">
+            📜 家族沿革
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <!-- 匯入按鈕 -->
+            <button class="btn btn-secondary" onclick="document.getElementById('historyFileInput').click()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              匯入文件 / PDF
+            </button>
+            <input type="file" id="historyFileInput" accept=".txt,.pdf,.docx,.doc,.md" style="display:none" onchange="handleHistoryFileImport(event)">
+            <!-- 編輯 / 儲存 -->
+            <button class="btn btn-secondary" id="historyEditBtn" onclick="toggleHistoryEdit()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              編輯
+            </button>
+            <button class="btn btn-primary" id="historySaveBtn" onclick="saveHistory()" style="display:none">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              儲存
+            </button>
+          </div>
+        </div>
+
+        <!-- AI 處理進度條 -->
+        <div id="historyProgress" style="display:none;padding:16px 20px;border-bottom:1px solid var(--border)">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+            <div class="history-spinner"></div>
+            <span id="historyProgressMsg" style="font-size:13px;color:var(--text2)">AI 正在整理文件內容…</span>
+          </div>
+          <div style="background:var(--surface2);border-radius:4px;height:6px;overflow:hidden">
+            <div id="historyProgressBar" style="height:100%;background:var(--accent);width:0%;transition:width 0.4s;border-radius:4px"></div>
+          </div>
+        </div>
+
+        <!-- 來源標籤列 -->
+        <div id="historySourceBar" style="display:none;padding:8px 20px;background:var(--gold-light);border-bottom:1px solid #e8d89a;font-size:12px;color:#7d5a0a;display:flex;align-items:center;gap:8px">
+          <span>📎</span>
+          <span id="historySourceLabel"></span>
+          <button onclick="clearHistorySource()" style="margin-left:auto;background:none;border:none;cursor:pointer;color:#9c7a1a;font-size:11px;padding:2px 6px;border-radius:3px;hover:background:#f0e0a0">✕ 清除來源</button>
+        </div>
+
+        <!-- 顯示模式 -->
+        <div id="historyDisplay" style="padding:20px 24px;min-height:120px;line-height:2;font-size:15px;color:var(--text);white-space:pre-wrap;font-family:'Noto Serif TC',serif">
+          <span style="color:var(--text3);font-size:14px">尚未輸入家族沿革。可點擊「編輯」手動輸入，或「匯入文件 / PDF」自動擷取內容。</span>
+        </div>
+
+        <!-- 編輯模式 -->
+        <div id="historyEdit" style="display:none;padding:16px 20px">
+          <textarea id="historyTextarea"
+            style="width:100%;min-height:240px;padding:14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Noto Serif TC',serif;font-size:14px;line-height:2;color:var(--text);background:var(--bg);outline:none;resize:vertical;transition:border-color 0.15s"
+            onfocus="this.style.borderColor='var(--accent2)'" onblur="this.style.borderColor='var(--border)'"
+            placeholder="請輸入家族沿革、歷史記載、遷台始末、家訓族規等相關資料…
+
+例如：
+本族曾氏，先祖曾虎公於清朝年間渡海來台，落腳雲林口湖，勤耕務農，篳路藍縷，開創基業。二世祖奎德公繼承父志…"></textarea>
+          <div style="margin-top:8px;font-size:12px;color:var(--text3)">
+            💡 提示：可直接貼上族譜文字，或使用上方「匯入文件 / PDF」讓 AI 自動整理
+          </div>
+        </div>
+      </div>
+  </div>
+  <!-- 提醒 -->
+  <div class="view" id="view-reminders">
+    <div class="page-title">祭祀日期提醒</div>
+    <div class="reminders-grid" id="remindersGrid"></div>
+  </div>
+</main>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">新增祖先</div>
+      <button class="modal-close" onclick="closeModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">大頭照</label>
+        <div class="avatar-upload">
+          <div class="avatar-preview" id="avatarPreview">👤</div>
+          <div>
+            <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="handleAvatarChange(event)">
+            <button class="btn btn-secondary" onclick="document.getElementById('avatarInput').click()">上傳照片</button>
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">姓名 <span style="color:var(--red)">*</span></label>
+          <input type="text" class="form-input" id="f-name" placeholder="如：陳大德">
+        </div>
+        <div class="form-group">
+          <label class="form-label">字號（別名）</label>
+          <input type="text" class="form-input" id="f-alias" placeholder="如：仁山公">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">生辰</label>
+          <input type="date" class="form-input" id="f-birth">
+        </div>
+        <div class="form-group">
+          <label class="form-label">忌日</label>
+          <input type="date" class="form-input" id="f-death">
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;margin-top:-8px">
+        <label style="font-size:12px;color:var(--text2);font-weight:500">忌日曆法：</label>
+        <label style="font-size:13px;display:flex;align-items:center;gap:4px;cursor:pointer">
+          <input type="radio" name="death-cal" id="death-solar" value="solar" checked onchange="updateDeathCalLabel()"> 公曆（國曆）
+        </label>
+        <label style="font-size:13px;display:flex;align-items:center;gap:4px;cursor:pointer">
+          <input type="radio" name="death-cal" id="death-lunar" value="lunar" onchange="updateDeathCalLabel()"> 農曆
+        </label>
+        <span id="death-lunar-hint" style="display:none;font-size:12px;color:var(--gold);font-weight:500"></span>
+      </div>
+      <input type="hidden" id="f-death-calendar" value="solar">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">世代（幾世祖）</label>
+          <input type="number" class="form-input" id="f-gen" placeholder="如：66" min="1" oninput="onGenChange()">
+          <div id="gen-zibei-hint" style="display:none;margin-top:4px;font-size:12px;color:var(--gold);background:var(--gold-light);padding:4px 10px;border-radius:4px;font-weight:600"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">上一代（父/母親姓名）</label>
+          <input type="text" class="form-input" id="f-parent" placeholder="如：陳老太">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">配偶姓名</label>
+          <input type="text" class="form-input" id="f-spouse" placeholder="如：李氏春梅" oninput="toggleSpouseOrigin()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">配偶生卒年</label>
+          <input type="text" class="form-input" id="f-spouse-dates" placeholder="如：1885－1960">
+        </div>
+      </div>
+      <!-- 本人靈骨放置處 -->
+      <div class="form-group">
+        <label class="form-label">靈骨放置處（本人）</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+          <select class="form-input" id="f-origin-tower" onchange="updateFloorOptions('f-origin-tower','f-origin-floor','f-origin-slot')">
+            <option value="">選擇靈骨塔</option>
+            <option value="A">A｜口湖鄉公所靈骨塔</option>
+            <option value="B_new">B｜蚵寮新塔</option>
+            <option value="B_old">B｜蚵寮舊塔</option>
+          </select>
+          <select class="form-input" id="f-origin-floor" onchange="updateSlotOptions('f-origin-tower','f-origin-floor','f-origin-slot')">
+            <option value="">選擇樓層</option>
+          </select>
+          <select class="form-input" id="f-origin-slot">
+            <option value="">選擇號位</option>
+          </select>
+        </div>
+        <div style="margin-top:8px;display:flex;align-items:center;gap:8px">
+          <label style="font-size:12px;color:var(--text2);white-space:nowrap;font-weight:500">骨灰編號</label>
+          <input type="text" class="form-input" id="f-urn-number" placeholder="如：1498" style="max-width:160px">
+          <span style="font-size:12px;color:var(--text3)">（骨灰罐登記號碼）</span>
+        </div>
+        <input type="hidden" id="f-origin">
+      </div>
+
+      <!-- 配偶靈骨放置處 -->
+      <div class="form-group" id="spouse-origin-group" style="display:none">
+        <label class="form-label">靈骨放置處（配偶）</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+          <select class="form-input" id="f-spouse-origin-tower" onchange="updateFloorOptions('f-spouse-origin-tower','f-spouse-origin-floor','f-spouse-origin-slot')">
+            <option value="">選擇靈骨塔</option>
+            <option value="A">A｜口湖鄉公所靈骨塔</option>
+            <option value="B_new">B｜蚵寮新塔</option>
+            <option value="B_old">B｜蚵寮舊塔</option>
+          </select>
+          <select class="form-input" id="f-spouse-origin-floor" onchange="updateSlotOptions('f-spouse-origin-tower','f-spouse-origin-floor','f-spouse-origin-slot')">
+            <option value="">選擇樓層</option>
+          </select>
+          <select class="form-input" id="f-spouse-origin-slot">
+            <option value="">選擇號位</option>
+          </select>
+        </div>
+        <div style="margin-top:8px;display:flex;align-items:center;gap:8px">
+          <label style="font-size:12px;color:var(--text2);white-space:nowrap;font-weight:500">骨灰編號</label>
+          <input type="text" class="form-input" id="f-spouse-urn-number" placeholder="如：1499" style="max-width:160px">
+          <span style="font-size:12px;color:var(--text3)">（配偶骨灰罐登記號碼）</span>
+        </div>
+        <input type="hidden" id="f-spouse-origin">
+      </div>
+      <div class="form-group">
+        <label class="form-label">生平簡介</label>
+        <textarea class="form-input" id="f-bio" placeholder="記錄祖先的故事、貢獻或重要事蹟…"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">牌位題字</label>
+        <input type="text" class="form-input" id="f-tablet" placeholder="如：顯考陳公諱大德之神位（留空則自動產生）">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveAncestor()">儲存</button>
+    </div>
+  </div>
+</div>
+
+<div class="notif" id="notif"></div>
+
+<!-- Import Preview Modal -->
+<div class="modal-overlay" id="importOverlay" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal" style="max-width:760px">
+    <div class="modal-header">
+      <div class="modal-title">📋 匯入預覽　— 請確認要匯入的祖先</div>
+      <button class="modal-close" onclick="document.getElementById('importOverlay').classList.remove('open')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" style="padding:0">
+      <div style="overflow-x:auto">
+        <table id="importTable" style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead>
+            <tr style="background:var(--surface2);border-bottom:1px solid var(--border)">
+              <th style="padding:10px 12px;text-align:left;width:36px">
+                <input type="checkbox" id="impCheckAll" checked onchange="document.querySelectorAll('.imp-chk').forEach(c=>c.checked=this.checked)">
+              </th>
+              <th style="padding:10px 12px;text-align:left">姓名</th>
+              <th style="padding:10px 12px;text-align:left">字號</th>
+              <th style="padding:10px 12px;text-align:left">生辰</th>
+              <th style="padding:10px 12px;text-align:left">忌日</th>
+              <th style="padding:10px 12px;text-align:left">世</th>
+              <th style="padding:10px 12px;text-align:left">上一代</th>
+              <th style="padding:10px 12px;text-align:left">籍貫</th>
+            </tr>
+          </thead>
+          <tbody id="importTbody" style="font-family:'Noto Sans TC',sans-serif"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div style="font-size:12px;color:var(--text3);margin-right:auto">勾選要匯入的項目，已存在的姓名將自動略過</div>
+      <button class="btn btn-secondary" onclick="document.getElementById('importOverlay').classList.remove('open')">取消</button>
+      <button class="btn btn-primary" onclick="confirmImport()">確認匯入</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── Data Store ───────────────────────────────────────────────
+const STORAGE_KEY = 'ancestorApp_v14';
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return { ancestors: getDefaultAncestors(), placements: {}, familyHistory: getDefaultHistory(), familyHistorySource: '由來.pdf（整理）' };
+}
+
+function saveData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+}
+
+function getDefaultAncestors() {
+  return [
+    { id: 'g1', name: '曾虎', alias: '', birth: '', death: '',
+      gen: 1, parent: '', origin: '', bio: '',
+      tablet: '顯一世祖考曾公諱虎之神位', avatar: '' },
+    { id: 'g2', name: '奎德', alias: '', birth: '', death: '',
+      gen: 2, parent: '曾虎', origin: '', bio: '',
+      tablet: '顯二世祖考諱奎德之神位', avatar: '' },
+    { id: 'g3', name: '武六', alias: '', birth: '', death: '',
+      gen: 3, parent: '奎德', origin: '', bio: '',
+      tablet: '顯三世祖考諱武六之神位', avatar: '' },
+    { id: 'g4', name: '呈獅', alias: '', birth: '', death: '',
+      gen: 4, parent: '武六', origin: '', bio: '',
+      tablet: '顯四世祖考諱呈獅之神位', avatar: '' },
+    { id: 'g5', name: '水陀', alias: '', birth: '', death: '',
+      gen: 5, parent: '呈獅', origin: '', bio: '',
+      tablet: '顯五世祖考諱水陀之神位', avatar: '' },
+    { id: 'g6', name: '瑞麟', alias: '', birth: '', death: '',
+      gen: 6, parent: '水陀', origin: '', bio: '',
+      tablet: '顯六世祖考諱瑞麟之神位', avatar: '' },
+    { id: 'g7', name: '曾人定', alias: '', birth: '', death: '',
+      gen: 7, parent: '瑞麟', origin: '', bio: '',
+      tablet: '顯七世祖考曾公諱人定之神位', avatar: '' },
+  ];
+}
+
+function getDefaultHistory() {
+  return '曾氏家族沿革\n\n一、姓氏由來與上古淵源\n\n曾氏家族擁有上下銜接四、五千年的悠久源流，其祖脈可追溯至遠古時代。上古祖神神農氏教民耕種、製藥醫病；黃帝（公孫名軒轅）建都有熊，為天下共主；其後仁慈智慧的堯帝、以孝聞名的舜帝，以及治水有功的禹，皆為曾氏先祖。\n\n禹的第五世孫少康中興夏朝後，將最小的兒子曲烈封於「鄫」地（今山東省嶧縣），建立鄫國。春秋時代，鄫國被莒國所併，鄫國太子巫懷著亡國之痛奔往魯國，為紀念故國，決定去「邑」旁為「曾」，以「曾」為姓，此即曾姓之始。\n\n二、血脈淵源與宗聖精神\n\n曾氏後人奉孔子弟子曾子（曾參）為宗聖始祖，以「三省堂」、「武城堂」為堂號，傳承「忠恕」家風，代代不輟。\n\n歷史上曾有「曾、邱二姓聯宗」的佳話。原由福建省海澄縣新安鄉邱姓女子與曾氏子弟結緣，導致新安鄉、厚境、清漳等地的邱、曾兩姓實際上同宗一脈，使用相同的輩序昭穆，彼此間不通婚姻。\n\n三、渡台開墾史（新港開基支脈）\n\n明崇禎十五年（1642年），原籍福建省澄邑的曾振賜公渡海來台，開基於台南，為曾氏入台之始。\n\n康熙末年（約1720年），始祖兄弟五人——連公、旺公、龍公、虎公、耄公，原籍福建泉州府同安縣，由連公率領航海東渡來台，落腳雲林口湖一帶，勤耕務農，篳路藍縷，開創基業。\n\n清道光二十五年（1845年），農曆六月初八，雲嘉沿海發生大海嘯（即「萬善同歸」之由來），曾氏族人家屋被大水沖失，死傷慘重。其中曾武六公一家二十七人，竟有二十人罹難，令人哀慟。\n\n咸豐至光緒年間，曾氏族人於新港（今雲林金湖）一帶與吳姓、林姓等發生多次莊頭衝突，並曾遭受中法戰爭時期法國侵台的波及，族人避難保衛家園，歷盡艱辛，展現出極強的凝聚力。\n\n四、龍山派字輩（昭穆）\n\n龍山派為曾氏南遷後極重要的一支，源於福建省泉州府龍山地區（今晉江一帶），字輩詩意優美，強調人文薈萃與家族傳承：\n\n奎壁呈雲瑞，人文煥國華，台衡思繼武，鼎甲勵承家，\n一貫書紳永，千秋錫福遐，貽謀資燕翼，世業仰清嘉。\n\n（自第六十六世「奎」字輩起排列，象徵文運亨通、家族棟樑、繼承先志、庇蔭後代。）\n\n五、精神傳承\n\n無論身處何地，曾氏子孫皆以「宗聖曾子弟子」自居，重視「忠恕」家風，以曾子「吾日三省吾身」之精神，勉勵後代修身齊家，承先啟後，永傳家聲。';
+}
+
+let appData = loadData();
+let editingId = null;
+let currentAvatarData = '';
+
+// ─── Navigation ───────────────────────────────────────────────
+function switchView(view, btn) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  const viewEl = document.getElementById('view-' + view);
+  if (viewEl) viewEl.classList.add('active');
+  if (btn && btn.classList && btn.classList.contains) btn.classList.add('active');
+  // Logo highlight when history active
+  const logo = document.querySelector('.logo');
+  if (logo) logo.style.color = view === 'history' ? 'var(--gold)' : '';
+  if (view === 'shrine') renderColumbarium();
+  if (view === 'tree') renderTree();
+  if (view === 'history') loadHistory();
+  if (view === 'reminders') renderReminders();
+  if (view === 'ancestors') renderAncestors();
+}
+
+// ─── Ancestor CRUD ────────────────────────────────────────────
+function renderAncestors(filter = '') {
+  const grid = document.getElementById('ancestorGrid');
+  const list = appData.ancestors.filter(a => {
+    if (!filter) return true;
+    return a.name.includes(filter) ||
+      (a.alias && a.alias.includes(filter)) ||
+      (a.spouse && a.spouse.includes(filter)) ||
+      (a.bio && a.bio.includes(filter)) ||
+      (a.origin && originLabel(a.origin).includes(filter)) ||
+      (a.urnNumber && a.urnNumber.includes(filter));
+  });
+
+  if (list.length === 0) {
+    grid.innerHTML = `<div class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+      <p>${filter ? '找不到符合的祖先' : '尚未新增任何祖先資料'}</p>
+      ${!filter ? '<button class="btn btn-primary" onclick="openAddModal()">+ 新增第一位</button>' : ''}
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = list.map(a => `
+    <div class="ancestor-card" onclick="openEditModal('${a.id}')">
+      <div class="card-gen">第 ${a.gen || '?'} 世</div>
+      <div class="card-avatar">
+        ${a.avatar ? `<img src="${a.avatar}">` : getEmoji(a)}
+      </div>
+      <div class="card-name">${a.name}${a.alias ? `<span style="font-size:13px;color:var(--text3);font-weight:400;margin-left:6px">${a.alias}</span>` : ''}</div>
+      <div class="card-dates">
+        ${a.birth ? fmtDate(a.birth) : '生年不詳'} — ${a.death ? fmtDate(a.death) : ''}
+      </div>
+      ${a.spouse ? `<div style="font-size:12px;color:var(--text2);margin-bottom:4px">💑 配偶：${a.spouse}${a.spouseDates ? '（' + a.spouseDates + '）' : ''}${a.spouseOrigin ? ' 🏛️ ' + originLabel(a.spouseOrigin) : ''}${a.spouseUrnNumber ? ' No.' + a.spouseUrnNumber : ''}</div>` : ''}
+      ${(a.origin || a.urnNumber) ? `<div style="font-size:12px;color:var(--text3);margin-bottom:6px">🏛️ ${originLabel(a.origin)}${a.urnNumber ? ' ／ 骨灰編號：' + a.urnNumber : ''}</div>` : ''}
+      <div class="card-tags">
+        ${(appData.placements[a.id] && appData.placements[a.id].tower) ? '<span class="tag tag-pos">已登記塔位</span>' : ''}
+        ${a.death ? '<span class="tag tag-mem">有忌日</span>' : ''}
+      </div>
+      <div class="card-actions">
+        <button class="btn-edit-card" title="編輯" onclick="event.stopPropagation();openEditModal('${a.id}')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="btn-del-card" title="刪除" onclick="event.stopPropagation();deleteAncestor('${a.id}')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── 靈骨塔 dropdown helpers ────────────────────────────────────
+const TOWER_FLOORS = {
+  A:     ['第一樓','第二樓','第三樓'],
+  B_new: ['第一樓','第二樓','第三樓'],
+  B_old: ['第一樓','第二樓','第三樓','第四樓','第五樓'],
+};
+const TOWER_NAMES = {
+  A:     'A｜口湖鄉公所靈骨塔',
+  B_new: 'B｜蚵寮新塔',
+  B_old: 'B｜蚵寮舊塔',
+};
+
+function updateFloorOptions(towerId='f-origin-tower', floorId='f-origin-floor', slotId='f-origin-slot') {
+  const tower = document.getElementById(towerId).value;
+  const floorSel = document.getElementById(floorId);
+  const slotSel  = document.getElementById(slotId);
+  floorSel.innerHTML = '<option value="">選擇樓層</option>';
+  slotSel.innerHTML  = '<option value="">選擇號位</option>';
+  if (!tower) return;
+  (TOWER_FLOORS[tower] || []).forEach((label, i) => {
+    const opt = document.createElement('option');
+    opt.value = String(i);
+    opt.textContent = label;
+    floorSel.appendChild(opt);
+  });
+}
+
+function updateSlotOptions(towerId='f-origin-tower', floorId='f-origin-floor', slotId='f-origin-slot') {
+  const tower    = document.getElementById(towerId).value;
+  const floorIdx = document.getElementById(floorId).value;
+  const slotSel  = document.getElementById(slotId);
+  slotSel.innerHTML = '<option value="">選擇號位</option>';
+  if (!tower || floorIdx === '') return;
+  const key = tower + '_' + floorIdx;
+  const nums = (appData.slotNumbers && appData.slotNumbers[key])
+    || Array.from({length: 12}, (_, i) => String(i + 1));
+  nums.forEach((num, si) => {
+    const opt = document.createElement('option');
+    opt.value = String(si);
+    opt.textContent = num + ' 號';
+    slotSel.appendChild(opt);
+  });
+}
+
+function toggleSpouseOrigin() {
+  const name = document.getElementById('f-spouse').value.trim();
+  const group = document.getElementById('spouse-origin-group');
+  if (group) group.style.display = name ? 'block' : 'none';
+}
+
+function originLabel(originStr) {
+  if (!originStr) return '';
+  const parts = originStr.split('|');
+  const tower = parts[0]; const floorIdx = parts[1]; const slotIdx = parts[2];
+  if (!tower) return originStr;
+  const tName = TOWER_NAMES[tower] || tower;
+  const fName = TOWER_FLOORS[tower] ? (TOWER_FLOORS[tower][parseInt(floorIdx)] || '') : '';
+  const key = tower + '_' + floorIdx;
+  const nums = (appData.slotNumbers && appData.slotNumbers[key])
+    || Array.from({length: 12}, (_, i) => String(i + 1));
+  const sName = nums[parseInt(slotIdx)] ? nums[parseInt(slotIdx)] + ' 號' : '';
+  return [tName, fName, sName].filter(Boolean).join(' · ');
+}
+
+// ── 農曆工具 ───────────────────────────────────────────────────
+function updateDeathCalLabel() {
+  const isLunar = document.getElementById('death-lunar').checked;
+  document.getElementById('f-death-calendar').value = isLunar ? 'lunar' : 'solar';
+  const hint = document.getElementById('death-lunar-hint');
+  const dateVal = document.getElementById('f-death').value;
+  if (isLunar && dateVal && window.Lunar) {
+    try {
+      const parts = dateVal.split('-');
+      const lunar = Lunar.fromYmd(parseInt(parts[0]), parseInt(parts[1]), parseInt(parts[2]));
+      hint.textContent = `農曆 ${lunar.getYear()}年 ${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}`;
+      hint.style.display = 'inline';
+    } catch(e) { hint.style.display = 'none'; }
+  } else {
+    hint.style.display = 'none';
+  }
+}
+
+// 將農曆日期換算成今年公曆日期（用於提醒倒數）
+function lunarToSolarThisYear(lunarDateStr) {
+  // lunarDateStr format: "YYYY-MM-DD" stored as is, but marked lunar
+  if (!window.Lunar) return null;
+  try {
+    const parts = lunarDateStr.split('-');
+    const month = parseInt(parts[1]);
+    const day = parseInt(parts[2]);
+    const year = new Date().getFullYear();
+    // Try current year lunar date → solar
+    const lunar = Lunar.fromYmd(year, month, day);
+    const solar = lunar.getSolar();
+    const solarDate = new Date(solar.getYear(), solar.getMonth()-1, solar.getDay());
+    if (solarDate < new Date()) {
+      // Already passed this year, use next year
+      const lunarNext = Lunar.fromYmd(year+1, month, day);
+      const solarNext = lunarNext.getSolar();
+      return new Date(solarNext.getYear(), solarNext.getMonth()-1, solarNext.getDay());
+    }
+    return solarDate;
+  } catch(e) { return null; }
+}
+
+// ── 龍山派字輩對照 ─────────────────────────────────────────────
+const LONGSHAN_GEN = {
+  66:'奎',67:'壁',68:'呈',69:'雲',70:'瑞',71:'人',72:'文',73:'煥',
+  74:'國',75:'華',76:'台',77:'衡',78:'思',79:'繼',80:'武',81:'鼎',
+  82:'甲',83:'勵',84:'承',85:'家',86:'一',87:'貫',88:'書',89:'紳',
+  90:'永',91:'千',92:'秋',93:'錫',94:'福',95:'遐',96:'貽',97:'謀',
+  98:'資',99:'燕',100:'翼',101:'世',102:'業',103:'仰',104:'清',105:'嘉'
+};
+
+function onGenChange() {
+  const gen = parseInt(document.getElementById('f-gen').value);
+  const hint = document.getElementById('gen-zibei-hint');
+  if (!hint) return;
+  if (LONGSHAN_GEN[gen]) {
+    hint.textContent = `龍山派第 ${gen} 世字輩：「${LONGSHAN_GEN[gen]}」`;
+    hint.style.display = 'block';
+  } else {
+    hint.style.display = 'none';
+  }
+}
+
+function filterAncestors() {
+  renderAncestors(document.getElementById('searchInput').value.trim());
+}
+
+function getEmoji(a) {
+  const isFemale = a.name.includes('氏') || a.alias?.includes('媽') || a.alias?.includes('祖媽');
+  return isFemale ? '👵' : '👴';
+}
+
+function fmtDate(d) {
+  if (!d) return '';
+  const p = d.split('-');
+  return `${p[0]} 年 ${parseInt(p[1])} 月 ${parseInt(p[2])} 日`;
+}
+
+function openAddModal() {
+  editingId = null;
+  currentAvatarData = '';
+  document.getElementById('modalTitle').textContent = '新增祖先資料';
+  ['name','alias','birth','death','gen','parent','spouse','spouse-dates','bio','tablet','urn-number'].forEach(k => {
+    document.getElementById('f-'+k).value = '';
+  });
+  document.getElementById('avatarPreview').innerHTML = '👤';
+  const tw = document.getElementById('f-origin-tower');
+  const fl = document.getElementById('f-origin-floor');
+  const sl = document.getElementById('f-origin-slot');
+  if (tw) tw.value = '';
+  if (fl) { fl.innerHTML = '<option value="">選擇樓層</option>'; }
+  if (sl) { sl.innerHTML = '<option value="">選擇號位</option>'; }
+  document.getElementById('f-origin').value = '';
+  const stw = document.getElementById('f-spouse-origin-tower');
+  const sfl = document.getElementById('f-spouse-origin-floor');
+  const ssl = document.getElementById('f-spouse-origin-slot');
+  if (stw) stw.value = '';
+  if (sfl) { sfl.innerHTML = '<option value="">選擇樓層</option>'; }
+  if (ssl) { ssl.innerHTML = '<option value="">選擇號位</option>'; }
+  const spUrnEl = document.getElementById('f-spouse-urn-number');
+  if (spUrnEl) spUrnEl.value = '';
+  const spOriginEl = document.getElementById('f-spouse-origin');
+  if (spOriginEl) spOriginEl.value = '';
+  const spGrp = document.getElementById('spouse-origin-group');
+  if (spGrp) spGrp.style.display = 'none';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function openEditModal(id) {
+  const a = appData.ancestors.find(x => x.id === id);
+  if (!a) return;
+  editingId = id;
+  currentAvatarData = a.avatar || '';
+  document.getElementById('modalTitle').textContent = '編輯祖先資料';
+  document.getElementById('f-name').value = a.name || '';
+  document.getElementById('f-alias').value = a.alias || '';
+  document.getElementById('f-birth').value = a.birth || '';
+  const calSolar = document.getElementById('death-solar');
+  const calLunar = document.getElementById('death-lunar');
+  const calHidden = document.getElementById('f-death-calendar');
+  if (a.deathCalendar === 'lunar') {
+    if (calLunar) calLunar.checked = true;
+    if (calHidden) calHidden.value = 'lunar';
+  } else {
+    if (calSolar) calSolar.checked = true;
+    if (calHidden) calHidden.value = 'solar';
+  }
+  updateDeathCalLabel();
+  document.getElementById('f-death').value = a.death || '';
+  document.getElementById('f-gen').value = a.gen || '';
+  document.getElementById('f-parent').value = a.parent || '';
+  document.getElementById('f-spouse').value = a.spouse || '';
+  document.getElementById('f-spouse-dates').value = a.spouseDates || '';
+  // Spouse origin
+  const spouseOriginVal = a.spouseOrigin || '';
+  const spParts = spouseOriginVal.split('|');
+  const spTower = document.getElementById('f-spouse-origin-tower');
+  const spFloor = document.getElementById('f-spouse-origin-floor');
+  const spSlot  = document.getElementById('f-spouse-origin-slot');
+  if (spTower) {
+    spTower.value = spParts[0] || '';
+    updateFloorOptions('f-spouse-origin-tower','f-spouse-origin-floor','f-spouse-origin-slot');
+    if (spFloor) { spFloor.value = spParts[1] || ''; updateSlotOptions('f-spouse-origin-tower','f-spouse-origin-floor','f-spouse-origin-slot'); }
+    if (spSlot)  spSlot.value = spParts[2] || '';
+  }
+  document.getElementById('f-spouse-urn-number').value = a.spouseUrnNumber || '';
+  document.getElementById('f-spouse-origin').value = spouseOriginVal;
+  toggleSpouseOrigin();
+  // Populate靈骨放置處 dropdowns
+  const originVal = a.origin || '';
+  const originParts = originVal.split('|');  // tower|floor|slot
+  const eTower = document.getElementById('f-origin-tower');
+  const eFloor = document.getElementById('f-origin-floor');
+  const eSlot  = document.getElementById('f-origin-slot');
+  if (eTower) {
+    eTower.value = originParts[0] || '';
+    updateFloorOptions();
+    if (eFloor) { eFloor.value = originParts[1] || ''; updateSlotOptions(); }
+    if (eSlot)  eSlot.value = originParts[2] || '';
+  }
+  document.getElementById('f-origin').value = originVal;
+  document.getElementById('f-bio').value = a.bio || '';
+  document.getElementById('f-urn-number').value = a.urnNumber || '';
+  document.getElementById('f-tablet').value = a.tablet || '';
+  const prev = document.getElementById('avatarPreview');
+  prev.innerHTML = a.avatar ? `<img src="${a.avatar}">` : getEmoji(a);
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+function handleAvatarChange(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    // 壓縮至 128×128，減少 localStorage 佔用
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 128; canvas.height = 128;
+      const ctx = canvas.getContext('2d');
+      // 裁切為正方形置中
+      const size = Math.min(img.width, img.height);
+      const sx = (img.width - size) / 2;
+      const sy = (img.height - size) / 2;
+      ctx.drawImage(img, sx, sy, size, size, 0, 0, 128, 128);
+      currentAvatarData = canvas.toDataURL('image/jpeg', 0.75);
+      document.getElementById('avatarPreview').innerHTML = `<img src="${currentAvatarData}">`;
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveAncestor() {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { showNotif('請輸入姓名'); return; }
+  const gen = parseInt(document.getElementById('f-gen').value) || 1;
+  const tabletDefault = `顯祖考${name}公之神位`;
+
+  const data = {
+    name,
+    alias: document.getElementById('f-alias').value.trim(),
+    birth: document.getElementById('f-birth').value,
+    deathCalendar: document.getElementById('f-death-calendar') ? document.getElementById('f-death-calendar').value : 'solar',
+    death: document.getElementById('f-death').value,
+    gen,
+    parent: document.getElementById('f-parent').value.trim(),
+    spouse: document.getElementById('f-spouse').value.trim(),
+    spouseDates: document.getElementById('f-spouse-dates').value.trim(),
+    spouseOrigin: (() => {
+      const t = document.getElementById('f-spouse-origin-tower').value;
+      const f = document.getElementById('f-spouse-origin-floor').value;
+      const s = document.getElementById('f-spouse-origin-slot').value;
+      return [t, f, s].filter(Boolean).join('|');
+    })(),
+    spouseUrnNumber: document.getElementById('f-spouse-urn-number').value.trim(),
+    origin: (() => {
+      const t = document.getElementById('f-origin-tower').value;
+      const f = document.getElementById('f-origin-floor').value;
+      const s = document.getElementById('f-origin-slot').value;
+      return [t, f, s].filter(Boolean).join('|');
+    })(),
+    bio: document.getElementById('f-bio').value.trim(),
+    urnNumber: document.getElementById('f-urn-number').value.trim(),
+    tablet: document.getElementById('f-tablet').value.trim() || tabletDefault,
+    avatar: currentAvatarData,
+  };
+
+  let ancestorId;
+  if (editingId) {
+    const idx = appData.ancestors.findIndex(x => x.id === editingId);
+    if (idx >= 0) {
+      appData.ancestors[idx] = { ...appData.ancestors[idx], ...data };
+    }
+    ancestorId = editingId;
+    showNotif('✓ 已更新資料');
+  } else {
+    ancestorId = 'a' + Date.now();
+    appData.ancestors.push({ id: ancestorId, ...data });
+    showNotif('✓ 已新增祖先');
+    checkAutoBackupHint();
+  }
+
+  // ── 同步靈骨塔位 placements ──────────────────────────────
+  syncPlacement(ancestorId, data.origin, data.urnNumber);
+  if (data.spouse && data.spouseOrigin) {
+    // 配偶另立虛擬 ID：ancestorId + '_spouse'
+    syncPlacement(ancestorId + '_spouse', data.spouseOrigin, data.spouseUrnNumber);
+  } else {
+    // 清除配偶塔位
+    delete appData.placements[ancestorId + '_spouse'];
+  }
+
+  saveData();
+  closeModal();
+  renderAncestors();
+}
+
+// 將 origin 字串（"tower|floor|slot"）寫入 placements
+function syncPlacement(id, originStr, urnNumber) {
+  if (!originStr) {
+    delete appData.placements[id];
+    return;
+  }
+  const parts = originStr.split('|');
+  const tower = parts[0]; const floor = parseInt(parts[1]); const slot = parseInt(parts[2]);
+  if (!tower || isNaN(floor) || isNaN(slot)) {
+    delete appData.placements[id];
+    return;
+  }
+  appData.placements[id] = { tower, floor, slot };
+  // 同步骨灰編號到 slotUrnNumbers
+  if (!appData.slotUrnNumbers) appData.slotUrnNumbers = {};
+  const urnKey = tower + '_' + floor + '_' + slot;
+  if (urnNumber) appData.slotUrnNumbers[urnKey] = urnNumber;
+}
+
+async function deleteAncestor(id) {
+  const ok = await showConfirm('確定要刪除\n「' + (appData.ancestors.find(x=>x.id===id)||{}).name + '」的資料？\n此操作無法復原。', '🗑️');
+  if (!ok) return;
+  const a = appData.ancestors.find(x => x.id === id);
+  if (a) delete appData.placements[id];
+  appData.ancestors = appData.ancestors.filter(x => x.id !== id);
+  saveData();
+  renderAncestors();
+  showNotif('已刪除');
+}
+
+// ─── Columbarium (靈骨塔) ─────────────────────────────────────
+const TOWERS = {
+  A: {
+    name: 'A｜口湖鄉公所靈骨塔',
+    color: '#1a5276',
+    floors: [
+      { label: '第一樓', slots: 12 },
+      { label: '第二樓', slots: 12 },
+      { label: '第三樓', slots: 12 },
+    ]
+  },
+  B_new: {
+    name: 'B｜蚵寮新塔',
+    color: '#2d6a4f',
+    floors: [
+      { label: '第一樓', slots: 12 },
+      { label: '第二樓', slots: 12 },
+      { label: '第三樓', slots: 12 },
+    ]
+  },
+  B_old: {
+    name: 'B｜蚵寮舊塔',
+    color: '#7d6608',
+    floors: [
+      { label: '第一樓', slots: 12 },
+      { label: '第二樓', slots: 12 },
+      { label: '第三樓', slots: 12 },
+      { label: '第四樓', slots: 12 },
+      { label: '第五樓', slots: 12 },
+    ]
+  }
+};
+
+let currentTower = 'A';
+
+function switchTower(towerId, btn) {
+  currentTower = towerId;
+  document.querySelectorAll('.col-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderColumbarium();
+}
+
+function renderColumbarium() {
+  const tower = TOWERS[currentTower];
+  const placements = appData.placements || {};
+
+  // Build reverse lookup: ancestorId -> { tower, floor, slot }
+  // placements[id] = { tower:'A', floor:0, slot:3 }
+
+  const towerEl = document.getElementById('colTower');
+
+  // Tower header
+  const colorMap = { A: '#1a5276', B_new: '#2d6a4f', B_old: '#7d6608' };
+  const color = colorMap[currentTower];
+
+  let floorsHtml = tower.floors.map((f, fi) => {
+    // find occupants on this floor
+    const occupants = {};
+    appData.ancestors.forEach(a => {
+      const p = placements[a.id];
+      if (p && p.tower === currentTower && p.floor === fi) {
+        occupants[p.slot] = a;
+      }
+      // Check spouse placement
+      const sp = placements[a.id + '_spouse'];
+      if (sp && sp.tower === currentTower && sp.floor === fi && a.spouse) {
+        occupants[sp.slot] = {
+          id: a.id + '_spouse',
+          name: a.spouse,
+          gen: a.gen,
+          urnNumber: a.spouseUrnNumber || '',
+          tablet: a.spouse + '之神位',
+          _isSpouse: true,
+          _parentId: a.id,
+        };
+      }
+    });
+
+    // Get custom slot numbers for this floor (stored in appData.slotNumbers)
+    const slotKey = currentTower + '_' + fi;
+    const customSlots = (appData.slotNumbers && appData.slotNumbers[slotKey]) || 
+      Array.from({length: f.slots}, (_, i) => String(i + 1));
+
+    const slotsHtml = customSlots.map((slotNo, si) => {
+      const occ = occupants[si];
+      if (occ) {
+        const urnKeyOcc = currentTower + '_' + fi + '_' + si;
+        const urnNoOcc = (appData.slotUrnNumbers && appData.slotUrnNumbers[urnKeyOcc]) || occ.urnNumber || '';
+        return `<div class="col-slot occupied" data-rid="${occ.id}" data-ukey="${urnKeyOcc}" onclick="removeColPlacement(this.dataset.rid)">
+          <div class="col-slot-numtag">${slotNo}號</div>
+          <div class="col-slot-name">${occ.name}</div>
+          <div class="col-slot-gen">第${occ.gen||'?'}世</div>
+          <div class="col-slot-urn-occ" onclick="event.stopPropagation();editUrnNumber('${urnKeyOcc}')">
+            ${urnNoOcc ? 'No.' + urnNoOcc : '<span style=\"opacity:0.5\">No.?</span>'}
+          </div>
+        </div>`;
+      } else {
+        const urnKey = currentTower + '_' + fi + '_' + si;
+        const urnNo = (appData.slotUrnNumbers && appData.slotUrnNumbers[urnKey]) || '';
+        return `<div class="col-slot" data-tower="${currentTower}" data-fi="${fi}" data-si="${si}" onclick="openAssignModal(this.dataset.tower,+this.dataset.fi,+this.dataset.si)">
+          <div class="col-slot-numtag editable" data-tower="${currentTower}" data-fi="${fi}" data-si="${si}" data-num="${slotNo}" onclick="event.stopPropagation();editSlotNumber(this.dataset.tower,+this.dataset.fi,+this.dataset.si,this.dataset.num)">${slotNo}號</div>
+          <div class="col-slot-empty-icon">＋</div>
+          <div class="col-slot-urn-empty" data-ukey="${urnKey}" onclick="event.stopPropagation();editUrnNumber('${urnKey}')">
+            ${urnNo ? '<span style=\"color:var(--accent);font-weight:600\">No.' + urnNo + '</span>' : '<span style=\"opacity:0.45\">No.?</span>'}
+          </div>
+        </div>`;
+      }
+    }).join('');
+
+    // Add slot button
+    const addSlotBtn = `<div class="col-slot col-slot-add" data-tower="${currentTower}" data-fi="${fi}" onclick="addSlot(this.dataset.tower,+this.dataset.fi)">
+      <div style="font-size:18px;opacity:0.4">＋</div>
+      <div style="font-size:9px;color:var(--text3)">新增格</div>
+    </div>`;
+
+    const occupied = Object.keys(occupants).length;
+    return `<div class="col-floor">
+      <div class="col-floor-label">
+        ${f.label}
+        <span class="col-floor-count">${occupied} / ${customSlots.length} 位已登記</span>
+      </div>
+      <div class="col-slots">${slotsHtml}${addSlotBtn}</div>
+    </div>`;
+  }).join('');
+
+  towerEl.innerHTML = `
+    <div class="col-tower-header" style="background:${color}18;border-bottom:1px solid ${color}30">
+      <div class="col-tower-title" style="color:${color}">
+        🏛️ ${tower.name}
+      </div>
+      <div class="col-tower-sub">點擊空格登記 · 點擊已登記格移除</div>
+    </div>
+    <div class="col-floors">${floorsHtml}</div>
+  `;
+
+  // Unplaced list — ancestors with no columbarium placement
+  const placed = new Set(
+    appData.ancestors
+      .filter(a => appData.placements[a.id] && appData.placements[a.id].tower)
+      .map(a => a.id)
+  );
+  // Count ancestors who still need placement (person or spouse unplaced)
+  const unplaced = appData.ancestors.filter(a => {
+    const personPlaced = placed.has(a.id);
+    const spousePlaced = !a.spouse || (appData.placements[a.id+'_spouse'] && appData.placements[a.id+'_spouse'].tower);
+    return !personPlaced || (a.spouse && !spousePlaced);
+  });
+
+  const listEl = document.getElementById('colUnplacedList');
+  listEl.innerHTML = unplaced.length === 0
+    ? '<div style="padding:16px;text-align:center;color:var(--text3);font-size:13px">所有祖先均已登記塔位</div>'
+    : unplaced.map(a => `
+      <div class="col-unplaced-item">
+        <div class="col-unplaced-avatar">${a.avatar ? `<img src="${a.avatar}" style="width:30px;height:30px;border-radius:50%;object-fit:cover">` : getEmoji(a)}</div>
+        <div>
+          <div style="font-weight:500">${a.name}</div>
+          <div style="font-size:11px;color:var(--text3)">第 ${a.gen||'?'} 世${a.urnNumber ? ' ・ No.' + a.urnNumber : ''}</div>
+        </div>
+        <button class="col-assign-btn" onclick="openAssignPickTower('${a.id}')">選塔位</button>
+      </div>
+    `).join('');
+}
+
+function openAssignModal(towerId, floorIdx, slotIdx) {
+  // Show picker: choose an ancestor from unplaced list
+  const placed = new Set(
+    appData.ancestors
+      .filter(a => appData.placements[a.id] && appData.placements[a.id].tower)
+      .map(a => a.id)
+  );
+  // Count ancestors who still need placement (person or spouse unplaced)
+  const unplaced = appData.ancestors.filter(a => {
+    const personPlaced = placed.has(a.id);
+    const spousePlaced = !a.spouse || (appData.placements[a.id+'_spouse'] && appData.placements[a.id+'_spouse'].tower);
+    return !personPlaced || (a.spouse && !spousePlaced);
+  });
+  if (unplaced.length === 0) { showNotif('所有祖先均已登記塔位'); return; }
+
+  const tower = TOWERS[towerId];
+  const floorLabel = tower.floors[floorIdx].label;
+  const names = unplaced.map(a =>
+    `<option value="${a.id}">${a.name}（第${a.gen||'?'}世）</option>`
+  ).join('');
+
+  document.getElementById('assignTower').value = towerId;
+  document.getElementById('assignFloor').value = floorIdx;
+  document.getElementById('assignSlot').value = slotIdx;
+  document.getElementById('assignSelect').innerHTML = names;
+  document.getElementById('assignTitle').textContent =
+    `${tower.name} · ${floorLabel} · 第${slotIdx+1}號位`;
+  document.getElementById('assignOverlay').classList.add('open');
+}
+
+function openAssignPickTower(ancestorId) {
+  // Find first empty slot in current tower and assign
+  const tower = TOWERS[currentTower];
+  const placements = appData.placements || {};
+
+  for (let fi = 0; fi < tower.floors.length; fi++) {
+    for (let si = 0; si < tower.floors[fi].slots; si++) {
+      const occupied = appData.ancestors.some(a => {
+        const p = placements[a.id];
+        return p && p.tower === currentTower && p.floor === fi && p.slot === si;
+      });
+      if (!occupied) {
+        appData.placements[ancestorId] = { tower: currentTower, floor: fi, slot: si };
+        saveData();
+        renderColumbarium();
+        const a = appData.ancestors.find(x => x.id === ancestorId);
+        showNotif(`${a.name} 已登記至 ${tower.name} ${tower.floors[fi].label} 第${si+1}號位`);
+        return;
+      }
+    }
+  }
+  showNotif('目前選擇的靈骨塔已無空位，請切換至其他塔');
+}
+
+function confirmAssign() {
+  const ancestorId = document.getElementById('assignSelect').value;
+  const towerId = document.getElementById('assignTower').value;
+  const floorIdx = parseInt(document.getElementById('assignFloor').value);
+  const slotIdx = parseInt(document.getElementById('assignSlot').value);
+  if (!ancestorId) { showNotif('請選擇祖先'); return; }
+
+  appData.placements[ancestorId] = { tower: towerId, floor: floorIdx, slot: slotIdx };
+  saveData();
+  document.getElementById('assignOverlay').classList.remove('open');
+  renderColumbarium();
+  const a = appData.ancestors.find(x => x.id === ancestorId);
+  const tower = TOWERS[towerId];
+  showNotif(`✓ ${a.name} 已登記至 ${tower.name} ${tower.floors[floorIdx].label} 第${slotIdx+1}號位`);
+}
+
+function editUrnNumber(urnKey) {
+  if (!appData.slotUrnNumbers) appData.slotUrnNumbers = {};
+  const current = appData.slotUrnNumbers[urnKey] || '';
+  // Show inline input dialog via showInputDialog
+  showInputDialog('輸入骨灰編號', '請輸入骨灰罐登記號碼（如：1386）', current, (val) => {
+    if (val === null) return; // cancelled
+    if (val.trim() === '') {
+      delete appData.slotUrnNumbers[urnKey];
+    } else {
+      appData.slotUrnNumbers[urnKey] = val.trim();
+    }
+    saveData();
+    renderColumbarium();
+    showNotif(val.trim() ? '✓ 骨灰編號已設為 No.' + val.trim() : '已清除骨灰編號');
+  });
+}
+
+function addSlot(towerId, floorIdx) {
+  if (!appData.slotNumbers) appData.slotNumbers = {};
+  const key = towerId + '_' + floorIdx;
+  const tower = TOWERS[towerId];
+  const currentLen = (appData.slotNumbers[key] || Array.from({length: tower.floors[floorIdx].slots}, (_, i) => String(i+1))).length;
+  showInputDialog('新增格位編號', '請輸入新格位的號碼（如：13 或 A-5）', String(currentLen + 1), (newNum) => {
+    if (!newNum) return;
+    if (!appData.slotNumbers[key]) {
+      appData.slotNumbers[key] = Array.from({length: tower.floors[floorIdx].slots}, (_, i) => String(i+1));
+    }
+    appData.slotNumbers[key].push(newNum.trim());
+    saveData();
+    renderColumbarium();
+    showNotif('已新增 ' + newNum.trim() + ' 號格位');
+  });
+}
+
+function editSlotNumber(towerId, floorIdx, slotIdx, currentVal) {
+  showInputDialog('修改格位號碼', '請輸入新的格位號碼', currentVal, (newNum) => {
+    if (!newNum || newNum.trim() === currentVal) return;
+    if (!appData.slotNumbers) appData.slotNumbers = {};
+    const key = towerId + '_' + floorIdx;
+    const tower = TOWERS[towerId];
+    if (!appData.slotNumbers[key]) {
+      appData.slotNumbers[key] = Array.from({length: tower.floors[floorIdx].slots}, (_, i) => String(i+1));
+    }
+    appData.slotNumbers[key][slotIdx] = newNum.trim();
+    saveData();
+    renderColumbarium();
+    showNotif('格位編號已改為 ' + newNum.trim());
+  });
+}
+
+async function removeColPlacement(ancestorId) {
+  const ok = await showConfirm('確定要移除此塔位登記？', '🏛️');
+  if (!ok) return;
+  delete appData.placements[ancestorId];
+  // If removing a person, also clear their origin in ancestor data
+  const isSpouse = ancestorId.endsWith('_spouse');
+  const realId = isSpouse ? ancestorId.replace('_spouse','') : ancestorId;
+  const a = appData.ancestors.find(x => x.id === realId);
+  if (a) {
+    if (isSpouse) { a.spouseOrigin = ''; }
+    else { a.origin = ''; }
+  }
+  saveData();
+  renderColumbarium();
+  showNotif('已移除塔位登記');
+}
+
+// ─── Family History 家族沿革 ───────────────────────────────────
+function loadHistory() {
+  const text = appData.familyHistory || '';
+  const display = document.getElementById('historyDisplay');
+  if (!display) return;
+  if (text) {
+    display.style.whiteSpace = 'pre-wrap';
+    display.textContent = text;
+  } else {
+    display.innerHTML = '<span style="color:var(--text3);font-size:14px">尚未輸入家族沿革。可點擊「編輯」手動輸入，或「匯入文件 / PDF」自動擷取內容。</span>';
+  }
+  const ta = document.getElementById('historyTextarea');
+  if (ta) ta.value = text;
+
+  // Source bar
+  const srcBar = document.getElementById('historySourceBar');
+  const srcLabel = document.getElementById('historySourceLabel');
+  if (appData.familyHistorySource) {
+    srcBar.style.display = 'flex';
+    srcLabel.textContent = '來源：' + appData.familyHistorySource;
+  } else {
+    srcBar.style.display = 'none';
+  }
+}
+
+function toggleHistoryEdit() {
+  const editDiv = document.getElementById('historyEdit');
+  const displayDiv = document.getElementById('historyDisplay');
+  const editBtn = document.getElementById('historyEditBtn');
+  const saveBtn = document.getElementById('historySaveBtn');
+  const ta = document.getElementById('historyTextarea');
+  ta.value = appData.familyHistory || '';
+  editDiv.style.display = 'block';
+  displayDiv.style.display = 'none';
+  editBtn.style.display = 'none';
+  saveBtn.style.display = '';
+  ta.focus();
+}
+
+function saveHistory() {
+  const ta = document.getElementById('historyTextarea');
+  appData.familyHistory = ta.value.trim();
+  saveData();
+  document.getElementById('historyEdit').style.display = 'none';
+  document.getElementById('historyDisplay').style.display = '';
+  document.getElementById('historyEditBtn').style.display = '';
+  document.getElementById('historySaveBtn').style.display = 'none';
+  loadHistory();
+  showNotif('✓ 家族沿革已儲存');
+}
+
+function clearHistorySource() {
+  appData.familyHistorySource = '';
+  saveData();
+  loadHistory();
+}
+
+// ── History File Import ────────────────────────────────────────
+async function handleHistoryFileImport(e) {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if (!file) return;
+
+  const ext = file.name.split('.').pop().toLowerCase();
+  const fileName = file.name;
+
+  // Show progress
+  setHistoryProgress(true, '正在讀取檔案…', 15);
+
+  try {
+    let extractedText = '';
+
+    if (ext === 'txt' || ext === 'md') {
+      // Plain text - read directly
+      extractedText = await readFileAsText(file);
+      setHistoryProgress(true, 'AI 正在整理內容…', 50);
+      await processHistoryWithAI(extractedText, fileName);
+
+    } else if (ext === 'pdf') {
+      // PDF - use Claude API with base64
+      setHistoryProgress(true, 'AI 正在解析 PDF…', 30);
+      const base64 = await readFileAsBase64(file);
+      await processHistoryPdfWithAI(base64, fileName);
+
+    } else if (ext === 'docx' || ext === 'doc') {
+      // DOCX - use mammoth via CDN
+      setHistoryProgress(true, '正在解析 Word 文件…', 20);
+      await loadMammoth();
+      const arrayBuffer = await readFileAsArrayBuffer(file);
+      const result = await mammoth.extractRawText({ arrayBuffer });
+      extractedText = result.value;
+      setHistoryProgress(true, 'AI 正在整理內容…', 55);
+      await processHistoryWithAI(extractedText, fileName);
+
+    } else {
+      setHistoryProgress(false);
+      showNotif('⚠️ 不支援此格式，請使用 .txt .pdf .docx');
+    }
+  } catch(err) {
+    setHistoryProgress(false);
+    showNotif('⚠️ 匯入失敗：' + err.message);
+  }
+}
+
+function setHistoryProgress(show, msg = '', pct = 0) {
+  const el = document.getElementById('historyProgress');
+  const msgEl = document.getElementById('historyProgressMsg');
+  const bar = document.getElementById('historyProgressBar');
+  if (!el) return;
+  el.style.display = show ? 'block' : 'none';
+  if (msgEl) msgEl.textContent = msg;
+  if (bar) bar.style.width = pct + '%';
+}
+
+function readFileAsText(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = ev => res(ev.target.result);
+    r.onerror = () => rej(new Error('讀取失敗'));
+    r.readAsText(file, 'UTF-8');
+  });
+}
+
+function readFileAsBase64(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = ev => res(ev.target.result.split(',')[1]);
+    r.onerror = () => rej(new Error('讀取失敗'));
+    r.readAsDataURL(file);
+  });
+}
+
+function readFileAsArrayBuffer(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = ev => res(ev.target.result);
+    r.onerror = () => rej(new Error('讀取失敗'));
+    r.readAsArrayBuffer(file);
+  });
+}
+
+function loadMammoth() {
+  if (window.mammoth) return Promise.resolve();
+  return new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js';
+    s.onload = res;
+    s.onerror = () => rej(new Error('無法載入 Word 解析器'));
+    document.head.appendChild(s);
+  });
+}
+
+async function processHistoryWithAI(rawText, fileName) {
+  setHistoryProgress(true, 'AI 正在整理族系沿革…', 60);
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 2000,
+        system: `你是一位專業的族譜整理員。請將以下文字整理成流暢的「家族沿革」文章，以繁體中文書寫，保留所有人名、地名、年代、重要事蹟，段落清晰，文風典雅莊重。直接輸出整理後的文章，不要加任何說明或標題。`,
+        messages: [{ role: 'user', content: `請整理以下家族文件內容：
+
+${rawText.slice(0, 8000)}` }]
+      })
+    });
+    setHistoryProgress(true, '整理完成，正在儲存…', 90);
+    const data = await resp.json();
+    const text = (data.content || []).map(b => b.text || '').join('').trim();
+    if (!text) throw new Error('AI 未回傳內容');
+    applyHistoryResult(text, fileName);
+  } catch(err) {
+    throw new Error('AI 整理失敗：' + err.message);
+  }
+}
+
+async function processHistoryPdfWithAI(base64, fileName) {
+  setHistoryProgress(true, 'AI 正在解析 PDF 並整理族系沿革…', 40);
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 2000,
+        system: `你是一位專業的族譜整理員。請將文件中的內容整理成流暢的「家族沿革」文章，以繁體中文書寫，保留所有人名、地名、年代、重要事蹟，段落清晰，文風典雅莊重。直接輸出整理後的文章，不要加任何說明或標題。`,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64 } },
+            { type: 'text', text: '請整理這份文件中的家族歷史資料，寫成家族沿革文章。' }
+          ]
+        }]
+      })
+    });
+    setHistoryProgress(true, '整理完成，正在儲存…', 90);
+    const data = await resp.json();
+    const text = (data.content || []).map(b => b.text || '').join('').trim();
+    if (!text) throw new Error('AI 未回傳內容');
+    applyHistoryResult(text, fileName);
+  } catch(err) {
+    throw new Error('PDF 解析失敗：' + err.message);
+  }
+}
+
+function applyHistoryResult(text, fileName) {
+  appData.familyHistory = text;
+  appData.familyHistorySource = fileName + '（AI 整理）';
+  saveData();
+  setHistoryProgress(false);
+  loadHistory();
+  // Make sure we're in display mode
+  document.getElementById('historyEdit').style.display = 'none';
+  document.getElementById('historyDisplay').style.display = '';
+  document.getElementById('historyEditBtn').style.display = '';
+  document.getElementById('historySaveBtn').style.display = 'none';
+  showNotif('✓ 族系沿革已從「' + fileName + '」匯入完成');
+}
+
+// ─── Family Tree ───────────────────────────────────────────────
+function renderTree() {
+  const container = document.getElementById('familyTree');
+
+  // Build hierarchy
+  const roots = [];
+  const childrenMap = {};
+  const ancestorMap = {};
+  appData.ancestors.forEach(a => { ancestorMap[a.name] = a; });
+  appData.ancestors.forEach(a => {
+    if (!a.parent || !ancestorMap[a.parent]) {
+      roots.push(a);
+    } else {
+      if (!childrenMap[a.parent]) childrenMap[a.parent] = [];
+      childrenMap[a.parent].push(a);
+    }
+  });
+
+  if (appData.ancestors.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:60px;color:var(--text3)">尚無資料，請先在「祖先名冊」新增祖先</div>';
+    return;
+  }
+
+  function renderNode(a) {
+    const children = childrenMap[a.name] || [];
+    const genColors = ['#8b5e3c','#2d6a4f','#1a5276','#6c3483','#7d6608'];
+    const color = genColors[(a.gen - 1) % genColors.length] || '#8b5e3c';
+
+    const childrenHtml = children.length > 0 ? `
+      <div class="tree-connector"></div>
+      <div class="tree-children">
+        ${children.map(c => `
+          <div class="tree-child-wrap">
+            <div class="tree-child-connector"></div>
+            ${renderNode(c)}
+          </div>
+        `).join('')}
+      </div>
+    ` : '';
+
+    // Spouse node HTML
+    const spouseHtml = a.spouse ? `
+      <div class="tree-spouse-wrap">
+        <div class="tree-spouse-line"></div>
+        <div class="tree-node tree-spouse-node" style="border-color:#c4956a40;opacity:0.85">
+          <div class="tree-node-avatar" style="background:#c4956a18;font-size:16px">
+            ${a.spouse.includes('氏') || a.spouse.includes('媽') ? '👵' : '👴'}
+          </div>
+          <div class="tree-node-info">
+            <div class="tree-node-name" style="color:#c4956a">${a.spouse}</div>
+            <div class="tree-node-sub">配偶${a.spouseDates ? '　' + a.spouseDates : ''}</div>
+          </div>
+        </div>
+      </div>` : '';
+
+    return `
+      <div class="tree-node-wrap">
+        <div class="tree-couple-row">
+          <div class="tree-node" onclick="openEditModal('${a.id}')" style="border-color:${color}40">
+            <div class="tree-node-avatar" style="background:${color}18;font-size:16px">
+              ${a.avatar ? `<img src="${a.avatar}" style="width:36px;height:36px;border-radius:50%;object-fit:cover">` : getEmoji(a)}
+            </div>
+            <div class="tree-node-info">
+              <div class="tree-node-name" style="color:${color}">${a.name}</div>
+              <div class="tree-node-sub">第${a.gen||'?'}世 ${a.birth ? a.birth.slice(0,4)+'年' : ''}</div>
+            </div>
+          </div>
+          ${spouseHtml}
+        </div>
+        ${childrenHtml}
+      </div>
+    `;
+  }
+
+  container.innerHTML = `
+    <div style="display:flex;gap:40px;flex-wrap:wrap;align-items:flex-start">
+      ${roots.map(r => renderNode(r)).join('')}
+    </div>
+  `;
+}
+
+// ─── Reminders ────────────────────────────────────────────────
+const TRADITIONAL_DATES = [
+  { name: '清明節', date: `${new Date().getFullYear()}-04-04`, type: '傳統節日掃墓' },
+  { name: '中元節', date: `${new Date().getFullYear()}-08-15`, type: '普渡祭祖' },
+  { name: '冬至', date: `${new Date().getFullYear()}-12-22`, type: '冬至祭祖' },
+  { name: '除夕圍爐', date: `${new Date().getFullYear()}-01-28`, type: '年夜飯祭祖' },
+];
+
+function renderReminders() {
+  const grid = document.getElementById('remindersGrid');
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  const items = [];
+
+  // Memorial dates from ancestors
+  appData.ancestors.forEach(a => {
+    if (a.death) {
+      let targetDate;
+      if (a.deathCalendar === 'lunar' && window.Lunar) {
+        // 農曆轉換
+        targetDate = lunarToSolarThisYear(a.death);
+        if (!targetDate) {
+          const d = new Date(a.death);
+          targetDate = new Date(today.getFullYear(), d.getMonth(), d.getDate());
+          if (targetDate < today) targetDate.setFullYear(today.getFullYear() + 1);
+        }
+      } else {
+        const d = new Date(a.death);
+        targetDate = new Date(today.getFullYear(), d.getMonth(), d.getDate());
+        if (targetDate < today) targetDate.setFullYear(today.getFullYear() + 1);
+      }
+      const diff = Math.round((targetDate - today) / 86400000);
+      const calLabel = a.deathCalendar === 'lunar' ? '農曆忌日' : '忌日';
+      items.push({ name: a.name, date: targetDate, diff, type: calLabel, isAncestor: true });
+    }
+  });
+
+  // Traditional festivals
+  TRADITIONAL_DATES.forEach(t => {
+    const d = new Date(t.date);
+    if (d < today) d.setFullYear(today.getFullYear() + 1);
+    const diff = Math.round((d - today) / 86400000);
+    items.push({ name: t.name, date: d, diff, type: t.type, isAncestor: false });
+  });
+
+  items.sort((a, b) => a.diff - b.diff);
+
+  function daysLabel(diff) {
+    if (diff === 0) return ['今天', 'days-urgent'];
+    if (diff <= 7) return [`還有 ${diff} 天`, 'days-urgent'];
+    if (diff <= 30) return [`還有 ${diff} 天`, 'days-soon'];
+    return [`還有 ${diff} 天`, 'days-future'];
+  }
+
+  const ancestorItems = items.filter(i => i.isAncestor);
+  const festivalItems = items.filter(i => !i.isAncestor);
+
+  let html = '';
+  if (ancestorItems.length > 0) {
+    html += `<div class="reminder-section-title">🕯️ 祖先忌日</div>`;
+    html += ancestorItems.map(i => {
+      const [label, cls] = daysLabel(i.diff);
+      const month = i.date.getMonth() + 1;
+      const day = i.date.getDate();
+      return `
+        <div class="reminder-card">
+          <div class="reminder-date-box" style="background:var(--accent)">
+            <div class="reminder-month">${month} 月</div>
+            <div class="reminder-day">${day}</div>
+          </div>
+          <div class="reminder-info">
+            <div class="reminder-name">${i.name}</div>
+            <div class="reminder-type">${i.type}</div>
+            <span class="reminder-days-left ${cls}">${label}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+  } else {
+    html += `<div class="reminder-section-title">🕯️ 祖先忌日</div>
+      <div style="grid-column:1/-1;padding:20px;text-align:center;color:var(--text3);font-size:13px;background:var(--surface);border-radius:var(--radius);border:1px solid var(--border)">
+        尚未為祖先記錄忌日
+      </div>`;
+  }
+
+  html += `<div class="reminder-section-title">🏮 傳統祭祀節日</div>`;
+  html += festivalItems.map(i => {
+    const [label, cls] = daysLabel(i.diff);
+    const month = i.date.getMonth() + 1;
+    const day = i.date.getDate();
+    return `
+      <div class="reminder-card">
+        <div class="reminder-date-box" style="background:var(--gold)">
+          <div class="reminder-month">${month} 月</div>
+          <div class="reminder-day">${day}</div>
+        </div>
+        <div class="reminder-info">
+          <div class="reminder-name">${i.name}</div>
+          <div class="reminder-type">${i.type}</div>
+          <span class="reminder-days-left ${cls}">${label}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  grid.innerHTML = html;
+}
+
+// ─── Custom Input Dialog ──────────────────────────────────────
+let _inputCallback = null;
+
+function showInputDialog(title, subtitle, currentVal, callback) {
+  _inputCallback = callback;
+  document.getElementById('inputDialogTitle').textContent = title;
+  document.getElementById('inputDialogSub').textContent = subtitle;
+  document.getElementById('inputDialogField').value = currentVal || '';
+  document.getElementById('inputDialogOverlay').classList.add('open');
+  setTimeout(() => {
+    const f = document.getElementById('inputDialogField');
+    f.focus(); f.select();
+  }, 120);
+}
+
+function inputDialogConfirm() {
+  const val = document.getElementById('inputDialogField').value;
+  document.getElementById('inputDialogOverlay').classList.remove('open');
+  if (_inputCallback) { _inputCallback(val); _inputCallback = null; }
+}
+
+function inputDialogCancel() {
+  document.getElementById('inputDialogOverlay').classList.remove('open');
+  if (_inputCallback) { _inputCallback(null); _inputCallback = null; }
+}
+
+// ─── Custom Confirm Dialog ────────────────────────────────────
+let _confirmResolve = null;
+
+function showConfirm(msg, icon = '⚠️') {
+  return new Promise(resolve => {
+    _confirmResolve = resolve;
+    document.getElementById('confirmMsg').textContent = msg;
+    document.getElementById('confirmIcon').textContent = icon;
+    document.getElementById('confirmOverlay').classList.add('open');
+  });
+}
+
+function confirmResolve(result) {
+  document.getElementById('confirmOverlay').classList.remove('open');
+  if (_confirmResolve) { _confirmResolve(result); _confirmResolve = null; }
+}
+
+// ─── Notification ──────────────────────────────────────────────
+function showNotif(msg) {
+  const el = document.getElementById('notif');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ─── Import Preview Modal ──────────────────────────────────────
+let importQueue = [];
+
+function showImportPreview(rows) {
+  importQueue = rows;
+  const overlay = document.getElementById('importOverlay');
+  const tbody = document.getElementById('importTbody');
+  tbody.innerHTML = rows.map((r,i) => `
+    <tr>
+      <td><input type="checkbox" class="imp-chk" data-idx="${i}" checked></td>
+      <td>${r.name||''}</td>
+      <td>${r.alias||''}</td>
+      <td>${r.birth||''}</td>
+      <td>${r.death||''}</td>
+      <td>${r.gen||''}</td>
+      <td>${r.parent||''}</td>
+      <td>${r.origin||''}</td>
+    </tr>
+  `).join('');
+  overlay.classList.add('open');
+}
+
+function confirmImport() {
+  const checked = [...document.querySelectorAll('.imp-chk:checked')].map(el => parseInt(el.dataset.idx));
+  let added = 0;
+  checked.forEach(idx => {
+    const r = importQueue[idx];
+    if (!r.name) return;
+    const exists = appData.ancestors.find(a => a.name === r.name);
+    if (exists) return;
+    appData.ancestors.push({
+      id: 'a' + Date.now() + Math.random(),
+      name: r.name, alias: r.alias||'',
+      birth: r.birth||'', death: r.death||'',
+      gen: parseInt(r.gen)||1, parent: r.parent||'',
+      origin: r.origin||'', bio: r.bio||'',
+      tablet: r.tablet || `顯祖考${r.name}公之神位`,
+      avatar: ''
+    });
+    added++;
+  });
+  saveData();
+  document.getElementById('importOverlay').classList.remove('open');
+  renderAncestors();
+  showNotif(`✓ 已匯入 ${added} 位祖先`);
+}
+
+// ─── Excel Import ──────────────────────────────────────────────
+function handleExcelImport(e) {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if (!file) return;
+
+  const ext = file.name.split('.').pop().toLowerCase();
+
+  if (ext === 'csv') {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const rows = parseCSV(ev.target.result);
+      showImportPreview(rows);
+    };
+    reader.readAsText(file, 'UTF-8');
+    return;
+  }
+
+  // xlsx/xls — use SheetJS from CDN
+  if (!window.XLSX) {
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    script.onload = () => doXlsxImport(file);
+    script.onerror = () => showNotif('⚠️ 無法載入 Excel 解析器，請改用 CSV 格式');
+    document.head.appendChild(script);
+  } else {
+    doXlsxImport(file);
+  }
+}
+
+function doXlsxImport(file) {
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const wb = XLSX.read(ev.target.result, { type: 'array' });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const data = XLSX.utils.sheet_to_json(ws, { defval: '' });
+      const rows = data.map(mapRowFields);
+      if (rows.length === 0) { showNotif('⚠️ 找不到資料，請確認欄位格式'); return; }
+      showImportPreview(rows);
+    } catch(err) {
+      showNotif('⚠️ 解析失敗：' + err.message);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  if (lines.length < 2) return [];
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g,''));
+  return lines.slice(1).map(line => {
+    const vals = line.split(',').map(v => v.trim().replace(/^"|"$/g,''));
+    const obj = {};
+    headers.forEach((h,i) => obj[h] = vals[i]||'');
+    return mapRowFields(obj);
+  }).filter(r => r.name);
+}
+
+const FIELD_MAP = {
+  name:   ['姓名','名字','name','Name'],
+  alias:  ['字號','別名','alias','Alias'],
+  birth:  ['生辰','出生日期','birth','Birth','生年'],
+  death:  ['忌日','卒日','death','Death','逝世'],
+  gen:    ['世代','幾世','gen','Gen','世'],
+  parent: ['父親','母親','上一代','parent','Parent'],
+  origin: ['籍貫','故居','origin','Origin'],
+  bio:    ['簡介','生平','bio','Bio','備註'],
+  tablet: ['牌位','題字','tablet','Tablet'],
+};
+
+function mapRowFields(row) {
+  const out = {};
+  for (const [key, aliases] of Object.entries(FIELD_MAP)) {
+    for (const alias of aliases) {
+      if (row[alias] !== undefined && row[alias] !== '') {
+        out[key] = String(row[alias]);
+        break;
+      }
+    }
+    if (!out[key]) out[key] = '';
+  }
+  return out;
+}
+
+// ─── PDF Import (AI-powered via Claude API) ────────────────────
+function handlePdfImport(e) {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if (!file) return;
+
+  showNotif('📄 正在解析 PDF…');
+
+  const reader = new FileReader();
+  reader.onload = async ev => {
+    const base64 = ev.target.result.split(',')[1];
+    try {
+      const resp = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 2000,
+          system: `你是一個家族族譜資料解析助手。請從文件中找出所有祖先人物資訊，以 JSON 陣列回傳，每筆包含以下欄位（找不到的留空字串）：
+name, alias, birth（YYYY-MM-DD 格式），death（YYYY-MM-DD 格式），gen（數字），parent, origin, bio, tablet
+只回傳純 JSON 陣列，不要任何說明文字或 markdown。`,
+          messages: [{
+            role: 'user',
+            content: [
+              { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64 } },
+              { type: 'text', text: '請解析這份文件中的祖先資料' }
+            ]
+          }]
+        })
+      });
+      const data = await resp.json();
+      const text = (data.content||[]).map(b => b.text||'').join('');
+      const clean = text.replace(/```json|```/g,'').trim();
+      const rows = JSON.parse(clean);
+      if (!Array.isArray(rows) || rows.length === 0) { showNotif('⚠️ 未能從 PDF 識別祖先資料'); return; }
+      showImportPreview(rows);
+    } catch(err) {
+      showNotif('⚠️ PDF 解析失敗：' + err.message);
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+// ─── Export Excel ──────────────────────────────────────────────
+function exportExcel() {
+  if (!window.XLSX) {
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    script.onload = doExport;
+    document.head.appendChild(script);
+  } else { doExport(); }
+}
+function doExport() {
+  const data = appData.ancestors.map(a => ({
+    '姓名': a.name, '字號': a.alias, '生辰': a.birth, '忌日': a.death,
+    '世代': a.gen, '上一代': a.parent, '籍貫': a.origin, '生平': a.bio, '牌位': a.tablet
+  }));
+  const ws = XLSX.utils.json_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, '祖先名冊');
+  XLSX.writeFile(wb, '族譜資料.xlsx');
+  showNotif('✓ 已匯出 族譜資料.xlsx');
+}
+
+// ─── 備份 / 復原 ──────────────────────────────────────────────
+function backupData() {
+  const json = JSON.stringify(appData, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const date = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `族譜備份_${date}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showNotif('✓ 備份已下載：族譜備份_' + date + '.json');
+}
+
+async function restoreData(e) {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if (!file) return;
+  const ok = await showConfirm(
+    '復原備份將覆蓋目前所有資料，確定繼續？', '⚠️'
+  );
+  if (!ok) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (!data.ancestors) throw new Error('格式錯誤');
+      appData = data;
+      localStorage.setItem('ancestorApp_v14', JSON.stringify(appData));
+      renderAncestors();
+      showNotif('✓ 資料已從備份檔復原，共 ' + appData.ancestors.length + ' 筆');
+    } catch(err) {
+      showNotif('⚠️ 復原失敗：' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+// 每新增第 5 筆自動提示備份
+let _addCount = 0;
+function checkAutoBackupHint() {
+  _addCount++;
+  if (_addCount % 5 === 0) {
+    showNotif('💡 已新增 ' + _addCount + ' 筆，建議點「備份」儲存資料');
+  }
+}
+
+// ─── Init ──────────────────────────────────────────────────────
+renderAncestors();
+</script>
+
+<!-- Assign Columbarium Modal -->
+<div class="modal-overlay" id="assignOverlay" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <div class="modal-title">📍 登記塔位</div>
+      <button class="modal-close" onclick="document.getElementById('assignOverlay').classList.remove('open')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:16px;font-size:13px;color:var(--text2);font-weight:500" id="assignTitle"></div>
+      <div class="form-group">
+        <label class="form-label">選擇祖先</label>
+        <select class="form-input" id="assignSelect"></select>
+      </div>
+      <input type="hidden" id="assignTower">
+      <input type="hidden" id="assignFloor">
+      <input type="hidden" id="assignSlot">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="document.getElementById('assignOverlay').classList.remove('open')">取消</button>
+      <button class="btn btn-primary" onclick="confirmAssign()">確認登記</button>
+    </div>
+  </div>
+</div>
+
+<!-- Custom Input Dialog -->
+<div class="modal-overlay" id="inputDialogOverlay" onclick="if(event.target===this)inputDialogCancel()">
+  <div class="modal" style="max-width:360px">
+    <div class="modal-header">
+      <div class="modal-title" id="inputDialogTitle">輸入編號</div>
+      <button class="modal-close" onclick="inputDialogCancel()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div id="inputDialogSub" style="font-size:13px;color:var(--text2);margin-bottom:12px"></div>
+      <input type="text" class="form-input" id="inputDialogField" placeholder="請輸入編號"
+        onkeydown="if(event.key==='Enter')inputDialogConfirm();if(event.key==='Escape')inputDialogCancel()">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="inputDialogCancel()">取消</button>
+      <button class="btn btn-primary" onclick="inputDialogConfirm()">確認</button>
+    </div>
+  </div>
+</div>
+
+<!-- Custom Confirm Dialog -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-icon" id="confirmIcon">⚠️</div>
+    <div class="confirm-msg" id="confirmMsg"></div>
+    <div class="confirm-btns">
+      <button class="btn btn-secondary" id="confirmCancelBtn" onclick="confirmResolve(false)">取消</button>
+      <button class="btn btn-danger" id="confirmOkBtn" onclick="confirmResolve(true)">確定</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>
