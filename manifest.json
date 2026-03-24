@@ -1,7 +1,7 @@
 {
-  "name": "族譜紀念堂",
-  "short_name": "族譜",
-  "description": "家族族譜、靈骨塔位管理與家族沿革記錄 App",
+  "name": "龍山派 曾氏族譜",
+  "short_name": "曾氏族譜",
+  "description": "龍山派曾氏家族族譜、靈骨塔位管理與家族沿革記錄",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "portrait-primary",
@@ -28,5 +28,8 @@
       "purpose": "any"
     }
   ],
-  "categories": ["lifestyle", "utilities"]
+  "categories": [
+    "lifestyle",
+    "utilities"
+  ]
 }

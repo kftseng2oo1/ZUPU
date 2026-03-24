@@ -1050,7 +1050,7 @@
         <!-- 標題 -->
         <div class="shrine-header">
           <div class="shrine-deco-line"><div class="shrine-deco-diamond"></div></div>
-          <div class="shrine-title-main">武城衍派</div>
+          <div class="shrine-title-main">龍山派</div>
           <div class="shrine-title-sub">曾氏家族紀念大堂</div>
           <div class="shrine-deco-line"><div class="shrine-deco-diamond"></div></div>
           <div class="shrine-motto">「吾日三省吾身：為人謀而不忠乎？與朋友交而不信乎？傳不習乎？」— 宗聖曾子</div>
@@ -1189,6 +1189,61 @@
       <!-- 樹狀圖容器 -->
       <div style="overflow:auto;padding:24px;min-height:300px">
         <div id="familyTree" style="min-width:500px"></div>
+      </div>
+    </div>
+
+    <!-- 家族沿革（嵌入族譜頁下方） -->
+    <div style="margin-top:24px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden" id="tree-history-section">
+
+      <!-- 標題列 -->
+      <div style="padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div style="font-family:'Noto Serif TC',serif;font-size:15px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:8px">
+          📜 家族沿革
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-secondary" onclick="document.getElementById('historyFileInput').click()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            匯入文件 / PDF
+          </button>
+          <button class="btn btn-secondary" id="historyEditBtn2" onclick="toggleHistoryEdit()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            編輯
+          </button>
+          <button class="btn btn-primary" id="historySaveBtn2" onclick="saveHistory()" style="display:none">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            儲存
+          </button>
+        </div>
+      </div>
+
+      <!-- AI 處理進度條（共用 historyProgress） -->
+      <div id="historyProgress2" style="display:none;padding:16px 20px;border-bottom:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+          <div class="history-spinner"></div>
+          <span id="historyProgressMsg2" style="font-size:13px;color:var(--text2)">AI 正在整理文件內容…</span>
+        </div>
+        <div style="background:var(--surface2);border-radius:4px;height:6px;overflow:hidden">
+          <div id="historyProgressBar2" style="height:100%;background:var(--accent);width:0%;transition:width 0.4s;border-radius:4px"></div>
+        </div>
+      </div>
+
+      <!-- 來源標籤 -->
+      <div id="historySourceBar2" style="display:none;padding:8px 20px;background:var(--gold-light);border-bottom:1px solid #e8d89a;font-size:12px;color:#7d5a0a;display:flex;align-items:center;gap:8px">
+        <span>📎</span>
+        <span id="historySourceLabel2"></span>
+      </div>
+
+      <!-- 顯示模式 -->
+      <div id="historyDisplay2" style="padding:20px 24px;min-height:120px;line-height:2;font-size:15px;color:var(--text);white-space:pre-wrap;font-family:'Noto Serif TC',serif">
+        <span style="color:var(--text3);font-size:14px">尚未輸入家族沿革。</span>
+      </div>
+
+      <!-- 編輯模式 -->
+      <div id="historyEdit2" style="display:none;padding:16px 20px">
+        <textarea id="historyTextarea2"
+          style="width:100%;min-height:240px;padding:14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Noto Serif TC',serif;font-size:14px;line-height:2;color:var(--text);background:var(--bg);outline:none;resize:vertical"
+          onfocus="this.style.borderColor='var(--accent2)'" onblur="this.style.borderColor='var(--border)'"
+          placeholder="請輸入家族沿革…"></textarea>
       </div>
     </div>
   </div>
@@ -1447,7 +1502,7 @@
 
 <script>
 // ─── Data Store ───────────────────────────────────────────────
-const STORAGE_KEY = 'ancestorApp_v16';
+const STORAGE_KEY = 'ancestorApp_v17';
 
 function loadData() {
   try {
@@ -1514,7 +1569,7 @@ function switchView(view, btn) {
     logo.title = view === 'home' ? '' : '返回首頁紀念堂';
   }
   if (view === 'shrine') renderColumbarium();
-  if (view === 'tree') renderTree();
+  if (view === 'tree') { renderTree(); loadHistory(); }
   if (view === 'history') loadHistory();
   if (view === 'reminders') renderReminders();
   if (view === 'ancestors') renderAncestors();
@@ -2238,50 +2293,72 @@ async function removeColPlacement(ancestorId) {
 // ─── Family History 家族沿革 ───────────────────────────────────
 function loadHistory() {
   const text = appData.familyHistory || '';
-  const display = document.getElementById('historyDisplay');
-  if (!display) return;
-  if (text) {
-    display.style.whiteSpace = 'pre-wrap';
-    display.textContent = text;
-  } else {
-    display.innerHTML = '<span style="color:var(--text3);font-size:14px">尚未輸入家族沿革。可點擊「編輯」手動輸入，或「匯入文件 / PDF」自動擷取內容。</span>';
-  }
-  const ta = document.getElementById('historyTextarea');
-  if (ta) ta.value = text;
 
-  // Source bar
-  const srcBar = document.getElementById('historySourceBar');
-  const srcLabel = document.getElementById('historySourceLabel');
-  if (appData.familyHistorySource) {
-    srcBar.style.display = 'flex';
-    srcLabel.textContent = '來源：' + appData.familyHistorySource;
-  } else {
-    srcBar.style.display = 'none';
+  // Helper: update one set of history UI elements
+  function updateHistoryUI(suffix) {
+    const s = suffix || '';
+    const display = document.getElementById('historyDisplay' + s);
+    if (!display) return;
+    if (text) {
+      display.style.whiteSpace = 'pre-wrap';
+      display.textContent = text;
+    } else {
+      display.innerHTML = '<span style="color:var(--text3);font-size:14px">尚未輸入家族沿革。可點擊「編輯」手動輸入，或「匯入文件 / PDF」自動擷取內容。</span>';
+    }
+    const ta = document.getElementById('historyTextarea' + s);
+    if (ta) ta.value = text;
+    const srcBar   = document.getElementById('historySourceBar' + s);
+    const srcLabel = document.getElementById('historySourceLabel' + s);
+    if (srcBar && srcLabel) {
+      if (appData.familyHistorySource) {
+        srcBar.style.display = 'flex';
+        srcLabel.textContent = '來源：' + appData.familyHistorySource;
+      } else {
+        srcBar.style.display = 'none';
+      }
+    }
   }
+
+  updateHistoryUI('');   // 獨立沿革頁
+  updateHistoryUI('2');  // 族譜頁內嵌版
 }
 
 function toggleHistoryEdit() {
-  const editDiv = document.getElementById('historyEdit');
-  const displayDiv = document.getElementById('historyDisplay');
-  const editBtn = document.getElementById('historyEditBtn');
-  const saveBtn = document.getElementById('historySaveBtn');
-  const ta = document.getElementById('historyTextarea');
-  ta.value = appData.familyHistory || '';
-  editDiv.style.display = 'block';
-  displayDiv.style.display = 'none';
-  editBtn.style.display = 'none';
-  saveBtn.style.display = '';
-  ta.focus();
+  // Toggle both the standalone history page AND the inline tree version
+  ['', '2'].forEach(s => {
+    const editDiv    = document.getElementById('historyEdit' + s);
+    const displayDiv = document.getElementById('historyDisplay' + s);
+    const editBtn    = document.getElementById('historyEditBtn' + s);
+    const saveBtn    = document.getElementById('historySaveBtn' + s);
+    const ta         = document.getElementById('historyTextarea' + s);
+    if (!editDiv) return;
+    if (ta) ta.value = appData.familyHistory || '';
+    editDiv.style.display    = 'block';
+    displayDiv.style.display = 'none';
+    if (editBtn) editBtn.style.display = 'none';
+    if (saveBtn) saveBtn.style.display = '';
+  });
+  const ta = document.getElementById('historyTextarea') || document.getElementById('historyTextarea2');
+  if (ta) ta.focus();
 }
 
 function saveHistory() {
-  const ta = document.getElementById('historyTextarea');
-  appData.familyHistory = ta.value.trim();
+  // Read from whichever textarea is visible
+  const ta = document.getElementById('historyTextarea') || document.getElementById('historyTextarea2');
+  appData.familyHistory = ta ? ta.value.trim() : '';
   saveData();
-  document.getElementById('historyEdit').style.display = 'none';
-  document.getElementById('historyDisplay').style.display = '';
-  document.getElementById('historyEditBtn').style.display = '';
-  document.getElementById('historySaveBtn').style.display = 'none';
+  // Restore both UIs to display mode
+  ['', '2'].forEach(s => {
+    const editDiv    = document.getElementById('historyEdit' + s);
+    const displayDiv = document.getElementById('historyDisplay' + s);
+    const editBtn    = document.getElementById('historyEditBtn' + s);
+    const saveBtn    = document.getElementById('historySaveBtn' + s);
+    if (!editDiv) return;
+    editDiv.style.display    = 'none';
+    displayDiv.style.display = '';
+    if (editBtn) editBtn.style.display = '';
+    if (saveBtn) saveBtn.style.display = 'none';
+  });
   loadHistory();
   showNotif('✓ 家族沿革已儲存');
 }
@@ -2466,7 +2543,7 @@ function printTree() {
     catch(e) { return ''; }
   }).join('\n');
 
-  const title = '武城衍派 曾氏族譜世系圖';
+  const title = '龍山派 曾氏族譜世系圖';
   const html = `<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -2504,7 +2581,7 @@ body { background: #f7f4ef; margin: 0; padding: 32px; font-family: 'Noto Serif T
 </head>
 <body>
 <div class="print-title">
-  武城衍派 曾氏族譜世系圖
+  龍山派 曾氏族譜世系圖
   <div class="print-sub">百代春秋・薪火相傳</div>
 </div>
 ${treeEl.outerHTML}
@@ -2540,7 +2617,7 @@ function exportTreeSvg() {
     catch(e) { return ''; }
   }).join('\n');
 
-  const title = '武城衍派 曾氏族譜世系圖';
+  const title = '龍山派 曾氏族譜世系圖';
   const date = new Date().toLocaleDateString('zh-TW');
   const w = treeEl.scrollWidth + 96;
   const h = treeEl.scrollHeight + 160;
@@ -2583,7 +2660,7 @@ async function shareTreeUrl() {
   try {
     if (navigator.share && navigator.canShare) {
       await navigator.share({
-        title: '武城衍派 曾氏族譜世系圖',
+        title: '龍山派 曾氏族譜世系圖',
         text: '百代春秋・薪火相傳\n曾氏家族歷代世系圖',
         url: window.location.href,
       });
@@ -2597,7 +2674,7 @@ async function shareTreeUrl() {
 
   // 備用：產生分享文字並複製到剪貼簿
   const ancestors = appData.ancestors || [];
-  const lines = ['【武城衍派 曾氏族譜】', '百代春秋・薪火相傳', ''];
+  const lines = ['【龍山派 曾氏族譜】', '百代春秋・薪火相傳', ''];
   ancestors.forEach(a => {
     lines.push(`第${a.gen||'?'}世　${a.name}${a.alias ? '（'+a.alias+'）' : ''}${a.spouse ? '　配偶：'+a.spouse : ''}`);
   });
@@ -3093,7 +3170,7 @@ async function restoreData(e) {
       const data = JSON.parse(ev.target.result);
       if (!data.ancestors) throw new Error('格式錯誤');
       appData = data;
-      localStorage.setItem('ancestorApp_v16', JSON.stringify(appData));
+      localStorage.setItem('ancestorApp_v17', JSON.stringify(appData));
       renderAncestors();
       showNotif('✓ 資料已從備份檔復原，共 ' + appData.ancestors.length + ' 筆');
     } catch(err) {
