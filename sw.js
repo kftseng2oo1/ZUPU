@@ -1,5 +1,5 @@
 // 族譜紀念堂 Service Worker
-const CACHE_NAME = 'zupu-v1';
+const CACHE_NAME = 'zupu-v3';
 const ASSETS = [
   './index.html',
   './icon.svg',
