@@ -1035,6 +1035,53 @@
   .doc-card:hover .doc-del-btn { opacity: 1; }
   .doc-del-btn:hover { background: var(--red); }
 
+  /* Doc preview overlay */
+  .doc-preview-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.88);
+    z-index: 8000;
+    display: flex; flex-direction: column;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .doc-preview-overlay.open { opacity: 1; pointer-events: all; }
+  .doc-preview-bar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 16px;
+    background: rgba(0,0,0,0.6);
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+  .doc-preview-title {
+    font-size: 14px; color: #f0f0f0;
+    font-weight: 500; flex: 1;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .doc-preview-btn {
+    padding: 6px 14px;
+    border-radius: 6px; border: none;
+    font-size: 13px; cursor: pointer;
+    font-family: 'Noto Sans TC', sans-serif;
+    display: flex; align-items: center; gap: 5px;
+    transition: background 0.15s;
+  }
+  .doc-preview-btn svg { width: 14px; height: 14px; }
+  .doc-btn-rename { background: #3a3a3a; color: #e0e0e0; }
+  .doc-btn-rename:hover { background: #505050; }
+  .doc-btn-download { background: var(--accent); color: white; }
+  .doc-btn-download:hover { background: #7a4f2e; }
+  .doc-btn-close { background: #3a3a3a; color: #e0e0e0; }
+  .doc-btn-close:hover { background: #c0392b; color: white; }
+  .doc-preview-body {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    overflow: auto; padding: 16px;
+  }
+  .doc-preview-body img {
+    max-width: 100%; max-height: 100%;
+    object-fit: contain;
+    border-radius: 4px;
+  }
+
   /* scrollbar */
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -1625,7 +1672,7 @@
 
 <script>
 // ─── Data Store ───────────────────────────────────────────────
-const STORAGE_KEY = 'ancestorApp_v26';
+const STORAGE_KEY = 'ancestorApp_v27';
 
 function loadData() {
   try {
@@ -3390,7 +3437,7 @@ async function restoreData(e) {
       const data = JSON.parse(ev.target.result);
       if (!data.ancestors) throw new Error('格式錯誤');
       appData = data;
-      localStorage.setItem('ancestorApp_v26', JSON.stringify(appData));
+      localStorage.setItem('ancestorApp_v27', JSON.stringify(appData));
       renderAncestors();
       showNotif('✓ 資料已從備份檔復原，共 ' + appData.ancestors.length + ' 筆');
     } catch(err) {
@@ -3488,7 +3535,8 @@ function renderDocGrid() {
 
     card.innerHTML = `
       ${thumb}
-      <button class="doc-del-btn" onclick="deleteDoc('${doc.id}',event)" title="刪除">✕</button>
+      <button class="doc-del-btn" onclick="deleteDoc('${doc.id}',event)" title="刪除" style="right:4px">✕</button>
+      <button class="doc-del-btn" onclick="startRenameDoc('${doc.id}',event)" title="更名" style="right:30px">✎</button>
       <div class="doc-label" title="${doc.name}">${doc.name}</div>
       <div style="padding:0 8px 6px;font-size:10px;color:var(--text3)">${doc.uploadedAt}</div>
     `;
@@ -3498,20 +3546,74 @@ function renderDocGrid() {
   });
 }
 
+let _currentDocId = null;
+
 function viewDoc(doc) {
-  const w = window.open('', '_blank', 'width=900,height=700');
-  if (!w) { showNotif('請允許彈出視窗以預覽文件'); return; }
+  _currentDocId = doc.id;
+  document.getElementById('docPreviewTitle').textContent = doc.name;
+  const body = document.getElementById('docPreviewBody');
+
   if (doc.isPdf) {
-    w.document.write(`<html><body style="margin:0;background:#333">
-      <embed src="${doc.data}" type="application/pdf" width="100%" height="100%">
-      </body></html>`);
+    // PDF: show download button only (embed not reliable on iOS)
+    body.innerHTML = `
+      <div style="text-align:center;color:#ccc">
+        <div style="font-size:80px;margin-bottom:20px">📄</div>
+        <div style="font-size:16px;margin-bottom:8px">${doc.name}</div>
+        <div style="font-size:13px;color:#999;margin-bottom:24px">PDF 文件，請下載後開啟</div>
+        <button onclick="downloadCurrentDoc()" style="padding:10px 24px;background:var(--accent);color:white;border:none;border-radius:8px;font-size:14px;cursor:pointer">
+          ⬇ 立即下載
+        </button>
+      </div>`;
   } else {
-    w.document.write(`<html><head><title>${doc.name}</title></head>
-      <body style="margin:0;background:#222;display:flex;align-items:center;justify-content:center;min-height:100vh">
-      <img src="${doc.data}" style="max-width:100%;max-height:100vh;object-fit:contain">
-      </body></html>`);
+    body.innerHTML = `<img src="${doc.data}" alt="${doc.name}" style="max-width:100%;max-height:80vh;object-fit:contain;border-radius:4px">`;
   }
-  w.document.close();
+
+  document.getElementById('docPreviewOverlay').classList.add('open');
+  // Close on background tap
+  document.getElementById('docPreviewOverlay').onclick = function(e) {
+    if (e.target === this) closeDocPreview();
+  };
+}
+
+function closeDocPreview() {
+  document.getElementById('docPreviewOverlay').classList.remove('open');
+  _currentDocId = null;
+}
+
+function downloadCurrentDoc() {
+  const doc = (appData.documents || []).find(d => d.id === _currentDocId);
+  if (!doc) return;
+  const a = document.createElement('a');
+  a.href = doc.data;
+  a.download = doc.name;
+  a.click();
+  showNotif('✓ 下載中：' + doc.name);
+}
+
+function renameCurrentDoc() {
+  const doc = (appData.documents || []).find(d => d.id === _currentDocId);
+  if (!doc) return;
+  showInputDialog('文件更名', '請輸入新的文件名稱', doc.name, (newName) => {
+    if (!newName || !newName.trim()) return;
+    doc.name = newName.trim();
+    saveData();
+    document.getElementById('docPreviewTitle').textContent = doc.name;
+    renderDocGrid();
+    showNotif('✓ 已更名為：' + doc.name);
+  });
+}
+
+function startRenameDoc(id, e) {
+  e.stopPropagation();
+  const doc = (appData.documents || []).find(d => d.id === id);
+  if (!doc) return;
+  showInputDialog('文件更名', '請輸入新的文件名稱', doc.name, (newName) => {
+    if (!newName || !newName.trim()) return;
+    doc.name = newName.trim();
+    saveData();
+    renderDocGrid();
+    showNotif('✓ 已更名為：' + doc.name);
+  });
 }
 
 async function deleteDoc(id, e) {
@@ -3557,6 +3659,26 @@ renderAncestors();
       <button class="btn btn-primary" onclick="confirmAssign()">確認登記</button>
     </div>
   </div>
+</div>
+
+<!-- Doc Preview Modal -->
+<div class="doc-preview-overlay" id="docPreviewOverlay">
+  <div class="doc-preview-bar">
+    <div class="doc-preview-title" id="docPreviewTitle"></div>
+    <button class="doc-preview-btn doc-btn-rename" onclick="renameCurrentDoc()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      更名
+    </button>
+    <button class="doc-preview-btn doc-btn-download" onclick="downloadCurrentDoc()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      下載
+    </button>
+    <button class="doc-preview-btn doc-btn-close" onclick="closeDocPreview()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      關閉
+    </button>
+  </div>
+  <div class="doc-preview-body" id="docPreviewBody"></div>
 </div>
 
 <!-- Custom Input Dialog -->
