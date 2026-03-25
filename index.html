@@ -231,6 +231,8 @@
     font-weight: 500;
   }
   .tag-pos { background: var(--gold-light); color: var(--gold); }
+  .tag-alive { background: #fdf0ee; color: #c0392b; border: 1px solid #f5c6c2; }
+  .tag-deceased { background: var(--surface2); color: var(--text3); }
   .tag-mem { background: var(--green-light); color: var(--green); }
   .card-actions {
     position: absolute; top: 12px; right: 12px;
@@ -522,6 +524,25 @@
     text-align: left;
   }
   .tree-node:hover { border-color: var(--accent2); box-shadow: var(--shadow-md); }
+  .tree-node.node-alive {
+    border-color: #c0392b !important;
+    background: #fdf5f4;
+    box-shadow: 0 0 0 2px rgba(192,57,43,0.15), var(--shadow);
+  }
+  .tree-node.node-alive:hover { box-shadow: 0 0 0 3px rgba(192,57,43,0.25), var(--shadow-md); }
+  .alive-badge {
+    display: inline-block;
+    width: 8px; height: 8px;
+    background: #c0392b;
+    border-radius: 50%;
+    margin-right: 4px;
+    animation: pulse-red 2s ease-in-out infinite;
+    vertical-align: middle;
+  }
+  @keyframes pulse-red {
+    0%,100% { box-shadow: 0 0 0 0 rgba(192,57,43,0.5); }
+    50%      { box-shadow: 0 0 0 5px rgba(192,57,43,0); }
+  }
   .tree-node-avatar {
     width: 36px; height: 36px;
     border-radius: 50%;
@@ -1370,32 +1391,49 @@
           <input type="date" class="form-input" id="f-birth">
         </div>
         <div class="form-group">
-          <label class="form-label">忌日</label>
-          <input type="date" class="form-input" id="f-death">
+          <label class="form-label">當前狀態 <span style="font-size:11px;color:var(--text3)">（影響族譜顯示）</span></label>
+          <select class="form-input" id="f-status" onchange="toggleDeathInput()">
+            <option value="deceased" selected>⬛ 已故（仙逝）</option>
+            <option value="alive">🔴 健在（長生）</option>
+          </select>
         </div>
       </div>
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;margin-top:-8px">
-        <label style="font-size:12px;color:var(--text2);font-weight:500">忌日曆法：</label>
-        <label style="font-size:13px;display:flex;align-items:center;gap:4px;cursor:pointer">
-          <input type="radio" name="death-cal" id="death-solar" value="solar" checked onchange="updateDeathCalLabel()"> 公曆（國曆）
-        </label>
-        <label style="font-size:13px;display:flex;align-items:center;gap:4px;cursor:pointer">
-          <input type="radio" name="death-cal" id="death-lunar" value="lunar" onchange="updateDeathCalLabel()"> 農曆
-        </label>
-        <span id="death-lunar-hint" style="display:none;font-size:12px;color:var(--gold);font-weight:500"></span>
+      <!-- 忌日（已故才顯示） -->
+      <div id="death-input-group">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">忌日</label>
+            <input type="date" class="form-input" id="f-death">
+          </div>
+          <div class="form-group">
+            <label class="form-label">忌日曆法</label>
+            <div style="display:flex;gap:12px;align-items:center;height:40px">
+              <label style="font-size:13px;display:flex;align-items:center;gap:4px;cursor:pointer">
+                <input type="radio" name="death-cal" id="death-solar" value="solar" checked onchange="updateDeathCalLabel()"> 公曆
+              </label>
+              <label style="font-size:13px;display:flex;align-items:center;gap:4px;cursor:pointer">
+                <input type="radio" name="death-cal" id="death-lunar" value="lunar" onchange="updateDeathCalLabel()"> 農曆
+              </label>
+            </div>
+          </div>
+        </div>
+        <span id="death-lunar-hint" style="display:none;font-size:12px;color:var(--gold);font-weight:500;margin-bottom:8px;display:block"></span>
+        <input type="hidden" id="f-death-calendar" value="solar">
       </div>
-      <input type="hidden" id="f-death-calendar" value="solar">
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label">世代（幾世祖）</label>
-          <input type="number" class="form-input" id="f-gen" placeholder="如：66" min="1" oninput="onGenChange()">
+          <label class="form-label">世代（幾世祖）<span style="color:var(--red)"> *</span></label>
+          <input type="number" class="form-input" id="f-gen" placeholder="如：8" min="1" oninput="onGenChange()">
           <div id="gen-zibei-hint" style="display:none;margin-top:4px;font-size:12px;color:var(--gold);background:var(--gold-light);padding:4px 10px;border-radius:4px;font-weight:600"></div>
         </div>
         <div class="form-group">
-          <label class="form-label">上一代（父/母親姓名）</label>
-          <input type="text" class="form-input" id="f-parent" placeholder="如：陳老太">
+          <label class="form-label">上一代（父/母親姓名）<span style="color:var(--red)"> *</span></label>
+          <input type="text" class="form-input" id="f-parent" placeholder="如：曾水陀（必填，保持族譜連結）" list="parent-suggestions" autocomplete="off">
+          <datalist id="parent-suggestions"></datalist>
         </div>
       </div>
+      <!-- 已故專屬欄位（健在者遮蔽） -->
+      <div id="deceased-only-fields">
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">配偶姓名</label>
@@ -1463,6 +1501,8 @@
         <label class="form-label">牌位題字</label>
         <input type="text" class="form-input" id="f-tablet" placeholder="如：顯考陳公諱大德之神位（留空則自動產生）">
       </div>
+      </div><!-- /deceased-only-fields -->
+
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal()">取消</button>
@@ -1513,7 +1553,7 @@
 
 <script>
 // ─── Data Store ───────────────────────────────────────────────
-const STORAGE_KEY = 'ancestorApp_v17';
+const STORAGE_KEY = 'ancestorApp_v25';
 
 function loadData() {
   try {
@@ -1531,28 +1571,28 @@ function getDefaultAncestors() {
   return [
     { id: 'g1', name: '曾虎', alias: '', birth: '', death: '',
       gen: 1, parent: '', origin: '', bio: '',
-      tablet: '顯一世祖考曾公諱虎之神位', avatar: '' },
+      tablet: '顯一世祖考曾公諱虎之神位', avatar: '', isAlive: false },
     { id: 'g2', name: '奎德', alias: '', birth: '', death: '',
       gen: 2, parent: '曾虎', origin: '', bio: '',
-      tablet: '顯二世祖考諱奎德之神位', avatar: '' },
+      tablet: '顯二世祖考諱奎德之神位', avatar: '', isAlive: false },
     { id: 'g3', name: '武六', alias: '', birth: '', death: '',
       gen: 3, parent: '奎德', origin: '', bio: '',
-      tablet: '顯三世祖考諱武六之神位', avatar: '' },
+      tablet: '顯三世祖考諱武六之神位', avatar: '', isAlive: false },
     { id: 'g4', name: '曾呈獅', alias: '呈獅', birth: '', death: '',
       gen: 4, parent: '武六', origin: '', bio: '',
-      tablet: '顯四世祖考曾公諱呈獅之神位', avatar: '' },
+      tablet: '顯四世祖考曾公諱呈獅之神位', avatar: '', isAlive: false },
     { id: 'g5', name: '曾水陀', alias: '水陀', birth: '', death: '',
       gen: 5, parent: '曾呈獅', origin: '', bio: '',
-      tablet: '顯五世祖考曾公諱水陀之神位', avatar: '' },
+      tablet: '顯五世祖考曾公諱水陀之神位', avatar: '', isAlive: false },
     { id: 'g6', name: '曾瑞麟', alias: '瑞麟', birth: '', death: '',
       gen: 6, parent: '曾水陀', origin: '', bio: '',
-      tablet: '顯六世祖考曾公諱瑞麟之神位', avatar: '' },
+      tablet: '顯六世祖考曾公諱瑞麟之神位', avatar: '', isAlive: false },
     { id: 'g6b', name: '曾實', alias: '', birth: '', death: '',
       gen: 6, parent: '曾水陀', origin: '', bio: '',
-      tablet: '顯六世祖考曾公諱實之神位', avatar: '' },
+      tablet: '顯六世祖考曾公諱實之神位', avatar: '', isAlive: false },
     { id: 'g7', name: '曾人定', alias: '', birth: '', death: '',
       gen: 7, parent: '曾瑞麟', origin: '', bio: '',
-      tablet: '顯七世祖考曾公諱人定之神位', avatar: '' },
+      tablet: '顯七世祖考曾公諱人定之神位', avatar: '', isAlive: false },
   ];
 }
 
@@ -1627,8 +1667,8 @@ function renderAncestors(filter = '') {
       ${a.spouse ? `<div style="font-size:12px;color:var(--text2);margin-bottom:4px">💑 配偶：${a.spouse}${a.spouseDates ? '（' + a.spouseDates + '）' : ''}${a.spouseOrigin ? ' 🏛️ ' + originLabel(a.spouseOrigin) : ''}${a.spouseUrnNumber ? ' No.' + a.spouseUrnNumber : ''}</div>` : ''}
       ${(a.origin || a.urnNumber) ? `<div style="font-size:12px;color:var(--text3);margin-bottom:6px">🏛️ ${originLabel(a.origin)}${a.urnNumber ? ' ／ 骨灰編號：' + a.urnNumber : ''}</div>` : ''}
       <div class="card-tags">
+        ${a.isAlive === true ? '<span class="tag tag-alive"><span class="alive-badge"></span>健在</span>' : (a.death ? '<span class="tag tag-deceased">已故</span>' : '')}
         ${(appData.placements[a.id] && appData.placements[a.id].tower) ? '<span class="tag tag-pos">已登記塔位</span>' : ''}
-        ${a.death ? '<span class="tag tag-mem">有忌日</span>' : ''}
       </div>
       <div class="card-actions">
         <button class="btn-edit-card" title="編輯" onclick="event.stopPropagation();openEditModal('${a.id}')">
@@ -1707,6 +1747,43 @@ function originLabel(originStr) {
 }
 
 // ── 農曆工具 ───────────────────────────────────────────────────
+function toggleDeathInput() {
+  const status = document.getElementById('f-status').value;
+  const isAliveNow = status === 'alive';
+
+  // 忌日欄
+  const deathGroup = document.getElementById('death-input-group');
+  if (deathGroup) {
+    deathGroup.style.display = isAliveNow ? 'none' : 'block';
+    if (isAliveNow) {
+      const df = document.getElementById('f-death');
+      if (df) df.value = '';
+    }
+  }
+
+  // 已故專屬欄位（靈骨塔位、生平、牌位）
+  const deceasedFields = document.getElementById('deceased-only-fields');
+  if (deceasedFields) {
+    if (isAliveNow) {
+      deceasedFields.style.display = 'none';
+      // 顯示隱私提示
+      let notice = document.getElementById('alive-privacy-notice');
+      if (!notice) {
+        notice = document.createElement('div');
+        notice.id = 'alive-privacy-notice';
+        notice.style.cssText = 'margin:12px 0;padding:10px 14px;background:#fdf0ee;border:1px solid #f5c6c2;border-radius:8px;font-size:13px;color:#c0392b;display:flex;align-items:center;gap:8px;';
+        notice.innerHTML = '<span style="font-size:16px">🔴</span><span>健在成員長命百歲！🎉</span>';
+        deceasedFields.parentNode.insertBefore(notice, deceasedFields);
+      }
+      notice.style.display = 'flex';
+    } else {
+      deceasedFields.style.display = 'block';
+      const notice = document.getElementById('alive-privacy-notice');
+      if (notice) notice.style.display = 'none';
+    }
+  }
+}
+
 function updateDeathCalLabel() {
   const isLunar = document.getElementById('death-lunar').checked;
   document.getElementById('f-death-calendar').value = isLunar ? 'lunar' : 'solar';
@@ -1768,6 +1845,20 @@ function onGenChange() {
   }
 }
 
+function refreshParentSuggestions() {
+  const dl = document.getElementById('parent-suggestions');
+  if (!dl) return;
+  dl.innerHTML = '';
+  // Sort by gen descending so closer generations appear first
+  const sorted = [...appData.ancestors].sort((a, b) => (b.gen || 0) - (a.gen || 0));
+  sorted.forEach(a => {
+    const opt = document.createElement('option');
+    opt.value = a.name;
+    opt.label = `第${a.gen||'?'}世${a.alias ? '（' + a.alias + '）' : ''}`;
+    dl.appendChild(opt);
+  });
+}
+
 function filterAncestors() {
   renderAncestors(document.getElementById('searchInput').value.trim());
 }
@@ -1787,10 +1878,23 @@ function openAddModal() {
   editingId = null;
   currentAvatarData = '';
   document.getElementById('modalTitle').textContent = '新增祖先資料';
+  refreshParentSuggestions();
+  // Explicitly reset deceased-only-fields visibility before setting status
+  const df = document.getElementById('deceased-only-fields');
+  if (df) df.style.display = 'block';
+  const an = document.getElementById('alive-privacy-notice');
+  if (an) an.style.display = 'none';
   ['name','alias','birth','death','gen','parent','spouse','spouse-dates','bio','tablet','urn-number'].forEach(k => {
     document.getElementById('f-'+k).value = '';
   });
   document.getElementById('avatarPreview').innerHTML = '👤';
+  const statusReset = document.getElementById('f-status');
+  if (statusReset) { statusReset.value = 'deceased'; toggleDeathInput(); }
+  const zibeiHint = document.getElementById('gen-zibei-hint');
+  if (zibeiHint) zibeiHint.style.display = 'none';
+  // Clear alive notice on open
+  const aliveNotice = document.getElementById('alive-privacy-notice');
+  if (aliveNotice) aliveNotice.style.display = 'none';
   const tw = document.getElementById('f-origin-tower');
   const fl = document.getElementById('f-origin-floor');
   const sl = document.getElementById('f-origin-slot');
@@ -1810,6 +1914,8 @@ function openAddModal() {
   if (spOriginEl) spOriginEl.value = '';
   const spGrp = document.getElementById('spouse-origin-group');
   if (spGrp) spGrp.style.display = 'none';
+  // Force status display update
+  setTimeout(() => toggleDeathInput(), 0);
   document.getElementById('modalOverlay').classList.add('open');
 }
 
@@ -1819,9 +1925,16 @@ function openEditModal(id) {
   editingId = id;
   currentAvatarData = a.avatar || '';
   document.getElementById('modalTitle').textContent = '編輯祖先資料';
+  refreshParentSuggestions();
   document.getElementById('f-name').value = a.name || '';
   document.getElementById('f-alias').value = a.alias || '';
   document.getElementById('f-birth').value = a.birth || '';
+  // Status: default alive if not set AND no death date
+  const statusEl = document.getElementById('f-status');
+  if (statusEl) {
+    statusEl.value = (a.isAlive === true) ? 'alive' : 'deceased';
+    toggleDeathInput();
+  }
   const calSolar = document.getElementById('death-solar');
   const calLunar = document.getElementById('death-lunar');
   const calHidden = document.getElementById('f-death-calendar');
@@ -1835,6 +1948,7 @@ function openEditModal(id) {
   updateDeathCalLabel();
   document.getElementById('f-death').value = a.death || '';
   document.getElementById('f-gen').value = a.gen || '';
+  onGenChange();
   document.getElementById('f-parent').value = a.parent || '';
   document.getElementById('f-spouse').value = a.spouse || '';
   document.getElementById('f-spouse-dates').value = a.spouseDates || '';
@@ -1909,13 +2023,27 @@ function handleAvatarChange(e) {
 function saveAncestor() {
   const name = document.getElementById('f-name').value.trim();
   if (!name) { showNotif('請輸入姓名'); return; }
-  const gen = parseInt(document.getElementById('f-gen').value) || 1;
+  const genRaw = document.getElementById('f-gen').value.trim();
+  if (!genRaw) { showNotif('⚠️ 請輸入世代數字（如：8）'); return; }
+  const gen = parseInt(genRaw) || 1;
+  // 第一世不需要上一代；其他世代必填
+  const parentVal = document.getElementById('f-parent').value.trim();
+  if (gen > 1 && !parentVal) {
+    showNotif('⚠️ 請填寫「上一代姓名」以保持族譜連結');
+    document.getElementById('f-parent').focus();
+    document.getElementById('f-parent').style.borderColor = 'var(--red)';
+    setTimeout(() => {
+      document.getElementById('f-parent').style.borderColor = '';
+    }, 2500);
+    return;
+  }
   const tabletDefault = `顯祖考${name}公之神位`;
 
   const data = {
     name,
     alias: document.getElementById('f-alias').value.trim(),
     birth: document.getElementById('f-birth').value,
+    isAlive: (document.getElementById('f-status') && document.getElementById('f-status').value === 'alive'),
     deathCalendar: document.getElementById('f-death-calendar') ? document.getElementById('f-death-calendar').value : 'solar',
     death: document.getElementById('f-death').value,
     gen,
@@ -1935,9 +2063,9 @@ function saveAncestor() {
       const s = document.getElementById('f-origin-slot').value;
       return [t, f, s].filter(Boolean).join('|');
     })(),
-    bio: document.getElementById('f-bio').value.trim(),
+    bio: (document.getElementById('f-status').value === 'alive') ? '' : document.getElementById('f-bio').value.trim(),
     urnNumber: document.getElementById('f-urn-number').value.trim(),
-    tablet: document.getElementById('f-tablet').value.trim() || tabletDefault,
+    tablet: (document.getElementById('f-status').value === 'alive') ? '' : (document.getElementById('f-tablet').value.trim() || tabletDefault),
     avatar: currentAvatarData,
   };
 
@@ -2756,6 +2884,14 @@ function renderTree() {
       </div>
     ` : '';
 
+    // Alive status
+    const isAlive = a.isAlive === true;
+    const nodeColor = isAlive ? '#c0392b' : (genColors[(a.gen - 1) % genColors.length] || '#8b5e3c');
+    const aliveClass = isAlive ? 'node-alive' : '';
+    const statusSub = isAlive
+      ? '<span style="color:#c0392b;font-size:10px">● 健在</span>'
+      : (a.death ? '仙逝' : '');
+
     // Spouse node HTML
     const spouseHtml = a.spouse ? `
       <div class="tree-spouse-wrap">
@@ -2774,13 +2910,13 @@ function renderTree() {
     return `
       <div class="tree-node-wrap">
         <div class="tree-couple-row">
-          <div class="tree-node" onclick="openEditModal('${a.id}')" style="border-color:${color}40">
-            <div class="tree-node-avatar" style="background:${color}18;font-size:16px">
+          <div class="tree-node ${aliveClass}" onclick="openEditModal('${a.id}')" style="border-color:${nodeColor}40">
+            <div class="tree-node-avatar" style="background:${nodeColor}18;font-size:16px">
               ${a.avatar ? `<img src="${a.avatar}" style="width:36px;height:36px;border-radius:50%;object-fit:cover">` : getEmoji(a)}
             </div>
             <div class="tree-node-info">
-              <div class="tree-node-name" style="color:${color}">${a.name}</div>
-              <div class="tree-node-sub">第${a.gen||'?'}世 ${a.birth ? a.birth.slice(0,4)+'年' : ''}</div>
+              <div class="tree-node-name" style="color:${nodeColor}">${a.name}</div>
+              <div class="tree-node-sub">第${a.gen||'?'}世 ${a.birth ? a.birth.slice(0,4)+'年' : ''} ${statusSub}</div>
             </div>
           </div>
           ${spouseHtml}
@@ -2814,6 +2950,7 @@ function renderReminders() {
 
   // Memorial dates from ancestors
   appData.ancestors.forEach(a => {
+    if (a.isAlive === true) return; // 健在成員不列入忌日提醒
     if (a.death) {
       let targetDate;
       if (a.deathCalendar === 'lunar' && window.Lunar) {
@@ -3181,7 +3318,7 @@ async function restoreData(e) {
       const data = JSON.parse(ev.target.result);
       if (!data.ancestors) throw new Error('格式錯誤');
       appData = data;
-      localStorage.setItem('ancestorApp_v17', JSON.stringify(appData));
+      localStorage.setItem('ancestorApp_v25', JSON.stringify(appData));
       renderAncestors();
       showNotif('✓ 資料已從備份檔復原，共 ' + appData.ancestors.length + ' 筆');
     } catch(err) {
