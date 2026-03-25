@@ -985,6 +985,56 @@
     .view:not(#view-tree) { display: none !important; }
   }
 
+  /* ── 戶籍文件 ── */
+  .doc-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .doc-card:hover { border-color: var(--accent2); box-shadow: var(--shadow); }
+  .doc-thumb {
+    width: 100%; height: 100px;
+    object-fit: cover;
+    display: block;
+    background: var(--surface2);
+  }
+  .doc-thumb-pdf {
+    width: 100%; height: 100px;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #fdf0ee, #f5e8e8);
+    font-size: 36px;
+  }
+  .doc-label {
+    padding: 6px 8px;
+    font-size: 11px;
+    color: var(--text2);
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-top: 1px solid var(--border);
+  }
+  .doc-del-btn {
+    position: absolute;
+    top: 4px; right: 4px;
+    width: 22px; height: 22px;
+    background: rgba(0,0,0,0.55);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .doc-card:hover .doc-del-btn { opacity: 1; }
+  .doc-del-btn:hover { background: var(--red); }
+
   /* scrollbar */
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -1192,6 +1242,28 @@
         <div class="col-unplaced">
           <div class="col-unplaced-header">📋 尚未登記位置</div>
           <div class="col-unplaced-list" id="colUnplacedList"></div>
+        </div>
+      </div>
+
+      <!-- 戶籍文件上傳區 -->
+      <div style="margin-top:24px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden">
+        <div style="padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+          <div style="font-family:'Noto Serif TC',serif;font-size:15px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:8px">
+            📄 祖先戶籍相關文件
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-secondary" onclick="document.getElementById('docFileInput').click()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              上傳文件 / 照片
+            </button>
+            <input type="file" id="docFileInput" accept="image/*,.pdf" multiple style="display:none" onchange="handleDocUpload(event)">
+          </div>
+        </div>
+        <!-- 文件格線 -->
+        <div id="docGrid" style="padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;min-height:100px">
+          <div id="docEmptyHint" style="grid-column:1/-1;text-align:center;padding:30px;color:var(--text3);font-size:13px">
+            尚未上傳文件。可上傳戶籍謄本、除戶證明、身分證影本等相關文件（JPG、PNG、PDF）。
+          </div>
         </div>
       </div>
     </div>
@@ -1553,7 +1625,7 @@
 
 <script>
 // ─── Data Store ───────────────────────────────────────────────
-const STORAGE_KEY = 'ancestorApp_v25';
+const STORAGE_KEY = 'ancestorApp_v26';
 
 function loadData() {
   try {
@@ -1619,7 +1691,7 @@ function switchView(view, btn) {
     logo.style.cursor  = view === 'home' ? 'default' : 'pointer';
     logo.title = view === 'home' ? '' : '返回首頁紀念堂';
   }
-  if (view === 'shrine') renderColumbarium();
+  if (view === 'shrine') { renderColumbarium(); renderDocGrid(); }
   if (view === 'tree') { renderTree(); loadHistory(); }
   if (view === 'history') loadHistory();
   if (view === 'reminders') renderReminders();
@@ -3318,7 +3390,7 @@ async function restoreData(e) {
       const data = JSON.parse(ev.target.result);
       if (!data.ancestors) throw new Error('格式錯誤');
       appData = data;
-      localStorage.setItem('ancestorApp_v25', JSON.stringify(appData));
+      localStorage.setItem('ancestorApp_v26', JSON.stringify(appData));
       renderAncestors();
       showNotif('✓ 資料已從備份檔復原，共 ' + appData.ancestors.length + ' 筆');
     } catch(err) {
@@ -3335,6 +3407,121 @@ function checkAutoBackupHint() {
   if (_addCount % 5 === 0) {
     showNotif('💡 已新增 ' + _addCount + ' 筆，建議點「備份」儲存資料');
   }
+}
+
+// ─── 戶籍文件管理 ────────────────────────────────────────────
+function handleDocUpload(e) {
+  const files = Array.from(e.target.files);
+  e.target.value = '';
+  if (!files.length) return;
+
+  if (!appData.documents) appData.documents = [];
+
+  let processed = 0;
+  files.forEach(file => {
+    const isPdf = file.type === 'application/pdf';
+    const reader = new FileReader();
+    reader.onload = ev => {
+      let dataUrl = ev.target.result;
+      // Compress images (not PDFs)
+      if (!isPdf && file.type.startsWith('image/')) {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX = 1200;
+          let w = img.width, h = img.height;
+          if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+          if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; }
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+          addDocToStore(file.name, dataUrl, isPdf);
+          processed++;
+          if (processed === files.length) { saveData(); renderDocGrid(); }
+        };
+        img.src = dataUrl;
+      } else {
+        addDocToStore(file.name, dataUrl, isPdf);
+        processed++;
+        if (processed === files.length) { saveData(); renderDocGrid(); }
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function addDocToStore(name, dataUrl, isPdf) {
+  if (!appData.documents) appData.documents = [];
+  appData.documents.push({
+    id: 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
+    name: name,
+    data: dataUrl,
+    isPdf: isPdf,
+    uploadedAt: new Date().toLocaleDateString('zh-TW')
+  });
+}
+
+function renderDocGrid() {
+  const grid = document.getElementById('docGrid');
+  if (!grid) return;
+  const docs = appData.documents || [];
+  const hint = document.getElementById('docEmptyHint');
+
+  if (docs.length === 0) {
+    if (hint) hint.style.display = 'block';
+    // Remove all doc cards
+    grid.querySelectorAll('.doc-card').forEach(el => el.remove());
+    return;
+  }
+  if (hint) hint.style.display = 'none';
+
+  // Re-render all cards
+  grid.querySelectorAll('.doc-card').forEach(el => el.remove());
+  docs.forEach(doc => {
+    const card = document.createElement('div');
+    card.className = 'doc-card';
+    card.dataset.id = doc.id;
+
+    const thumb = doc.isPdf
+      ? `<div class="doc-thumb-pdf">📄</div>`
+      : `<img class="doc-thumb" src="${doc.data}" alt="${doc.name}">`;
+
+    card.innerHTML = `
+      ${thumb}
+      <button class="doc-del-btn" onclick="deleteDoc('${doc.id}',event)" title="刪除">✕</button>
+      <div class="doc-label" title="${doc.name}">${doc.name}</div>
+      <div style="padding:0 8px 6px;font-size:10px;color:var(--text3)">${doc.uploadedAt}</div>
+    `;
+    // Click to view full image
+    card.addEventListener('click', () => viewDoc(doc));
+    grid.appendChild(card);
+  });
+}
+
+function viewDoc(doc) {
+  const w = window.open('', '_blank', 'width=900,height=700');
+  if (!w) { showNotif('請允許彈出視窗以預覽文件'); return; }
+  if (doc.isPdf) {
+    w.document.write(`<html><body style="margin:0;background:#333">
+      <embed src="${doc.data}" type="application/pdf" width="100%" height="100%">
+      </body></html>`);
+  } else {
+    w.document.write(`<html><head><title>${doc.name}</title></head>
+      <body style="margin:0;background:#222;display:flex;align-items:center;justify-content:center;min-height:100vh">
+      <img src="${doc.data}" style="max-width:100%;max-height:100vh;object-fit:contain">
+      </body></html>`);
+  }
+  w.document.close();
+}
+
+async function deleteDoc(id, e) {
+  e.stopPropagation();
+  const ok = await showConfirm('確定刪除此文件？', '🗑️');
+  if (!ok) return;
+  appData.documents = (appData.documents || []).filter(d => d.id !== id);
+  saveData();
+  renderDocGrid();
+  showNotif('已刪除文件');
 }
 
 // ─── Init ──────────────────────────────────────────────────────
