@@ -1672,7 +1672,7 @@
 
 <script>
 // ─── Data Store ───────────────────────────────────────────────
-const STORAGE_KEY = 'ancestorApp_v27';
+const STORAGE_KEY = 'ancestorApp_v28';
 
 function loadData() {
   try {
@@ -2418,12 +2418,7 @@ function openAssignModal(towerId, floorIdx, slotIdx) {
       .filter(a => appData.placements[a.id] && appData.placements[a.id].tower)
       .map(a => a.id)
   );
-  // Count ancestors who still need placement (person or spouse unplaced)
-  const unplaced = appData.ancestors.filter(a => {
-    const personPlaced = placed.has(a.id);
-    const spousePlaced = !a.spouse || (appData.placements[a.id+'_spouse'] && appData.placements[a.id+'_spouse'].tower);
-    return !personPlaced || (a.spouse && !spousePlaced);
-  });
+  const unplaced = appData.ancestors.filter(a => !placed.has(a.id));
   if (unplaced.length === 0) { showNotif('所有祖先均已登記塔位'); return; }
 
   const tower = TOWERS[towerId];
@@ -3007,9 +3002,11 @@ function renderTree() {
     const isAlive = a.isAlive === true;
     const nodeColor = isAlive ? '#c0392b' : (genColors[(a.gen - 1) % genColors.length] || '#8b5e3c');
     const aliveClass = isAlive ? 'node-alive' : '';
+    const birthStr = a.birth ? '生於 ' + a.birth.slice(0,4) + ' 年' : '';
+    const deathStr = a.death ? '仙逝 ' + a.death.slice(0,4) + ' 年' : '';
     const statusSub = isAlive
       ? '<span style="color:#c0392b;font-size:10px">● 健在</span>'
-      : (a.death ? '仙逝' : '');
+      : (deathStr ? '<span style="font-size:10px;color:var(--text3)">' + deathStr + '</span>' : '');
 
     // Spouse node HTML
     const spouseHtml = a.spouse ? `
@@ -3035,7 +3032,7 @@ function renderTree() {
             </div>
             <div class="tree-node-info">
               <div class="tree-node-name" style="color:${nodeColor}">${a.name}</div>
-              <div class="tree-node-sub">第${a.gen||'?'}世 ${a.birth ? a.birth.slice(0,4)+'年' : ''} ${statusSub}</div>
+              <div class="tree-node-sub">第${a.gen||'?'}世${birthStr ? '<br><span style="font-size:10px;color:var(--text3)">' + birthStr + '</span>' : ''}${statusSub ? '<br>' + statusSub : ''}</div>
             </div>
           </div>
           ${spouseHtml}
@@ -3437,7 +3434,7 @@ async function restoreData(e) {
       const data = JSON.parse(ev.target.result);
       if (!data.ancestors) throw new Error('格式錯誤');
       appData = data;
-      localStorage.setItem('ancestorApp_v27', JSON.stringify(appData));
+      localStorage.setItem('ancestorApp_v28', JSON.stringify(appData));
       renderAncestors();
       showNotif('✓ 資料已從備份檔復原，共 ' + appData.ancestors.length + ' 筆');
     } catch(err) {
