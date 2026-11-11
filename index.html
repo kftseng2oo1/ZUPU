@@ -2724,7 +2724,7 @@ async function processHistoryWithAI(rawText, fileName) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-5-5',
         max_tokens: 2000,
         system: `你是一位專業的族譜整理員。請將以下文字整理成流暢的「家族沿革」文章，以繁體中文書寫，保留所有人名、地名、年代、重要事蹟，段落清晰，文風典雅莊重。直接輸出整理後的文章，不要加任何說明或標題。`,
         messages: [{ role: 'user', content: `請整理以下家族文件內容：
@@ -2749,7 +2749,7 @@ async function processHistoryPdfWithAI(base64, fileName) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-5-5',
         max_tokens: 2000,
         system: `你是一位專業的族譜整理員。請將文件中的內容整理成流暢的「家族沿革」文章，以繁體中文書寫，保留所有人名、地名、年代、重要事蹟，段落清晰，文風典雅莊重。直接輸出整理後的文章，不要加任何說明或標題。`,
         messages: [{
@@ -3358,7 +3358,7 @@ function handlePdfImport(e) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
+          model: 'claude-sonnet-5-5',
           max_tokens: 2000,
           system: `你是一個家族族譜資料解析助手。請從文件中找出所有祖先人物資訊，以 JSON 陣列回傳，每筆包含以下欄位（找不到的留空字串）：
 name, alias, birth（YYYY-MM-DD 格式），death（YYYY-MM-DD 格式），gen（數字），parent, origin, bio, tablet
