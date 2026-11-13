@@ -1128,6 +1128,7 @@
   #importTable tbody tr:hover { background: var(--surface2); }
   #importTable tbody td { padding: 9px 12px; color: var(--text); }
 </style>
+<script src="lunar.js"></script><!-- lunar-javascript v1.7.8：農曆忌日、中元、除夕換算 -->
 </head>
 <body>
 
@@ -1931,24 +1932,27 @@ function updateDeathCalLabel() {
 
 // 將農曆日期換算成今年公曆日期（用於提醒倒數）
 function lunarToSolarThisYear(lunarDateStr) {
-  // lunarDateStr format: "YYYY-MM-DD" stored as is, but marked lunar
+  // lunarDateStr format: "YYYY-MM-DD"，月日為農曆
   if (!window.Lunar) return null;
   try {
     const parts = lunarDateStr.split('-');
     const month = parseInt(parts[1]);
     const day = parseInt(parts[2]);
-    const year = new Date().getFullYear();
-    // Try current year lunar date → solar
-    const lunar = Lunar.fromYmd(year, month, day);
-    const solar = lunar.getSolar();
-    const solarDate = new Date(solar.getYear(), solar.getMonth()-1, solar.getDay());
-    if (solarDate < new Date()) {
-      // Already passed this year, use next year
-      const lunarNext = Lunar.fromYmd(year+1, month, day);
-      const solarNext = lunarNext.getSolar();
-      return new Date(solarNext.getYear(), solarNext.getMonth()-1, solarNext.getDay());
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const toDate = y => {
+      let d = day;
+      // 該年此月只有 29 天時，以廿九日為忌日
+      try { if (window.LunarMonth) { const lm = LunarMonth.fromYm(y, month); if (lm && d > lm.getDayCount()) d = lm.getDayCount(); } } catch (e) {}
+      const s = Lunar.fromYmd(y, month, d).getSolar();
+      return new Date(s.getYear(), s.getMonth() - 1, s.getDay());
+    };
+    // 農曆年與國曆年不同步：從去年的農曆開始找，取第一個「今天或之後」的日期
+    const y0 = today.getFullYear();
+    for (const y of [y0 - 1, y0, y0 + 1]) {
+      const d = toDate(y);
+      if (d >= today) return d;
     }
-    return solarDate;
+    return null;
   } catch(e) { return null; }
 }
 
@@ -3059,12 +3063,32 @@ function renderTree() {
 }
 
 // ─── Reminders ────────────────────────────────────────────────
-const TRADITIONAL_DATES = [
-  { name: '清明節', date: `${new Date().getFullYear()}-04-04`, type: '傳統節日掃墓' },
-  { name: '中元節', date: `${new Date().getFullYear()}-08-15`, type: '普渡祭祖' },
-  { name: '冬至', date: `${new Date().getFullYear()}-12-22`, type: '冬至祭祖' },
-  { name: '除夕圍爐', date: `${new Date().getFullYear()}-01-28`, type: '年夜飯祭祖' },
-];
+// 傳統祭祖節日：清明、冬至依節氣；中元（農曆七月十五）、除夕（春節前一天）依農曆
+function traditionalDates() {
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const y0 = today.getFullYear();
+  const fallback = [
+    { name: '清明節', md: [4, 4], type: '傳統節日掃墓' },
+    { name: '中元節', md: [8, 15], type: '普渡祭祖' },
+    { name: '冬至', md: [12, 22], type: '冬至祭祖' },
+    { name: '除夕圍爐', md: [1, 28], type: '年夜飯祭祖' },
+  ];
+  const toD = s => new Date(s.getYear(), s.getMonth() - 1, s.getDay());
+  const calc = (name, y) => {
+    if (name === '清明節') return toD(Solar.fromYmd(y, 6, 1).getLunar().getJieQiTable()['清明']);
+    if (name === '冬至') return toD(Solar.fromYmd(y, 6, 1).getLunar().getJieQiTable()['DONG_ZHI']);
+    if (name === '中元節') return toD(Lunar.fromYmd(y, 7, 15).getSolar());
+    const d = toD(Lunar.fromYmd(y, 1, 1).getSolar()); d.setDate(d.getDate() - 1); return d;   // 除夕
+  };
+  return fallback.map(f => {
+    let date = null;
+    if (window.Lunar && window.Solar) {
+      try { for (const y of [y0, y0 + 1]) { const d = calc(f.name, y); if (d >= today) { date = d; break; } } } catch (e) { date = null; }
+    }
+    if (!date) { date = new Date(y0, f.md[0] - 1, f.md[1]); if (date < today) date.setFullYear(y0 + 1); }
+    return { name: f.name, date, type: f.type };
+  });
+}
 
 function renderReminders() {
   const grid = document.getElementById('remindersGrid');
@@ -3098,9 +3122,8 @@ function renderReminders() {
   });
 
   // Traditional festivals
-  TRADITIONAL_DATES.forEach(t => {
-    const d = new Date(t.date);
-    if (d < today) d.setFullYear(today.getFullYear() + 1);
+  traditionalDates().forEach(t => {
+    const d = t.date;
     const diff = Math.round((d - today) / 86400000);
     items.push({ name: t.name, date: d, diff, type: t.type, isAncestor: false });
   });
