@@ -90,6 +90,52 @@
   #intro .hint{margin-top:22px;color:#c9a045;font-size:13px;letter-spacing:.4em;opacity:.8}
   #intro .err{margin-top:14px;color:#ffb0a0;font-size:13px;max-width:80vw;text-align:center;display:none}
 
+  /* 祭祀 */
+  #riteBanner{position:fixed;left:50%;top:calc(var(--st) + 64px);transform:translateX(-50%);z-index:6;display:none;cursor:pointer;
+    background:linear-gradient(90deg,#5a0d0d,#8b1a1a,#5a0d0d);border:1px solid var(--gold-l);border-radius:3px;padding:7px 16px;text-align:center;
+    box-shadow:0 0 18px rgba(255,190,80,.55);max-width:86vw}
+  #riteBanner.on{display:block;animation:glow 2.4s ease-in-out infinite}
+  @keyframes glow{50%{box-shadow:0 0 30px rgba(255,200,90,.9)}}
+  #riteBanner b{display:block;color:#f6d98a;font-size:15px;letter-spacing:.12em}
+  #riteBanner span{display:block;color:#f3e3b8;font-size:12px;margin-top:2px}
+  #toast{position:fixed;left:50%;top:calc(var(--st) + 128px);transform:translate(-50%,-10px);z-index:40;opacity:0;pointer-events:none;transition:all .3s;
+    background:rgba(42,26,8,.92);color:var(--gold-l);border:1px solid var(--gold);padding:9px 16px;border-radius:3px;font-size:14px;max-width:88vw;text-align:center}
+  #toast.on{opacity:1;transform:translate(-50%,0)}
+  .dlg{position:fixed;inset:0;z-index:35;background:rgba(20,10,2,.7);display:none;align-items:center;justify-content:center;padding:20px}
+  .dlg.on{display:flex}
+  .dlg .in{width:min(90vw,360px);background:linear-gradient(170deg,#faf3e0,#ede0b8);border:2px solid var(--gold);border-radius:4px;padding:18px;box-shadow:0 0 0 4px rgba(61,32,6,.85)}
+  .dlg h4{color:var(--red);font-size:17px;font-weight:900;margin-bottom:12px;letter-spacing:.08em}
+  .dlg input{width:100%;font-family:var(--font);font-size:16px;padding:9px 10px;border:1px solid #c9a045;border-radius:3px;background:#fffaf0;margin-bottom:10px;-webkit-user-select:text;user-select:text}
+  .dlg .row{display:flex;gap:8px;flex-wrap:wrap}
+  .dlg button{flex:1;min-width:80px;height:40px;font-family:var(--font);font-size:15px;font-weight:700;border-radius:3px;border:1px solid var(--gold);background:#3d2006;color:var(--gold-l)}
+  .dlg button.no{background:#f3e3b8;color:#5a0d0d}
+  #recBox .tm{text-align:center;font-size:20px;font-weight:900;color:#5a0d0d;margin:6px 0 10px;letter-spacing:.1em}
+  #recBox audio{width:100%;margin-bottom:10px;display:none}
+  #recBox .stop,#recBox .redo,#recBox .ok{display:none}
+  #recBox[data-st="rec"] .go,#recBox[data-st="done"] .go,#recBox[data-st="up"] .go{display:none}
+  #recBox[data-st="rec"] .stop{display:block;background:#8b1a1a}
+  #recBox[data-st="rec"] .tm{color:#c0392b}
+  #recBox[data-st="done"] .redo,#recBox[data-st="done"] .ok{display:block}
+  #recBox[data-st="done"] audio{display:block}
+  #card .voices h5{font-size:13px;color:#7a5a2a;margin:10px 0 4px;letter-spacing:.2em}
+  #card .vrow{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px dashed #d9c48a}
+  #card .vrow span{flex:1;display:flex;flex-direction:column}
+  #card .vrow b{font-size:14px;color:#2a1a08}
+  #card .vrow small{font-size:12px;color:#7a5a2a}
+  #card .vplay{width:34px;height:34px;border-radius:50%;border:1px solid var(--gold);background:#3d2006;color:var(--gold-l);font-size:13px}
+  #card .vplay.on{background:var(--gold);color:#3d2006}
+  #card .vdel{font-family:var(--font);font-size:12px;border:0;background:none;color:#8b1a1a;text-decoration:underline}
+  #card .inc{flex:1;height:38px;border:1px solid #8b1a1a;border-radius:3px;background:#8b1a1a;color:#f6d98a;font-family:var(--font);font-size:15px;font-weight:900;letter-spacing:.2em}
+  #card .rec{flex:1;height:38px;border:1px solid var(--gold);border-radius:3px;background:#f3e3b8;color:#5a0d0d;font-family:var(--font);font-size:15px;font-weight:700;letter-spacing:.1em}
+  .rstat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0 12px}
+  .rstat div{background:#fbf4e2;border:1px solid #c9a045;border-radius:3px;text-align:center;padding:8px 0}
+  .rstat b{display:block;font-size:24px;color:#8b1a1a}.rstat small{font-size:12px;color:#7a5a2a}
+  .rbtn{width:100%;height:44px;font-family:var(--font);font-size:16px;font-weight:900;letter-spacing:.2em;border:1px solid #8b1a1a;background:#8b1a1a;color:#f6d98a;border-radius:3px}
+  .rrow{display:flex;align-items:baseline;gap:8px;padding:8px 2px;border-bottom:1px dashed #d9c48a;font-size:15px;cursor:pointer}
+  .rrow b{color:#2a1a08;white-space:nowrap}.rrow span{flex:1;color:#5a3a10;font-size:14px}.rrow em{font-style:normal;font-size:12px;color:#7a5a2a;white-space:nowrap}
+  .rrow em.hot{color:#fff;background:#8b1a1a;padding:1px 6px;border-radius:2px}
+  .rnote{font-size:12px!important;color:#7a5a2a!important;margin-top:12px}
+
   /* 卷軸展讀 */
   #scrollReader{position:fixed;inset:0;z-index:25;background:rgba(20,10,2,.88);display:none;flex-direction:column;align-items:center;justify-content:center;padding:calc(var(--st) + 16px) 14px calc(var(--sb) + 16px)}
   #scrollReader.on{display:flex;animation:fadeIn .35s}
@@ -137,6 +183,8 @@
   <div class="hd"><img class="av" alt=""><span class="nm"></span><span class="gn"></span><span class="tg"></span></div>
   <dl></dl>
   <p class="bio"></p>
+  <div class="voices"></div>
+  <div class="btns"><button class="inc">上 香</button><button class="rec">錄音口述</button></div>
   <div class="btns"><button class="flip">翻面看生平</button><button class="tw">看塔位</button></div>
 </div>
 
@@ -155,6 +203,21 @@
   <div class="hint">輕觸略過</div>
   <div class="err" id="err">3D 元件載入失敗，請確認網路連線後重新整理。</div>
 </div>
+
+<div id="riteBanner"></div>
+<div id="toast"></div>
+<div id="askBox" class="dlg"><div class="in"><h4></h4><input maxlength="20"><div class="row"><button class="no">取消</button><button class="ok">確定</button></div></div></div>
+<div id="recBox" class="dlg" data-st="idle"><div class="in">
+  <h4></h4>
+  <input class="title" maxlength="24" placeholder="標題（例：阿公講渡台的故事）">
+  <div class="tm"></div>
+  <audio controls playsinline></audio>
+  <div class="row">
+    <button class="no">關閉</button>
+    <button class="go">● 開始錄音</button><button class="stop">■ 停止</button>
+    <button class="redo">重錄</button><button class="ok">上傳保存</button>
+  </div>
+</div></div>
 
 <div id="scrollReader">
   <div class="rodr"></div>
@@ -618,7 +681,7 @@ function softTex(inner, outer) {
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
 }
 const smoke = [];
-let altarTip = V(0, 0, 0);
+let altarTip = V(0, 0, 0), altarTipBase = V(0, 0, 0);
 function buildAltar() {
   const ax = root.x, ay = root.y - BOT_OFF - .05, az = 1.0;
   const top = new THREE.Mesh(new THREE.BoxGeometry(1.8, .1, .8), M.lacquerTable); top.position.set(ax, ay, az); scene.add(top);
@@ -627,6 +690,8 @@ function buildAltar() {
     const l = new THREE.Mesh(legG, M.lacquerTable); l.position.set(ax + dx, ay - .35, az + dz); scene.add(l);
   });
   const pot = new THREE.Mesh(new THREE.CylinderGeometry(.24, .18, .26, 24), M.bronze); pot.position.set(ax, ay + .18, az); scene.add(pot);
+  pot.userData.action = 'incense-all'; pickables.push(pot);
+  altarTipBase = V(ax, ay + .25, az);
   const rim = new THREE.Mesh(new THREE.TorusGeometry(.24, .025, 8, 24), M.gold); rim.rotation.x = Math.PI / 2; rim.position.set(ax, ay + .31, az); scene.add(rim);
   const stickG = new THREE.CylinderGeometry(.008, .008, .5, 6), stickM = new THREE.MeshStandardMaterial({ color: '#a8321e' });
   const tipM = new THREE.MeshBasicMaterial({ color: '#ff8a3a' });
@@ -636,11 +701,7 @@ function buildAltar() {
     tip.position.set(ax + dx - Math.sin((i - 1) * .12) * .25, ay + .75, az); scene.add(tip);
   });
   altarTip = V(ax, ay + .77, az);
-  const sm = softTex('rgba(150,145,138,.55)', 'rgba(150,145,138,0)');
-  for (let i = 0; i < 26; i++) {
-    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: sm, transparent: true, depthWrite: false, opacity: 0 }));
-    sp.userData.t = i / 26; scene.add(sp); smoke.push(sp);
-  }
+  addSmoke(altarTip, 26);
 }
 
 /* ================= 祠堂陳設：匾額、對聯、沿革碑、字輩柱、塔位側殿 =================
@@ -874,6 +935,276 @@ function towerView(hiId) {
   return [V(towerHall.x + d * .08, cy, d), V(towerHall.x, cy, 0)];
 }
 
+/* ================= 祭祀：忌日、上香、語音口述 =================
+   後端：arcar Worker /zupu 路由（worker/zupu-module.js）。
+   尚未部署時自動改為「本機模式」：上香只記在這台裝置，語音無法上傳。 */
+const RITE_API = 'https://arcar.kftseng2oo1.workers.dev/zupu';
+const FAMILY = 'longshan';
+const RITE = { online: false, state: { total: 0, days: {}, byPid: {}, recent: [], voices: {} } };
+const LOCAL_KEY = 'zupu_rite_local_v1';
+const twDay = (offset = 0) => {   // 台北日期（YYYY-MM-DD），以 UTC 正午的 Date 表示該日
+  const d = new Date(Date.now() + 8 * 3600e3 + offset * 86400e3);
+  const s = d.toISOString().slice(0, 10);
+  return { s, date: new Date(s + 'T12:00:00Z') };
+};
+async function riteFetch(path, opt = {}) {
+  const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), opt.timeout || 8000);
+  try {
+    const r = await fetch(RITE_API + path + (path.includes('?') ? '&' : '?') + 'f=' + FAMILY, { ...opt, signal: ctl.signal });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return await r.json();
+  } finally { clearTimeout(t); }
+}
+async function loadRite() {
+  try {
+    const st = await riteFetch('/state', { timeout: 6000 });
+    if (st && st.ok) { RITE.state = { ...RITE.state, ...st.state }; RITE.online = true; return; }
+  } catch (e) {}
+  try { const l = JSON.parse(localStorage.getItem(LOCAL_KEY) || 'null'); if (l) RITE.state = { ...RITE.state, ...l }; } catch (e) {}
+}
+function saveLocal() { try { localStorage.setItem(LOCAL_KEY, JSON.stringify({ ...RITE.state, voices: {} })); } catch (e) {} }
+
+/* ---------- 忌日 ---------- */
+const lunarFmt = (() => { try { return new Intl.DateTimeFormat('zh-TW-u-ca-chinese', { month: 'numeric', day: 'numeric', timeZone: 'UTC' }); } catch (e) { return null; } })();
+function lunarMD(date) {
+  if (!lunarFmt) return null;
+  const parts = lunarFmt.formatToParts(date), m = (parts.find(x => x.type === 'month') || {}).value || '', d = (parts.find(x => x.type === 'day') || {}).value || '';
+  return { m: parseInt(m.replace(/\D/g, ''), 10), d: parseInt(d.replace(/\D/g, ''), 10), leap: /閏|bis/i.test(m) };
+}
+const CN_MON = ['', '正', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '臘'];
+const cnDay = d => d <= 10 ? '初' + cnNum(d).replace('一十', '十') : d < 20 ? '十' + cnNum(d - 10) : d === 20 ? '二十' : d < 30 ? '廿' + cnNum(d - 20) : '三十';
+function deathMD(p) {
+  const m = /(\d{4})\D(\d{1,2})\D(\d{1,2})/.exec(p.death || '');
+  return m ? { y: +m[1], m: +m[2], d: +m[3], lunar: !!p.deathLunar } : null;
+}
+function daysUntilAnniv(p) {
+  const md = deathMD(p); if (!md) return null;
+  for (let i = 0; i <= 400; i++) {
+    const { date } = twDay(i);
+    if (md.lunar) { const l = lunarMD(date); if (!l) return null; if (!l.leap && l.m === md.m && l.d === md.d) return i; }
+    else if (date.getUTCMonth() + 1 === md.m && date.getUTCDate() === md.d) return i;
+  }
+  return null;
+}
+function annivLabel(p) {
+  const md = deathMD(p); if (!md) return '';
+  return md.lunar ? `農曆${CN_MON[md.m]}月${cnDay(md.d)}` : `${md.m}月${md.d}日`;
+}
+let ANNIV = [];
+function computeAnniv() {
+  ANNIV = PEOPLE.filter(p => !p.alive && !p.empty && p.death).map(p => ({ p, days: daysUntilAnniv(p) }))
+    .filter(a => a.days !== null).sort((a, b) => a.days - b.days);
+  ANNIV.forEach(a => {
+    const t = tablets[a.p.id]; if (a.days !== 0 || !t) return;
+    t.memorial = true;
+    t.aura = new THREE.Sprite(new THREE.SpriteMaterial({ map: softTex('rgba(255,210,120,.9)', 'rgba(255,190,80,0)'), transparent: true, depthWrite: false }));
+    t.aura.scale.set(3.4, 5, 1); t.aura.position.set(a.p.x, a.p.y + .2, -.35); scene.add(t.aura);
+  });
+}
+function nextSolarDate(days) { const d = twDay(days).date; return `${d.getUTCMonth() + 1}/${d.getUTCDate()}`; }
+function showRiteBanner() {
+  const el = document.getElementById('riteBanner');
+  const today = ANNIV.filter(a => a.days === 0), soon = ANNIV.find(a => a.days > 0 && a.days <= 7);
+  if (today.length) {
+    el.innerHTML = `<b>今日是 ${today.map(a => escH(a.p.name)).join('、')} 忌日</b><span>${escH(annivLabel(today[0].p))}・輕觸前往上香</span>`;
+    el.onclick = () => selectPerson(today[0].p.id);
+  } else if (soon) {
+    el.innerHTML = `<b>${escH(soon.p.name)} 忌日將至</b><span>${escH(annivLabel(soon.p))}（${nextSolarDate(soon.days)}）・還有 ${soon.days} 天</span>`;
+    el.onclick = () => selectPerson(soon.p.id);
+  } else return;
+  el.classList.add('on');
+}
+
+/* ---------- 上香者稱呼 ---------- */
+function askText(title, placeholder, def = '') {
+  return new Promise(res => {
+    const el = document.getElementById('askBox');
+    el.querySelector('h4').textContent = title;
+    const inp = el.querySelector('input'); inp.placeholder = placeholder; inp.value = def;
+    el.classList.add('on'); setTimeout(() => inp.focus(), 50);
+    const done = v => { el.classList.remove('on'); el.querySelector('.ok').onclick = el.querySelector('.no').onclick = null; res(v); };
+    el.querySelector('.ok').onclick = () => done(inp.value.trim());
+    el.querySelector('.no').onclick = () => done(null);
+  });
+}
+async function getWho() {
+  let w = ''; try { w = localStorage.getItem('zupu_who') || ''; } catch (e) {}
+  if (w) return w;
+  w = await askText('請問您的稱呼？', '例：長孫 曾小明（會顯示在上香紀錄）');
+  if (w) { try { localStorage.setItem('zupu_who', w.slice(0, 20)); } catch (e) {} }
+  return w;
+}
+function toast(msg) {
+  const el = document.getElementById('toast'); el.textContent = msg; el.classList.add('on');
+  clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('on'), 2600);
+}
+
+/* ---------- 上香 ---------- */
+const emitters = [];   // { pos, sprites, until, rate }
+let smokeTex;
+function addSmoke(pos, n = 18, life = 0) {
+  smokeTex = smokeTex || softTex('rgba(150,145,138,.55)', 'rgba(150,145,138,0)');
+  const sprites = [];
+  for (let i = 0; i < n; i++) {
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: smokeTex, transparent: true, depthWrite: false, opacity: 0 }));
+    sp.userData.t = i / n; scene.add(sp); sprites.push(sp);
+  }
+  const e = { pos: pos.clone(), sprites, until: life ? performance.now() + life : 0, born: performance.now() };
+  emitters.push(e); return e;
+}
+const stickGeo = new THREE.CylinderGeometry(.008, .008, .5, 6), stickMat = new THREE.MeshStandardMaterial({ color: '#a8321e' });
+const tipMat = new THREE.MeshBasicMaterial({ color: '#ff8a3a' });
+function plantIncense(x, y, z, life) {
+  const g = new THREE.Group();
+  [-.05, 0, .05].forEach((dx, i) => {
+    const s = new THREE.Mesh(stickGeo, stickMat); s.position.set(dx, .25, 0); s.rotation.z = (i - 1) * .1; g.add(s);
+    const t = new THREE.Mesh(new THREE.SphereGeometry(.016, 6, 6), tipMat); t.position.set(dx - Math.sin((i - 1) * .1) * .25, .5, 0); g.add(t);
+  });
+  g.position.set(x, y, z); scene.add(g);
+  const e = addSmoke(V(x, y + .52, z), 16, life); e.group = g;
+}
+const lastOffer = {};
+async function offerIncense(pid) {
+  const now = Date.now();
+  if (lastOffer[pid] && now - lastOffer[pid] < 60e3) { toast('香已點上，請稍候再上'); return; }
+  const who = await getWho(); if (who === null) return;
+  lastOffer[pid] = now;
+  const p = pid === 'all' ? null : byId[pid];
+  // 畫面：牌位前插香、香煙
+  if (p) {
+    const t = tablets[p.id];
+    const by = p.alive ? p.y : p.y - BOT_OFF + .14;
+    const bowl = new THREE.Mesh(new THREE.CylinderGeometry(.13, .1, .14, 16), M.bronze); bowl.position.set(p.x, by + .07, .42); scene.add(bowl);
+    plantIncense(p.x, by + .1, .42, 120e3);
+    setTimeout(() => scene.remove(bowl), 120e3);
+    if (t) t.offerGlow = performance.now();
+  } else {
+    plantIncense(altarTipBase.x + (Math.random() - .5) * .16, altarTipBase.y, altarTipBase.z, 120e3);
+  }
+  const name = p ? p.name : '歷代祖先';
+  const rec = { pid, name, who: who || '族人', at: Date.now() };
+  // 狀態更新（先本機，再送雲端）
+  const st = RITE.state, day = twDay().s;
+  st.total = (st.total || 0) + 1; st.days[day] = (st.days[day] || 0) + 1; st.byPid[pid] = (st.byPid[pid] || 0) + 1;
+  st.recent = [rec, ...(st.recent || [])].slice(0, 40);
+  if (RITE.online) {
+    try { const r = await riteFetch('/incense', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(rec) }); if (r && r.state) RITE.state = { ...RITE.state, ...r.state }; }
+    catch (e) { RITE.online = false; saveLocal(); }
+  } else saveLocal();
+  toast(`${rec.who} 為 ${name} 上香・今日第 ${RITE.state.days[day] || 1} 炷`);
+  if (selected === pid) openCard(byId[pid]);
+}
+
+/* ---------- 語音口述 ---------- */
+const MY_VOICES_KEY = 'zupu_my_voices';
+const myVoices = () => { try { return JSON.parse(localStorage.getItem(MY_VOICES_KEY) || '{}'); } catch (e) { return {}; } };
+const fmtSec = s => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`;
+let curAudio = null;
+function playVoice(v, btn) {
+  if (curAudio) { curAudio.pause(); document.querySelectorAll('.vplay.on').forEach(b => b.classList.remove('on')); if (curAudio._id === v.id) { curAudio = null; return; } }
+  curAudio = new Audio(RITE_API + '/voice/' + encodeURIComponent(v.id) + '?f=' + FAMILY); curAudio._id = v.id;
+  curAudio.onended = () => { btn.classList.remove('on'); curAudio = null; };
+  curAudio.play().then(() => btn.classList.add('on')).catch(() => toast('無法播放這段錄音'));
+}
+async function deleteVoice(pid, v) {
+  const key = myVoices()[v.id]; if (!key) return;
+  if ((await askText('刪除這段錄音？', '輸入「刪除」確認')) !== '刪除') return;
+  try {
+    const r = await riteFetch('/voice/' + encodeURIComponent(v.id) + '?key=' + encodeURIComponent(key), { method: 'DELETE' });
+    if (r && r.state) RITE.state = { ...RITE.state, ...r.state };
+    toast('已刪除'); openCard(byId[pid]);
+  } catch (e) { toast('刪除失敗，請稍後再試'); }
+}
+function renderVoices(p) {
+  const box = card.querySelector('.voices');
+  const list = (RITE.state.voices && RITE.state.voices[p.id]) || [];
+  box.innerHTML = list.length ? '<h5>語音口述</h5>' : '';
+  const mine = myVoices();
+  list.forEach(v => {
+    const row = document.createElement('div'); row.className = 'vrow';
+    row.innerHTML = `<button class="vplay">▶</button><span><b>${escH(v.title || '口述')}</b><small>${escH(v.who || '')}・${fmtSec(v.dur || 0)}</small></span>${mine[v.id] ? '<button class="vdel">刪除</button>' : ''}`;
+    row.querySelector('.vplay').onclick = e => playVoice(v, e.currentTarget);
+    if (mine[v.id]) row.querySelector('.vdel').onclick = () => deleteVoice(p.id, v);
+    box.appendChild(row);
+  });
+}
+/* 錄音面板 */
+const REC = { mr: null, chunks: [], blob: null, mime: '', t0: 0, timer: 0, pid: null, dur: 0 };
+const REC_MAX = 180;
+function pickMime() {
+  if (!window.MediaRecorder) return null;
+  return ['audio/mp4', 'audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus'].find(m => MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(m)) || '';
+}
+function openRecorder(pid) {
+  if (!RITE.online) { toast('語音需先部署 arcar 的 /zupu 雲端路由'); return; }
+  if (pickMime() === null || !navigator.mediaDevices) { toast('這個瀏覽器不支援錄音，請用 Safari 或 Chrome 開啟'); return; }
+  REC.pid = pid; REC.blob = null; REC.dur = 0;
+  const el = document.getElementById('recBox');
+  el.querySelector('h4').textContent = `為 ${byId[pid].name} 錄一段口述`;
+  el.querySelector('.title').value = '';
+  setRecUI('idle'); el.classList.add('on');
+}
+function setRecUI(st, msg) {
+  const el = document.getElementById('recBox');
+  el.dataset.st = st;
+  el.querySelector('.tm').textContent = msg || (st === 'rec' ? '錄音中 0:00' : st === 'done' ? `已錄 ${fmtSec(REC.dur)}` : `最長 ${REC_MAX / 60} 分鐘`);
+}
+async function recStart() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+    REC.mime = pickMime(); REC.chunks = [];
+    REC.mr = REC.mime ? new MediaRecorder(stream, { mimeType: REC.mime }) : new MediaRecorder(stream);
+    REC.mr.ondataavailable = e => e.data && e.data.size && REC.chunks.push(e.data);
+    REC.mr.onstop = () => {
+      stream.getTracks().forEach(t => t.stop());
+      REC.blob = new Blob(REC.chunks, { type: REC.mr.mimeType || REC.mime || 'audio/mp4' });
+      REC.dur = (performance.now() - REC.t0) / 1000;
+      clearInterval(REC.timer); setRecUI('done');
+      const a = document.querySelector('#recBox audio'); a.src = URL.createObjectURL(REC.blob);
+    };
+    REC.mr.start(1000); REC.t0 = performance.now(); setRecUI('rec');
+    REC.timer = setInterval(() => {
+      const s = (performance.now() - REC.t0) / 1000;
+      setRecUI('rec', `錄音中 ${fmtSec(s)}`);
+      if (s >= REC_MAX) recStop();
+    }, 500);
+  } catch (e) { setRecUI('idle', '無法使用麥克風，請在設定中允許'); }
+}
+function recStop() { if (REC.mr && REC.mr.state !== 'inactive') REC.mr.stop(); }
+async function recUpload() {
+  if (!REC.blob) return;
+  if (REC.blob.size > 4.5e6) { toast('錄音太長，請重錄短一點'); return; }
+  const who = await getWho(); if (who === null) return;
+  const el = document.getElementById('recBox'), title = el.querySelector('.title').value.trim() || '口述';
+  setRecUI('up', '上傳中…');
+  try {
+    const q = `?pid=${encodeURIComponent(REC.pid)}&who=${encodeURIComponent(who)}&title=${encodeURIComponent(title)}&dur=${Math.round(REC.dur)}`;
+    const r = await riteFetch('/voice' + q, { method: 'POST', headers: { 'Content-Type': REC.blob.type || 'audio/mp4' }, body: REC.blob, timeout: 60000 });
+    if (!r || !r.ok) throw new Error(r && r.error);
+    const mv = myVoices(); mv[r.voice.id] = r.key; try { localStorage.setItem(MY_VOICES_KEY, JSON.stringify(mv)); } catch (e) {}
+    RITE.state = { ...RITE.state, ...r.state };
+    el.classList.remove('on'); toast('錄音已保存，全家都聽得到');
+    if (selected === REC.pid) openCard(byId[REC.pid]);
+  } catch (e) { setRecUI('done', '上傳失敗，請再試一次'); }
+}
+function closeRecorder() { recStop(); clearInterval(REC.timer); document.getElementById('recBox').classList.remove('on'); }
+
+/* ---------- 祭祀面板 ---------- */
+function openRitePanel() {
+  const el = document.getElementById('scrollReader'), st = RITE.state, day = twDay().s;
+  const fmtT = t => { const d = new Date(t + 8 * 3600e3); return `${d.getUTCMonth() + 1}/${d.getUTCDate()} ${String(d.getUTCHours()).padStart(2, '0')}:${String(d.getUTCMinutes()).padStart(2, '0')}`; };
+  const ann = ANNIV.filter(a => a.days <= 60);
+  el.querySelector('.body').innerHTML = `<h2>祭 祀</h2>
+    <div class="rstat"><div><b>${st.days[day] || 0}</b><small>今日上香</small></div><div><b>${st.total || 0}</b><small>累計上香</small></div><div><b>${Object.values(st.voices || {}).reduce((s, l) => s + l.length, 0)}</b><small>語音口述</small></div></div>
+    <button class="rbtn" data-act="all">為歷代祖先上香</button>
+    <h3>近期忌日</h3>${ann.length ? ann.map(a => `<div class="rrow" data-pid="${a.p.id}"><b>${escH(a.p.name)}</b><span>${escH(annivLabel(a.p))}</span><em class="${a.days === 0 ? 'hot' : ''}">${a.days === 0 ? '今日' : nextSolarDate(a.days) + '・' + a.days + ' 天後'}</em></div>`).join('') : '<p>六十天內沒有忌日。忌日請在紀念堂「祖先名冊」填寫。</p>'}
+    <h3>上香紀錄</h3>${(st.recent || []).length ? st.recent.slice(0, 20).map(r => `<div class="rrow" data-pid="${r.pid}"><b>${escH(r.who)}</b><span>為 ${escH(r.name)} 上香</span><em>${fmtT(r.at)}</em></div>`).join('') : '<p>還沒有上香紀錄。</p>'}
+    <p class="rnote">${RITE.online ? '紀錄已與家人同步。' : '目前為本機模式：紀錄只存在這台裝置（雲端路由尚未部署）。'}</p>`;
+  el.querySelector('.rbtn').onclick = () => { el.classList.remove('on'); offerIncense('all'); };
+  el.querySelectorAll('.rrow[data-pid]').forEach(r => r.onclick = () => { if (byId[r.dataset.pid]) { el.classList.remove('on'); selectPerson(r.dataset.pid); } });
+  el.classList.add('on'); el.querySelector('.body').scrollTop = 0;
+}
+
 /* 沿革展讀 */
 function openHistory() {
   const el = document.getElementById('scrollReader');
@@ -1023,6 +1354,7 @@ function buildBar() {
   const mk = (t, f) => { const b = document.createElement('button'); b.textContent = t; b.onclick = f; bar.appendChild(b); };
   mk('全覽', () => { stopTour(); closeCard(); setGen(0); flyTo(overviewView(), 1.4); });
   mk('導覽', () => { closeCard(); tour(); });
+  mk('祭祀', () => { stopTour(); closeCard(); openRitePanel(); });
   if (towerHall) mk('塔位', () => { stopTour(); closeCard(); setGen(0); flyTo(towerView(null), 1.6); });
   mk('沿革', () => { stopTour(); closeCard(); openHistory(); });
   mk('字輩', () => { stopTour(); closeCard(); openZibei(0); });
@@ -1049,10 +1381,18 @@ function openCard(p) {
     if (main.parent) rows.push(['父系', byId[main.parent].name]);
     if (main.children.length) rows.push(['子嗣', main.children.map(c => c.name).join('、')]);
     const z = zibeiOf(p.gen); if (z.ch && p.role === 'main') rows.push(['字輩', `「${z.ch}」字輩・大宗第${cnNum(z.world)}世`]);
+    if (!p.alive && p.death) {
+      const a = ANNIV.find(x => x.p === p);
+      rows.push(['忌日', annivLabel(p) + (a ? (a.days === 0 ? '・今日' : `・${nextSolarDate(a.days)}（還有 ${a.days} 天）`) : '')]);
+    }
+    if (!p.alive && RITE.state.byPid[p.id]) rows.push(['上香', `${RITE.state.byPid[p.id]} 炷`]);
     const pl = placementOf(p);
     if (pl) rows.push(['塔位', `${TOWERS[pl.tower].name}・${['一','二','三','四','五'][+pl.floor]}樓・${slotLabel(pl.tower, +pl.floor, +pl.slot)}號`]);
   }
   card.querySelector('.tw').style.display = (towerHall && placementOf(p)) ? '' : 'none';
+  card.querySelector('.inc').style.display = (p.empty || p.alive) ? 'none' : '';
+  card.querySelector('.rec').style.display = p.empty ? 'none' : '';
+  renderVoices(p);
   card.querySelector('dl').innerHTML = rows.map(([a, b]) => `<dt>${a}</dt><dd>${esc(b)}</dd>`).join('');
   const av = card.querySelector('.av');
   av.style.display = p.avatar ? '' : 'none'; if (p.avatar) av.src = p.avatar;
@@ -1067,6 +1407,8 @@ function closeCard() {
   card.classList.remove('on', 'mini');
   if (selected) { const t = tablets[selected]; t.front.emissiveIntensity = 0; t.flip = 0; selected = null; }
 }
+card.querySelector('.inc').onclick = () => selected && offerIncense(selected);
+card.querySelector('.rec').onclick = () => selected && openRecorder(selected);
 card.querySelector('.tw').onclick = () => {
   if (!selected) return;
   const id = selected; closeCard(); setGen(0); flyTo(towerView(id), 1.6);
@@ -1104,13 +1446,20 @@ canvas.addEventListener('pointerup', e => {
   const act = hit.object.userData.action;
   if (!act) return selectPerson(hit.object.userData.pid);
   stopTour(); closeCard();
-  if (act === 'history') openHistory();
+  if (act === 'incense-all') offerIncense('all');
+  else if (act === 'history') openHistory();
   else if (act === 'plaque') openPlaque();
   else if (act.startsWith('zibei')) openZibei(+act.split(':')[1] || 0);
 });
 
 /* ---------- 海報輸出（含標題與印章） ---------- */
 const posterEl = document.getElementById('poster');
+(() => {
+  const r = document.getElementById('recBox');
+  r.querySelector('.go').onclick = recStart; r.querySelector('.stop').onclick = recStop;
+  r.querySelector('.redo').onclick = () => { REC.blob = null; recStart(); };
+  r.querySelector('.ok').onclick = recUpload; r.querySelector('.no').onclick = closeRecorder;
+})();
 document.querySelector('#scrollReader .close').onclick = () => document.getElementById('scrollReader').classList.remove('on');
 posterEl.querySelector('button').onclick = () => posterEl.classList.remove('on');
 function exportPoster() {
@@ -1163,6 +1512,13 @@ function loop() {
   if (selected) tablets[selected].front.emissiveIntensity = .18 + .14 * Math.sin(T * 3);
   for (const id in tablets) {
     const t = tablets[id], goal = t.flip * Math.PI;
+    if (id !== selected) {
+      let e = 0;
+      if (t.memorial) e = .22 + .16 * Math.sin(T * 2);
+      if (t.offerGlow) { const k = (now - t.offerGlow) / 3000; if (k < 1) e = Math.max(e, .5 * (1 - k)); else t.offerGlow = 0; }
+      t.front.emissiveIntensity = e;
+    }
+    if (t.aura) t.aura.material.opacity = .45 + .2 * Math.sin(T * 2);
     if (Math.abs(t.grp.rotation.y - goal) > .001) t.grp.rotation.y += (goal - t.grp.rotation.y) * Math.min(1, dt * 5);
     if (t.sway !== undefined) t.grp.rotation.z = Math.sin(T * .9 + t.sway) * .025;
   }
@@ -1176,12 +1532,21 @@ function loop() {
     }
     a.needsUpdate = true;
   }
-  smoke.forEach(sp => {
-    const t = (sp.userData.t + T * .12) % 1;
-    sp.position.set(altarTip.x + Math.sin(t * 9 + sp.userData.t * 20) * .15 * t, altarTip.y + t * 2.6, altarTip.z - t * .3);
-    sp.scale.setScalar(.15 + t * .9);
-    sp.material.opacity = Math.sin(t * Math.PI) * .55;
-  });
+  for (let k = emitters.length - 1; k >= 0; k--) {
+    const e = emitters[k];
+    if (e.until && now > e.until) {
+      e.sprites.forEach(sp => { scene.remove(sp); sp.material.dispose(); });
+      if (e.group) scene.remove(e.group);
+      emitters.splice(k, 1); continue;
+    }
+    const fadeIn = Math.min(1, (now - e.born) / 1500), fadeOut = e.until ? Math.min(1, (e.until - now) / 4000) : 1;
+    e.sprites.forEach(sp => {
+      const t = (sp.userData.t + T * .12) % 1;
+      sp.position.set(e.pos.x + Math.sin(t * 9 + sp.userData.t * 20) * .15 * t, e.pos.y + t * 2.6, e.pos.z - t * .3);
+      sp.scale.setScalar(.15 + t * .9);
+      sp.material.opacity = Math.sin(t * Math.PI) * .55 * fadeIn * fadeOut;
+    });
+  }
 
   renderer.render(scene, camera);
 }
@@ -1189,6 +1554,7 @@ function loop() {
 /* ================= 啟動 ================= */
 async function start() {
   const introT0 = performance.now();
+  const riteP = loadRite();
   await waitFonts();
   PEOPLE.forEach(buildTablet);
   buildLines();
@@ -1198,6 +1564,7 @@ async function start() {
   buildBackdrop((bounds.minY + bounds.maxY) / 2);
   buildDust(bounds);
   buildBar();
+  computeAnniv();
   tMin.set(bounds.minX - 4, bounds.minY - 4, -3); tMax.set(bounds.maxX + 4, bounds.maxY + 4, 3);
   if (towerHall) { tMax.x = towerHall.x + 4; tMin.y = Math.min(tMin.y, towerHall.bottom - 2); }
 
@@ -1208,14 +1575,18 @@ async function start() {
 
   const intro = document.getElementById('intro');
   let skipped = false;
+  const todayAnniv = ANNIV.find(a => a.days === 0);
+  riteP.then(() => { showRiteBanner(); if (selected) openCard(byId[selected]); });
   intro.addEventListener('pointerdown', () => {
     if (skipped) return; skipped = true; intro.classList.add('hide');
-    stopTour(); flyTo(overviewView(), 1.2);
+    stopTour();
+    if (todayAnniv) selectPerson(todayAnniv.p.id); else flyTo(overviewView(), 1.2);
   });
   await sleep(Math.max(0, 2600 - (performance.now() - introT0)));
   if (skipped) return;
   intro.classList.add('hide'); skipped = true;
-  tour();
+  if (todayAnniv) { await flyTo(genView(1), 1.4); selectPerson(todayAnniv.p.id); }   // 忌日當天：直接帶到該位祖先
+  else tour();
 }
 start();
 </script>
