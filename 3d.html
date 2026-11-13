@@ -534,6 +534,20 @@ let MEM = null;
   });
 })();
 
+/* 紀念堂資料在別的分頁改過（例如剛登記塔位），回到 3D 時自動重新載入 */
+(() => {
+  let last = ''; try { last = localStorage.getItem('ancestorApp_v28') || ''; } catch (e) {}
+  const check = () => {
+    let now = ''; try { now = localStorage.getItem('ancestorApp_v28') || ''; } catch (e) { return; }
+    if (now === last) return; last = now;
+    if (typeof CHANT !== 'undefined' && CHANT.on) return;
+    try { toast('紀念堂資料已更新，重新載入中…'); } catch (e) {}
+    setTimeout(() => location.reload(), 900);
+  };
+  addEventListener('storage', e => { if (e.key === 'ancestorApp_v28') check(); });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') check(); });
+  addEventListener('pageshow', check);
+})();
 /* ---------- 神位文字（未填則依慣例產生） ---------- */
 function tabletText(p) {
   if (p.empty) return '無配偶';
@@ -1554,11 +1568,27 @@ const SLOTS = 12;
 /* 已知安奉處（紀念堂未登記時使用；樓層號位待紀念堂補登） */
 const DEFAULT_PLACE = { p1: { tower: 'A' } };   // 來台祖曾虎：成龍納骨塔
 function placementOf(p) {
+  if (p.memPl) return p.memPl;
   const main = p.role === 'main' ? p : byId[p.spouseOf];
   const pl = MEM && MEM.placements && main.mid ? MEM.placements[p.role === 'main' ? main.mid : main.mid + '_spouse'] : null;
   if (pl && pl.tower && TOWERS[pl.tower]) return pl;
   const d = DEFAULT_PLACE[p.id];
   return d && TOWERS[d.tower] ? d : null;
+}
+/* 紀念堂登記了塔位、但沒接上 3D 世系的人（例如上一代對不上）：仍列入塔位與掃墓路線 */
+function memExtras() {
+  if (!MEM || !MEM.placements) return [];
+  const mids = new Set(PEOPLE.filter(p => p.mid).map(p => String(p.mid))), out = [];
+  Object.entries(MEM.placements).forEach(([key, pl]) => {
+    if (!pl || !pl.tower || !TOWERS[pl.tower]) return;
+    const sp = key.endsWith('_spouse'), id = sp ? key.slice(0, -7) : key;
+    if (mids.has(String(id))) return;   // 已在世系中，由 placementOf 處理
+    const a = (MEM.ancestors || []).find(x => String(x.id) === String(id));
+    const name = a ? (sp ? a.spouse : a.name) : '';
+    if (!name) return;
+    out.push({ id: 'mx_' + key, name: sp || name.startsWith('曾') ? name : '曾' + name, memPl: pl, extra: true });
+  });
+  return out;
 }
 const hasSlot = pl => pl && pl.floor !== undefined && pl.floor !== '' && pl.slot !== undefined && pl.slot !== '';
 function placeText(pl, sep = '') {   // 「二樓4號」；沒有樓層號位時寫「位置待補」
@@ -1570,7 +1600,7 @@ function slotLabel(tower, floor, slot) {
 }
 function buildTowerHall() {
   const occ = {};
-  PEOPLE.forEach(p => { const pl = placementOf(p); if (hasSlot(pl)) (occ[pl.tower] = occ[pl.tower] || []).push([p, pl]); });
+  PEOPLE.concat(memExtras()).forEach(p => { const pl = placementOf(p); if (hasSlot(pl)) (occ[pl.tower] = occ[pl.tower] || []).push([p, pl]); });
   const used = Object.keys(TOWERS).filter(k => occ[k]);
   if (!used.length) return;
   const hx = Math.max(pillarX, bounds.maxX) + 9, W = 5.2;
@@ -1612,7 +1642,7 @@ function buildTowerHall() {
   towerHall.top = 1.8; towerHall.bottom = y;
 }
 function towerView(hiId) {
-  const pl0 = hiId && placementOf(byId[hiId]), pl = hasSlot(pl0) ? pl0 : null;
+  const pl0 = hiId && byId[hiId] && placementOf(byId[hiId]), pl = hasSlot(pl0) ? pl0 : null;
   Object.entries(towerHall.panels).forEach(([k, pn]) => {
     const old = pn.mesh.material[4].map;
     pn.mesh.material[4].map = pn.mesh.material[4].emissiveMap = pn.draw(pl && pl.tower === k ? hiId : null);
@@ -2410,7 +2440,7 @@ function buildRoute() {
   // 起訖建築
   const s = buildChenglong(); s.position.copy(rtV(215, 1140)); s.rotation.y = Math.PI * .05; s.scale.setScalar(1.15); g.add(s);
   const e = buildZhongling(); e.position.copy(rtV(1056, 800)); e.rotation.y = -Math.PI * .08; e.scale.setScalar(1.05); g.add(e);
-  const occ = keys => PEOPLE.filter(p => { const pl = placementOf(p); return pl && keys.includes(pl.tower); });
+  const occ = keys => PEOPLE.concat(memExtras()).filter(p => { const pl = placementOf(p); return pl && keys.includes(pl.tower); });
   const la = rtLabel('成龍納骨堂', `起點・安奉 ${occ(['A']).length} 位`); la.position.copy(rtV(215, 1140, 2.25)); g.add(la);
   const lb = rtLabel('眾靈祠', `終點・安奉 ${occ(['B_new', 'B_old']).length} 位`); lb.position.copy(rtV(1056, 800, 2.1)); g.add(lb);
   g.updateMatrixWorld(true);
