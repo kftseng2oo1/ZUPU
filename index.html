@@ -104,6 +104,7 @@
   @media (max-width: 640px) {
     nav { overflow-x: auto; justify-content: flex-start; min-width: 0; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
     nav::-webkit-scrollbar { display: none; }
+    nav { -webkit-mask-image: linear-gradient(90deg,#000 85%,transparent); mask-image: linear-gradient(90deg,#000 85%,transparent); }   /* 右側淡出：提示還有「立體祠堂」「祭祀」可以滑出來 */
     nav button { white-space: nowrap; flex-shrink: 0; padding: 8px 10px; }
   }
 
@@ -1683,6 +1684,8 @@
 <script>
 // ─── Data Store ───────────────────────────────────────────────
 const STORAGE_KEY = 'ancestorApp_v28';
+// AI 整理（Word／PDF 匯入、沿革）走 arcar Worker 代理，API Key 藏在 Worker，不能從網頁直連 Anthropic
+const AI_PROXY = 'https://arcar.kftseng2oo1.workers.dev/';
 
 function loadData() {
   try {
@@ -1692,9 +1695,41 @@ function loadData() {
   return { ancestors: getDefaultAncestors(), placements: {}, familyHistory: getDefaultHistory(), familyHistorySource: '由來.pdf（整理）' };
 }
 
+/* 戶籍文件（PDF、照片）改存 IndexedDB：localStorage 只有約 5MB，
+   以前文件一多就存不下，之後連祖先、塔位的修改都會默默存失敗。
+   localStorage 只留文件名稱等資料，檔案本體放 IndexedDB 'zupu_docs'。 */
+const DOC_DB = (() => {
+  let dbp = null;
+  const open = () => dbp || (dbp = new Promise((res, rej) => {
+    const r = indexedDB.open('zupu_docs', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('docs');
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+  }));
+  const tx = async (mode, fn) => { const db = await open(); return new Promise((res, rej) => { const t = db.transaction('docs', mode), st = t.objectStore('docs'), q = fn(st); t.oncomplete = () => res(q && q.result); t.onerror = () => rej(t.error); }); };
+  return {
+    put: (id, data) => tx('readwrite', st => st.put(data, id)),
+    get: id => tx('readonly', st => st.get(id)),
+    del: id => tx('readwrite', st => st.delete(id)),
+  };
+})();
+const _docSaved = new Set();
+let _quotaWarned = false;
 function saveData() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+  const docs = appData.documents || [];
+  docs.forEach(d => {   // 新文件先寫進 IndexedDB
+    if (d.data && !_docSaved.has(d.id)) { _docSaved.add(d.id); DOC_DB.put(d.id, d.data).catch(() => { _docSaved.delete(d.id); showNotif('⚠️ 文件「' + d.name + '」儲存失敗'); }); }
+  });
+  const lite = Object.assign({}, appData, { documents: docs.map(d => { const o = Object.assign({}, d); delete o.data; return o; }) });
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(lite));
+    return true;
+  } catch (e) {
+    if (!_quotaWarned) { _quotaWarned = true; setTimeout(() => _quotaWarned = false, 8000); }
+    showNotif('⚠️ 儲存空間已滿，這次修改沒有存起來！請先「備份」，再刪除不需要的照片或文件');
+    return false;
+  }
 }
+
 
 function getDefaultAncestors() {
   return [
@@ -1730,6 +1765,19 @@ function getDefaultHistory() {
 }
 
 let appData = loadData();
+/* 開啟時：把文件本體從 IndexedDB 讀回；舊版存在 localStorage 裡的文件搬過去 */
+let docsReady = (async () => {
+  const docs = appData.documents || [];
+  let migrated = false;
+  for (const d of docs) {
+    try {
+      if (d.data) { await DOC_DB.put(d.id, d.data); _docSaved.add(d.id); migrated = true; }
+      else { const v = await DOC_DB.get(d.id); if (v) { d.data = v; _docSaved.add(d.id); } }
+    } catch (e) {}
+  }
+  if (migrated) saveData();
+  if (document.getElementById('view-shrine') && document.getElementById('view-shrine').classList.contains('active')) renderDocGrid();
+})();
 let editingId = null;
 let currentAvatarData = '';
 
@@ -2733,7 +2781,7 @@ function loadMammoth() {
 async function processHistoryWithAI(rawText, fileName) {
   setHistoryProgress(true, 'AI 正在整理族系沿革…', 60);
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    const resp = await fetch(AI_PROXY, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -2747,6 +2795,7 @@ ${rawText.slice(0, 8000)}` }]
     });
     setHistoryProgress(true, '整理完成，正在儲存…', 90);
     const data = await resp.json();
+    if (!resp.ok || data.error) throw new Error((data.error && (data.error.message || data.error)) || ('HTTP ' + resp.status));
     const text = (data.content || []).map(b => b.text || '').join('').trim();
     if (!text) throw new Error('AI 未回傳內容');
     applyHistoryResult(text, fileName);
@@ -2758,7 +2807,7 @@ ${rawText.slice(0, 8000)}` }]
 async function processHistoryPdfWithAI(base64, fileName) {
   setHistoryProgress(true, 'AI 正在解析 PDF 並整理族系沿革…', 40);
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    const resp = await fetch(AI_PROXY, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -2776,6 +2825,7 @@ async function processHistoryPdfWithAI(base64, fileName) {
     });
     setHistoryProgress(true, '整理完成，正在儲存…', 90);
     const data = await resp.json();
+    if (!resp.ok || data.error) throw new Error((data.error && (data.error.message || data.error)) || ('HTTP ' + resp.status));
     const text = (data.content || []).map(b => b.text || '').join('').trim();
     if (!text) throw new Error('AI 未回傳內容');
     applyHistoryResult(text, fileName);
@@ -3386,7 +3436,7 @@ function handlePdfImport(e) {
   reader.onload = async ev => {
     const base64 = ev.target.result.split(',')[1];
     try {
-      const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      const resp = await fetch(AI_PROXY, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -3405,6 +3455,7 @@ name, alias, birth（YYYY-MM-DD 格式），death（YYYY-MM-DD 格式），gen�
         })
       });
       const data = await resp.json();
+    if (!resp.ok || data.error) throw new Error((data.error && (data.error.message || data.error)) || ('HTTP ' + resp.status));
       const text = (data.content||[]).map(b => b.text||'').join('');
       const clean = text.replace(/```json|```/g,'').trim();
       const rows = JSON.parse(clean);
@@ -3439,7 +3490,8 @@ function doExport() {
 }
 
 // ─── 備份 / 復原 ──────────────────────────────────────────────
-function backupData() {
+async function backupData() {
+  await docsReady;   // 備份要包含文件本體
   const json = JSON.stringify(appData, null, 2);
   const blob = new Blob([json], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -3465,8 +3517,10 @@ async function restoreData(e) {
     try {
       const data = JSON.parse(ev.target.result);
       if (!data.ancestors) throw new Error('格式錯誤');
+      (appData.documents || []).forEach(d => { if (!(data.documents || []).some(x => x.id === d.id)) DOC_DB.del(d.id).catch(() => {}); });
       appData = data;
-      localStorage.setItem('ancestorApp_v28', JSON.stringify(appData));
+      _docSaved.clear();
+      if (!saveData()) return;
       renderAncestors();
       showNotif('✓ 資料已從備份檔復原，共 ' + appData.ancestors.length + ' 筆');
     } catch(err) {
@@ -3560,7 +3614,7 @@ function renderDocGrid() {
 
     const thumb = doc.isPdf
       ? `<div class="doc-thumb-pdf">📄</div>`
-      : `<img class="doc-thumb" src="${doc.data}" alt="${doc.name}">`;
+      : doc.data ? `<img class="doc-thumb" src="${doc.data}" alt="${doc.name}">` : `<div class="doc-thumb" style="display:flex;align-items:center;justify-content:center;color:#aaa;font-size:12px">載入中…</div>`;
 
     card.innerHTML = `
       ${thumb}
@@ -3650,6 +3704,7 @@ async function deleteDoc(id, e) {
   const ok = await showConfirm('確定刪除此文件？', '🗑️');
   if (!ok) return;
   appData.documents = (appData.documents || []).filter(d => d.id !== id);
+  DOC_DB.del(id).catch(() => {}); _docSaved.delete(id);
   saveData();
   renderDocGrid();
   showNotif('已刪除文件');

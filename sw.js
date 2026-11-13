@@ -1,5 +1,5 @@
 // 族譜紀念堂 Service Worker
-const CACHE_NAME = 'zupu-v28';
+const CACHE_NAME = 'zupu-v29';
 const ASSETS = [
   './index.html',
   './3d.html',
@@ -33,7 +33,7 @@ self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
 
   // Always go to network for Anthropic API
-  if (url.hostname === 'api.anthropic.com') {
+  if (url.hostname === 'api.anthropic.com' || url.hostname.endsWith('workers.dev') || e.request.method !== 'GET') {
     e.respondWith(fetch(e.request));
     return;
   }
