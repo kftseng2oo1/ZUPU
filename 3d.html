@@ -837,26 +837,170 @@ function buildHall() {
   }
   pillarX = isFinite(zMax) ? zMax : bounds.maxX;
 
-  // 沿革碑
+  // 沿革碑：墨玉碑身、金箔刻字、回紋邊框、祥雲碑首、海水江崖碑座
   stelePos = V(rx - 3.5, ry - GEN_H * .62, -.4);
-  const heads = historyText().split('\n').map(s => s.trim()).filter(s => /^[一二三四五六七八九十]+、/.test(s)).map(s => s.replace(/^[一二三四五六七八九十]+、/, '').replace(/（.*?）/g, ''));
-  const stex = boardTexture(400, 900, (g, W, H) => {
-    g.fillStyle = '#6f6a62'; g.fillRect(0, 0, W, H);
-    for (let i = 0; i < 2500; i++) { g.fillStyle = `rgba(${Math.random() < .5 ? '255,255,255' : '0,0,0'},${Math.random() * .07})`; g.fillRect(Math.random() * W, Math.random() * H, 2, 2); }
-    g.strokeStyle = 'rgba(30,25,20,.6)'; g.lineWidth = 4; g.strokeRect(24, 24, W - 48, H - 48);
-    g.fillStyle = '#2a241e'; g.font = `900 56px ${FONT}`;
-    [...'曾氏沿革'].forEach((c, i) => g.fillText(c, W - 80, 110 + i * 70));
-    g.font = `700 26px ${FONT}`; g.fillStyle = '#e8c66a';
-    heads.slice(0, 6).forEach((h, k) => [...vert(h)].slice(0, 14).forEach((c, i) => g.fillText(c, W - 160 - k * 44, 110 + i * 34)));
-    g.fillStyle = 'rgba(30,25,20,.75)'; g.font = `700 22px ${FONT}`; g.fillText('輕觸展讀', W / 2, H - 60);
-  });
-  addBoard(new THREE.BoxGeometry(1.5, 3.4, .32), stex, '#5c5852', stelePos, 'history');
-  const stoneM = new THREE.MeshStandardMaterial({ color: '#57534d', roughness: .9 });
-  const cap = new THREE.Mesh(new THREE.BoxGeometry(1.8, .3, .5), stoneM); cap.position.set(stelePos.x, stelePos.y + 1.85, stelePos.z); scene.add(cap);
-  const base = new THREE.Mesh(new THREE.BoxGeometry(2, .45, .9), stoneM); base.position.set(stelePos.x, stelePos.y - 1.92, stelePos.z); scene.add(base);
+  buildStele(stelePos);
 
   hallExt = { minX: stelePos.x - 1.1, maxX: pillarX + .4 };
   buildTowerHall();
+}
+
+/* ---------- 沿革碑 ---------- */
+let steleFront = null, steleHalo = null;
+const STELE_TIMELINE = [['1642', '振賜公渡台'], ['1720', '五兄弟東渡'], ['1845', '雲嘉大海嘯']];
+function fretBand(g, x, y, w, h, u, color) {   // 回紋帶
+  g.save(); g.beginPath(); g.rect(x, y, w, h); g.clip();
+  g.strokeStyle = color; g.lineWidth = Math.max(1.6, u * .12); g.lineCap = 'square';
+  const horiz = w >= h, n = Math.ceil((horiz ? w : h) / u) + 1;
+  for (let i = 0; i < n; i++) {
+    const ox = horiz ? x + i * u : x + (w - u) / 2, oy = horiz ? y + (h - u) / 2 : y + i * u, q = u / 6;
+    g.beginPath();
+    g.moveTo(ox, oy + u - q); g.lineTo(ox, oy + q); g.lineTo(ox + u - 2 * q, oy + q); g.lineTo(ox + u - 2 * q, oy + u - 2.6 * q);
+    g.lineTo(ox + 2 * q, oy + u - 2.6 * q); g.lineTo(ox + 2 * q, oy + 2.6 * q); g.lineTo(ox + u - 3.4 * q, oy + 2.6 * q);
+    g.moveTo(ox, oy + u - q); g.lineTo(ox + u, oy + u - q);
+    g.stroke();
+  }
+  g.restore();
+}
+function goldLeaf(g, text, x, y, size, step, vertical = true) {   // 陰刻金箔字
+  const chars = [...text];
+  const gr = g.createLinearGradient(0, y - size, 0, y + step * chars.length);
+  gr.addColorStop(0, '#fff1c2'); gr.addColorStop(.35, '#e2b04e'); gr.addColorStop(.7, '#f8dc8c'); gr.addColorStop(1, '#c48d2c');
+  g.font = `900 ${size}px ${FONT}`;
+  chars.forEach((c, i) => {
+    const cx = vertical ? x : x + i * step, cy = vertical ? y + i * step : y;
+    g.fillStyle = 'rgba(0,0,0,.75)'; g.fillText(c, cx + 2, cy + 3);          // 刻痕陰影
+    g.fillStyle = 'rgba(255,240,200,.35)'; g.fillText(c, cx - 1, cy - 1);   // 刻痕高光
+    g.fillStyle = gr; g.fillText(c, cx, cy);
+  });
+}
+function steleTexture() {
+  const W = 640, H = 1440, c = document.createElement('canvas'); c.width = W; c.height = H;
+  const g = c.getContext('2d'); g.textAlign = 'center'; g.textBaseline = 'middle';
+  const rnd = mulberry32(1874);
+  // 墨玉底
+  const bg = g.createLinearGradient(0, 0, W, H);
+  bg.addColorStop(0, '#1b2a25'); bg.addColorStop(.5, '#101a17'); bg.addColorStop(1, '#070c0b');
+  g.fillStyle = bg; g.fillRect(0, 0, W, H);
+  for (let i = 0; i < 22; i++) {   // 玉紋
+    g.strokeStyle = `rgba(${rnd() < .7 ? '150,200,180' : '220,190,120'},${.03 + rnd() * .06})`;
+    g.lineWidth = .8 + rnd() * 2.2;
+    g.beginPath(); const x0 = rnd() * W, y0 = rnd() * H; g.moveTo(x0, y0);
+    g.bezierCurveTo(x0 + (rnd() - .5) * 500, y0 + rnd() * 300, x0 + (rnd() - .5) * 500, y0 + rnd() * 500, x0 + (rnd() - .5) * 400, y0 + 300 + rnd() * 500);
+    g.stroke();
+  }
+  for (let i = 0; i < 3500; i++) { g.fillStyle = `rgba(255,255,255,${rnd() * .035})`; g.fillRect(rnd() * W, rnd() * H, 1.5, 1.5); }
+  const sheen = g.createLinearGradient(0, 0, W, H * .6);
+  sheen.addColorStop(0, 'rgba(255,255,255,0)'); sheen.addColorStop(.42, 'rgba(200,240,225,.07)'); sheen.addColorStop(.5, 'rgba(255,255,255,.12)'); sheen.addColorStop(.58, 'rgba(200,240,225,.05)'); sheen.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = sheen; g.fillRect(0, 0, W, H);
+  // 金框＋回紋
+  const GOLD = '#d4a843';
+  g.strokeStyle = GOLD; g.lineWidth = 6; g.strokeRect(16, 16, W - 32, H - 32);
+  g.lineWidth = 1.5; g.strokeRect(62, 62, W - 124, H - 124);
+  fretBand(g, 24, 24, W - 48, 34, 34, 'rgba(212,168,67,.85)');
+  fretBand(g, 24, H - 58, W - 48, 34, 34, 'rgba(212,168,67,.85)');
+  fretBand(g, 24, 58, 34, H - 116, 34, 'rgba(212,168,67,.85)');
+  fretBand(g, W - 58, 58, 34, H - 116, 34, 'rgba(212,168,67,.85)');
+  // 碑額：祥雲＋圓章
+  const mx = W / 2, my = 170;
+  g.strokeStyle = 'rgba(226,189,98,.8)'; g.lineWidth = 3;
+  [-1, 1].forEach(sx => {   // 祥雲：右側畫好後鏡射到左側
+    g.save(); g.translate(mx, my); g.scale(sx, 1);
+    for (let k = 0; k < 3; k++) {
+      const cx = 120 + k * 52, cy = 8 - (k % 2) * 22, r = 26 - k * 3;
+      g.beginPath(); g.arc(cx, cy, r, Math.PI * .1, Math.PI * 1.9); g.stroke();
+      g.beginPath(); g.arc(cx + r * .35, cy, r * .45, 0, Math.PI * 1.6); g.stroke();
+    }
+    g.beginPath(); g.moveTo(92, 34); g.bezierCurveTo(160, 52, 220, 30, 250, 44); g.stroke();
+    g.restore();
+  });
+  g.fillStyle = '#8b1a1a'; g.beginPath(); g.arc(mx, my, 70, 0, Math.PI * 2); g.fill();
+  g.strokeStyle = GOLD; g.lineWidth = 6; g.stroke();
+  g.lineWidth = 1.5; g.beginPath(); g.arc(mx, my, 58, 0, Math.PI * 2); g.stroke();
+  goldLeaf(g, '曾', mx, my + 4, 82, 0);
+  // 界行
+  const top = 290, bot = 1150;
+  g.strokeStyle = 'rgba(212,168,67,.28)'; g.lineWidth = 1.2;
+  for (let x = W - 190; x > 90; x -= 82) { g.beginPath(); g.moveTo(x, top - 10); g.lineTo(x, bot); g.stroke(); }
+  g.fillStyle = GOLD; g.fillRect(90, top - 26, W - 180, 2); g.fillRect(90, bot + 14, W - 180, 2);
+  // 碑題
+  goldLeaf(g, '曾氏家族沿革', W - 132, top + 44, 70, 86);
+  // 章節
+  const heads = historyText().split('\n').map(s => s.trim()).filter(s => /^[一二三四五六七八九十]+、/.test(s));
+  heads.slice(0, 5).forEach((h, k) => {
+    const num = h.match(/^([一二三四五六七八九十]+)、/)[1];
+    const t = [...vert(h.replace(/^[一二三四五六七八九十]+、/, '').replace(/（.*?）/g, ''))].slice(0, 16);
+    const x = W - 231 - k * 82;
+    g.fillStyle = '#9b1c1c'; g.beginPath(); g.arc(x, top + 10, 21, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = GOLD; g.lineWidth = 2; g.stroke();
+    g.fillStyle = '#f6d98a'; g.font = `900 24px ${FONT}`; g.fillText(num, x, top + 11);
+    const step = Math.min(46, (bot - top - 70) / t.length);
+    g.font = `700 ${Math.min(36, step * .86)}px ${FONT}`;
+    t.forEach((ch, i) => { g.fillStyle = 'rgba(0,0,0,.6)'; g.fillText(ch, x + 1.5, top + 66 + i * step + 2); g.fillStyle = '#ecd08a'; g.fillText(ch, x, top + 66 + i * step); });
+  });
+  // 年表
+  const hist = historyText(), tl = STELE_TIMELINE.filter(([y]) => hist.includes(y));
+  if (tl.length) {
+    const y = 1236, x0 = 160, x1 = W - 160;
+    g.strokeStyle = GOLD; g.lineWidth = 2; g.beginPath(); g.moveTo(x0 - 20, y); g.lineTo(x1 + 20, y); g.stroke();
+    tl.forEach(([yr, label], i) => {
+      const x = tl.length === 1 ? W / 2 : x0 + (x1 - x0) * i / (tl.length - 1);
+      g.save(); g.translate(x, y); g.rotate(Math.PI / 4); g.fillStyle = '#d4a843'; g.fillRect(-7, -7, 14, 14); g.restore();
+      g.fillStyle = '#f6d98a'; g.font = `900 30px ${FONT}`; g.fillText(yr, x, y - 32);
+      g.fillStyle = '#cdb47a'; g.font = `700 22px ${FONT}`; g.fillText(label, x, y + 32);
+    });
+  }
+  // 朱印「三省堂印」
+  const sx = 112, sy = 1330, ss = 78;
+  g.fillStyle = '#b3241f'; g.fillRect(sx - ss / 2, sy - ss / 2, ss, ss);
+  g.fillStyle = '#f8e7d0'; g.font = `900 30px ${FONT}`;
+  [['三', '省'], ['堂', '印']].forEach((col, ci) => col.forEach((ch, ri) => g.fillText(ch, sx + 17 - ci * 34, sy - 17 + ri * 34)));   // 右行「三省」、左行「堂印」
+  // 提示
+  g.fillStyle = 'rgba(226,189,98,.75)'; g.font = `700 24px ${FONT}`; g.fillText('— 輕 觸 展 讀 —', W / 2 + 40, 1330);
+  return toTex(c);
+}
+function waveTexture() {   // 碑座：海水江崖
+  const W = 1024, H = 160, c = document.createElement('canvas'); c.width = W; c.height = H;
+  const g = c.getContext('2d');
+  g.fillStyle = '#0c1412'; g.fillRect(0, 0, W, H);
+  g.strokeStyle = 'rgba(212,168,67,.85)'; g.lineWidth = 3;
+  for (let row = 0; row < 3; row++) {
+    const r = 26, y = H - 18 - row * 30, off = row % 2 ? r : 0;
+    for (let x = -r + off; x < W + r; x += r * 2) { g.beginPath(); g.arc(x, y, r, Math.PI, 0); g.stroke(); g.beginPath(); g.arc(x, y, r * .55, Math.PI, 0); g.stroke(); }
+  }
+  g.fillStyle = '#d4a843'; g.fillRect(0, 0, W, 6); g.fillRect(0, H - 6, W, 6);
+  return toTex(c);
+}
+function buildStele(pos) {
+  const jade = new THREE.MeshStandardMaterial({ color: '#13201c', roughness: .22, metalness: .25, envMapIntensity: 1.1 });
+  const front = new THREE.MeshStandardMaterial({ map: steleTexture(), roughness: .2, metalness: .15, envMapIntensity: .9,
+    emissive: new THREE.Color('#ffcc66'), emissiveIntensity: .05 });
+  front.emissiveMap = front.map; steleFront = front;
+  const BW = 1.5, BH = 3.4, BD = .26;
+  const body = new THREE.Mesh(new THREE.BoxGeometry(BW, BH, BD), [jade, jade, jade, jade, front, jade]);
+  body.position.copy(pos); body.userData.action = 'history'; pickables.push(body); scene.add(body);
+  [BH / 2, -BH / 2].forEach(dy => { const s = new THREE.Mesh(new THREE.BoxGeometry(BW + .06, .05, BD + .04), M.gold); s.position.set(pos.x, pos.y + dy, pos.z); scene.add(s); });
+  // 碑首：圓拱＋金邊＋寶珠
+  const crown = new THREE.Shape(); crown.moveTo(.86, 0); crown.absarc(0, 0, .86, 0, Math.PI, false); crown.lineTo(.86, 0);
+  const crownGeo = new THREE.ExtrudeGeometry(crown, { depth: .3, bevelEnabled: true, bevelThickness: .03, bevelSize: .03, bevelSegments: 3, curveSegments: 40 });
+  crownGeo.translate(0, 0, -.15);
+  const cm = new THREE.Mesh(crownGeo, jade); cm.scale.y = .55; cm.position.set(pos.x, pos.y + BH / 2 + .02, pos.z);
+  cm.userData.action = 'history'; pickables.push(cm); scene.add(cm);
+  const rim = new THREE.Shape(); rim.moveTo(.86, 0); rim.absarc(0, 0, .86, 0, Math.PI, false); rim.lineTo(-.76, 0); rim.absarc(0, 0, .76, Math.PI, 0, true); rim.lineTo(.86, 0);
+  const rm = new THREE.Mesh(new THREE.ExtrudeGeometry(rim, { depth: .04, bevelEnabled: false, curveSegments: 40 }), M.gold);
+  rm.scale.y = .55; rm.position.set(pos.x, pos.y + BH / 2 + .02, pos.z + .17); scene.add(rm);
+  const pearl = new THREE.Mesh(new THREE.SphereGeometry(.11, 24, 16), new THREE.MeshStandardMaterial({ color: '#ffd77a', emissive: '#ff9a3a', emissiveIntensity: .45, metalness: .5, roughness: .25 }));
+  pearl.position.set(pos.x, pos.y + BH / 2 + .86 * .55 + .1, pos.z); scene.add(pearl);
+  // 碑座：兩層，前面海水江崖
+  const waves = new THREE.MeshStandardMaterial({ map: waveTexture(), roughness: .35, metalness: .2 });
+  const b1 = new THREE.Mesh(new THREE.BoxGeometry(1.95, .34, .62), [jade, jade, jade, jade, waves, jade]);
+  b1.position.set(pos.x, pos.y - BH / 2 - .17, pos.z); scene.add(b1);
+  const b2 = new THREE.Mesh(new THREE.BoxGeometry(2.25, .2, .82), new THREE.MeshStandardMaterial({ color: '#0a0f0e', roughness: .4, metalness: .2 }));
+  b2.position.set(pos.x, pos.y - BH / 2 - .44, pos.z); scene.add(b2);
+  const lip = new THREE.Mesh(new THREE.BoxGeometry(2.27, .03, .84), M.gold); lip.position.set(pos.x, pos.y - BH / 2 - .34, pos.z); scene.add(lip);
+  // 光暈
+  steleHalo = new THREE.Sprite(new THREE.SpriteMaterial({ map: softTex('rgba(150,220,190,.55)', 'rgba(120,200,170,0)'), transparent: true, depthWrite: false, opacity: .5 }));
+  steleHalo.scale.set(4.2, 6, 1); steleHalo.position.set(pos.x, pos.y + .2, pos.z - .5); scene.add(steleHalo);
 }
 
 /* 塔位側殿：只有紀念堂登記過塔位才建立 */
@@ -1013,6 +1157,7 @@ function showRiteBanner() {
     el.onclick = () => selectPerson(soon.p.id);
   } else return;
   el.classList.add('on');
+  setTimeout(() => el.classList.remove('on'), 12000);   // 不長時間遮住匾額，資訊仍在「祭祀」面板
 }
 
 /* ---------- 上香者稱呼 ---------- */
@@ -1510,6 +1655,7 @@ function loop() {
   }
 
   if (selected) tablets[selected].front.emissiveIntensity = .18 + .14 * Math.sin(T * 3);
+  if (steleFront) { steleFront.emissiveIntensity = .05 + .04 * Math.sin(T * 1.3); steleHalo.material.opacity = .42 + .12 * Math.sin(T * 1.3); }
   for (const id in tablets) {
     const t = tablets[id], goal = t.flip * Math.PI;
     if (id !== selected) {
