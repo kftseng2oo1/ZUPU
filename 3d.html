@@ -211,6 +211,40 @@
   #routeBox .row .play{background:#8b1a1a;color:#f6d98a}
   #routeBox .row .gmap{background:#2a6cd6;color:#fff;border-color:#2a6cd6}
 
+  /* 納骨塔參觀 */
+  body.tower #title,body.tower #genTag,body.tower #seal,body.tower #riteBanner,body.tower #card,body.tower #bar{display:none!important}
+  #towerPick,#twBox{position:fixed;left:0;right:0;bottom:0;z-index:14;display:none;padding:0 8px}
+  #towerPick.on,#twBox.on{display:block;animation:fadeIn .35s}
+  #towerPick .sheet,#twBox .sheet{position:relative;background:linear-gradient(170deg,#faf3e0,#ede0b8);border:2px solid var(--gold);border-bottom:0;border-radius:6px 6px 0 0;box-shadow:0 -6px 24px rgba(0,0,0,.35);padding:12px 14px calc(var(--sb) + 12px);max-height:58vh;overflow:auto}
+  #towerPick .sheet{max-height:74vh}
+  #towerPick h3,#twBox h3{color:var(--red);font-size:calc(17px * var(--fs));font-weight:900;letter-spacing:.1em;text-align:center}
+  #towerPick .sub,#twBox .sub{text-align:center;color:#8a5a16;font-size:calc(12.5px * var(--fs));margin:2px 0 8px}
+  #towerPick .x,#twBox .x{position:absolute;top:4px;right:8px;border:0;background:none;color:#7a5a2a;font-size:26px;padding:4px 8px;z-index:1}
+  .tw-item{border:1px solid #d8c69a;border-radius:4px;background:#fffaf0;margin-bottom:8px;overflow:hidden}
+  .tw-item .go{width:100%;text-align:left;border:0;background:linear-gradient(90deg,#8b1a1a,#5a0d0d);color:#f6d98a;padding:9px 12px;font-family:var(--font)}
+  .tw-item .go b{display:block;font-size:calc(15px * var(--fs));font-weight:900}
+  .tw-item .go small{font-size:calc(11.5px * var(--fs));opacity:.85}
+  .tw-item .chips,#twBox .ppl{display:flex;flex-wrap:wrap;gap:6px;padding:8px}
+  .tw-item .chips button,#twBox .ppl button{border:1px solid var(--gold);border-radius:3px;background:#fff;color:#4a0e0e;font-family:var(--font);font-weight:900;font-size:calc(13.5px * var(--fs));padding:4px 9px;display:flex;flex-direction:column;align-items:center;line-height:1.25}
+  .tw-item .chips small,#twBox .ppl small{font-weight:400;font-size:calc(10.5px * var(--fs));color:#8a6a3a}
+  #twBox .ppl button.on{background:#8b1a1a;color:#f6d98a}
+  #twBox .ppl button.on small{color:#f6d98a}
+  .tw-item em,#twBox .ppl em{font-size:calc(12px * var(--fs));color:#9a8a6a}
+  #towerPick .ov,#twBox .bk{width:100%;margin-top:4px;min-height:calc(40px * var(--fs));border:1px dashed var(--gold);border-radius:3px;background:#fff8ec;color:#5a0d0d;font-family:var(--font);font-weight:900;font-size:calc(14px * var(--fs))}
+  #twBox .tabs{display:flex;gap:4px;margin:0 30px 8px 0}
+  #twBox .tabs button{flex:1;border:1px solid #c9a87a;border-radius:3px;background:#fff8ec;color:#5a3a1a;font-family:var(--font);font-size:calc(12.5px * var(--fs));padding:5px 2px;font-weight:700}
+  #twBox .tabs button.on{background:#5a0d0d;color:#f6d98a;border-color:#5a0d0d}
+  #twBox .floors{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+  #twBox .floors button{position:relative;border:1px solid var(--gold);border-radius:16px;background:#fff;color:#5a0d0d;font-family:var(--font);font-weight:900;font-size:calc(14px * var(--fs));padding:5px 14px}
+  #twBox .floors button.on{background:#8b1a1a;color:#f6d98a}
+  #twBox .floors i{position:absolute;top:-6px;right:-4px;background:#c9952e;color:#fff;font-style:normal;font-size:11px;border-radius:9px;min-width:17px;height:17px;line-height:17px;text-align:center}
+  #twBox .detail{margin:8px 0 2px;padding:8px 10px;border-left:4px solid #8b1a1a;background:#fffaf0;border-radius:2px}
+  #twBox .detail b{font-size:calc(17px * var(--fs));color:#3e0808;font-weight:900;margin-right:6px}
+  #twBox .detail span{font-size:calc(12px * var(--fs));color:#8a5a16}
+  #twBox .detail p{font-size:calc(13px * var(--fs));color:#3a2a1a;margin-top:3px}
+  #twBox .detail .acts{display:flex;gap:6px;margin-top:6px}
+  #twBox .detail .acts button{flex:1;min-height:calc(36px * var(--fs));border:1px solid var(--gold);border-radius:3px;font-family:var(--font);font-weight:900;font-size:calc(14px * var(--fs));background:#8b1a1a;color:#f6d98a}
+  #twBox .detail .acts .tab{background:#fff;color:#5a0d0d}
   /* 祈福之旅 */
   #veil{position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;z-index:30;transition:opacity .6s}
   #veil.on{opacity:1}
@@ -335,7 +369,7 @@
   <p class="bio"></p>
   <div class="voices"></div>
   <div class="btns"><button class="inc">上 香</button><button class="ofr">供 奉</button><button class="rec">錄音口述</button></div>
-  <div class="btns"><button class="chn">念經超渡</button><button class="flip">翻面看生平</button><button class="tw">看塔位</button></div>
+  <div class="btns"><button class="chn">念經超渡</button><button class="flip">翻面看生平</button><button class="tw">塔位瞻仰</button></div>
 </div>
 
 <div id="bar"></div>
@@ -403,6 +437,26 @@
   </div>
 </div>
 
+<div id="towerPick">
+  <div class="sheet">
+    <button class="x" aria-label="關閉">×</button>
+    <h3>納骨塔參觀</h3>
+    <p class="sub">依紀念堂登記的塔位，進入各塔各樓層瞻仰</p>
+    <div class="list"></div>
+    <button class="ov">塔位總覽（側殿）</button>
+  </div>
+</div>
+<div id="twBox">
+  <div class="sheet">
+    <button class="x" aria-label="離開">×</button>
+    <div class="tabs"></div>
+    <h3></h3><p class="sub"></p>
+    <div class="floors"></div>
+    <div class="detail"></div>
+    <div class="ppl"></div>
+    <button class="bk">選擇其他塔</button>
+  </div>
+</div>
 <div id="veil"></div>
 <div id="pilCap"><span></span><button class="skip">略過 ›</button></div>
 <div id="charBox">
@@ -602,8 +656,8 @@ measure(root); place(root, -root.w / 2);
 
 /* ---------- 字型就緒後才畫牌位文字（iOS 必要） ---------- */
 async function waitFonts() {
-  const txt = PEOPLE.map(p => p.name + p.tabletText + (p.tag || '') + (p.lines || []).join('') + (p.bio || '') + (p.alias || '')).join('')
-            + '口湖鄉成龍納骨塔眾靈祠新舊' + '眾志成城寶塔莊嚴為報本靈魂奉厝禪堂肅穆慎追終' + '眾靈祠男公女媽廟恭奉庇佑鄉里闡草萊保國家功不泯守貞堅護土德長昭雲線沿魚塭而行正殿轉' + '闔家平安祖先安息身體健康事業順利學業進步消災解厄' + '成龍納骨塔一樓地藏殿南無大願地藏王菩薩香案供奉誦心經瞻仰聖像回掃墓路線進入祭拜於前迴向法界眾生' + '掃墓路線口湖鄉成龍納骨堂眾靈祠男公女媽廟起點終點沿途安奉位新舊塔往南接台旁道路轉雲往東北開車約分鐘全圖導覽停止地圖導航抵達紀念堂尚未登記此處溼地村牛挑灣溪烏麻園豐樺水產行縣' + '依族譜資料整理可於紀念堂補寫生平祖先名冊' + '祠堂全景香案燭火清香奉茶供果餅乾鮮花來台祖神位三省堂匾額家族沿革碑攝影離開自動掃描停止繼續拍攝下載' + SUTRA.title + SUTRA.open + SUTRA.body + SUTRA.close + '念經超渡誦心卷語音木魚慢中快開始暫停繼續再一次圓滿功德迴向偈為' + HALL.plaque + HALL.plaqueSub + HALL.couplet.join('') + HALL.zibei + '龍山字輩大宗曾氏沿革輕觸展讀塔位側殿樓號口湖鄉成龍納骨塔蚵寮新舊' + historyText().split('\n').filter(s => /^[一二三四五六七八九十]+、/.test(s)).join('') + '第一二三四五六七八九十世配偶︵︶無—年生仙逝之本支在世農曆卒生平待補於紀念堂祖先名冊填寫字號0123456789.';
+  const txt = PEOPLE.concat(typeof memExtras === 'function' ? memExtras() : []).map(p => p.name + p.tabletText + (p.tag || '') + (p.lines || []).join('') + (p.bio || '') + (p.alias || '')).join('')
+            + '口湖鄉成龍納骨塔眾靈祠新舊號樓・一二三四五六七八九十' + '眾志成城寶塔莊嚴為報本靈魂奉厝禪堂肅穆慎追終' + '眾靈祠男公女媽廟恭奉庇佑鄉里闡草萊保國家功不泯守貞堅護土德長昭雲線沿魚塭而行正殿轉' + '闔家平安祖先安息身體健康事業順利學業進步消災解厄' + '成龍納骨塔一樓地藏殿南無大願地藏王菩薩香案供奉誦心經瞻仰聖像回掃墓路線進入祭拜於前迴向法界眾生' + '掃墓路線口湖鄉成龍納骨堂眾靈祠男公女媽廟起點終點沿途安奉位新舊塔往南接台旁道路轉雲往東北開車約分鐘全圖導覽停止地圖導航抵達紀念堂尚未登記此處溼地村牛挑灣溪烏麻園豐樺水產行縣' + '依族譜資料整理可於紀念堂補寫生平祖先名冊' + '祠堂全景香案燭火清香奉茶供果餅乾鮮花來台祖神位三省堂匾額家族沿革碑攝影離開自動掃描停止繼續拍攝下載' + SUTRA.title + SUTRA.open + SUTRA.body + SUTRA.close + '念經超渡誦心卷語音木魚慢中快開始暫停繼續再一次圓滿功德迴向偈為' + HALL.plaque + HALL.plaqueSub + HALL.couplet.join('') + HALL.zibei + '龍山字輩大宗曾氏沿革輕觸展讀塔位側殿樓號口湖鄉成龍納骨塔蚵寮新舊' + historyText().split('\n').filter(s => /^[一二三四五六七八九十]+、/.test(s)).join('') + '第一二三四五六七八九十世配偶︵︶無—年生仙逝之本支在世農曆卒生平待補於紀念堂祖先名冊填寫字號0123456789.';
   try {
     await Promise.race([
       Promise.all([
@@ -3199,6 +3253,208 @@ async function doWish() {
   };
 })();
 
+/* ================= 納骨塔參觀：依祖先塔位進入各塔、各樓層瞻仰 =================
+   每座塔一棟（各樓層上下疊放），每層一面塔位牆：依紀念堂該層格數排列，
+   有祖先的格子為金門、直書姓名，可點選瞻仰；牆前設小香案常燃清香。 */
+const TV = { built: {}, g: {}, k: null, fi: 0, sel: null, niches: {} };
+const TV_THEME = {
+  A:     { wall: '#ebe4d6', cab: '#6e4424', door: '#d2ae5c', accent: '#8b1a1a', floorC: '#9a9690', sub: '口湖鄉成龍納骨堂' },
+  B_new: { wall: '#e2e8ee', cab: '#4e3a2c', door: '#dcbc66', accent: '#24467e', floorC: '#a0a4a8', sub: '眾靈祠・藍瓦新塔' },
+  B_old: { wall: '#efe5c4', cab: '#7a2a1a', door: '#d4a843', accent: '#2a6a3a', floorC: '#b0a48a', sub: '眾靈祠・黃牆綠瓦舊塔' },
+};
+const TV_FH = 6;   // 樓層高
+function tvOccupants(k) {   // {fi: {si: person}}
+  const o = {};
+  PEOPLE.concat(memExtras()).forEach(p => {
+    if (p.empty) return;
+    const pl = placementOf(p); if (!pl || pl.tower !== k || !hasSlot(pl)) return;
+    const fi = +pl.floor, si = +pl.slot; (o[fi] = o[fi] || {}); if (!o[fi][si]) o[fi][si] = p;
+  });
+  return o;
+}
+function tvSlots(k, fi) {
+  const c = MEM && MEM.slotNumbers && MEM.slotNumbers[k + '_' + fi];
+  return c ? c.length : SLOTS;
+}
+function tvUrn(k, fi, si) {
+  const u = MEM && MEM.slotUrnNumbers && MEM.slotUrnNumbers[`${k}_${fi}_${si}`];
+  return u || '';
+}
+function tvDoorTex(label, p, th) {
+  return boardTexture(160, 220, (g, W, H) => {
+    if (p) {
+      const gr = g.createLinearGradient(0, 0, W, H); gr.addColorStop(0, '#f6dc8a'); gr.addColorStop(.5, th.door); gr.addColorStop(1, '#a87a2a');
+      g.fillStyle = gr; g.fillRect(0, 0, W, H);
+      g.strokeStyle = '#7a5216'; g.lineWidth = 6; g.strokeRect(8, 8, W - 16, H - 16);
+      g.fillStyle = '#8b1a1a'; g.fillRect(W / 2 - 34, 22, 68, 30);
+      g.fillStyle = '#f6d98a'; g.font = `700 22px ${FONT}`; g.fillText(label + '號', W / 2, 38);
+      const n = [...p.name.replace(/^曾/, '')].slice(0, 3), fs = n.length > 2 ? 40 : 48;
+      g.fillStyle = '#3e0808'; g.font = `900 ${fs}px ${FONT}`;
+      n.forEach((c, i) => g.fillText(c, W / 2, 86 + i * (fs + 6) + (3 - n.length) * 14));
+    } else {
+      g.fillStyle = '#d8d0c0'; g.fillRect(0, 0, W, H);
+      g.fillStyle = 'rgba(255,255,255,.35)'; g.fillRect(14, 14, W - 28, H - 28);
+      g.strokeStyle = 'rgba(90,70,40,.35)'; g.lineWidth = 4; g.strokeRect(14, 14, W - 28, H - 28);
+      g.fillStyle = 'rgba(90,70,40,.6)'; g.font = `700 26px ${FONT}`; g.fillText(label, W / 2, H / 2);
+    }
+  });
+}
+function tvFillerTex(th) {   // 兩側其他家族的塔位（裝飾）
+  const t = boardTexture(512, 512, (g, W, H) => {
+    g.fillStyle = th.cab; g.fillRect(0, 0, W, H);
+    const cw = W / 6, ch = H / 5, r = mulberry32(7);
+    for (let i = 0; i < 6; i++) for (let j = 0; j < 5; j++) {
+      const x = i * cw + 5, y = j * ch + 5, v = r();
+      g.fillStyle = v < .55 ? '#cbbf9e' : v < .85 ? '#c9a656' : '#b8b0a0'; g.fillRect(x, y, cw - 10, ch - 10);
+      g.fillStyle = 'rgba(60,40,20,.35)'; g.fillRect(x + cw / 2 - 12, y + 8, 24, 10);
+      if (v >= .55 && v < .85) { g.fillStyle = 'rgba(60,20,10,.5)'; g.fillRect(x + cw / 2 - 4, y + 26, 8, ch - 50); }
+    }
+  });
+  t.wrapS = t.wrapT = THREE.RepeatWrapping; return t;
+}
+function buildTowerVisit(k) {
+  if (TV.built[k]) return; TV.built[k] = true;
+  const T = TOWERS[k], th = TV_THEME[k], occ = tvOccupants(k);
+  const base = (ROUTE.built ? ROUTE.g.position.x : bounds.maxX + 15) + 95 + Object.keys(TOWERS).indexOf(k) * 30;
+  const G = new THREE.Group(); G.position.set(base, -14, 0); scene.add(G); TV.g[k] = G; TV.niches[k] = {};
+  const cabM = rtMat(th.cab, .5), wallM = rtMat(th.wall, .85), goldM = M.gold;
+  const fillerM = new THREE.MeshStandardMaterial({ map: tvFillerTex(th), roughness: .55 });
+  const floorTex = boardTexture(256, 256, (g, W, H) => { g.fillStyle = th.floorC; g.fillRect(0, 0, W, H); g.strokeStyle = 'rgba(40,40,40,.25)'; g.lineWidth = 3; g.strokeRect(0, 0, W, H); const r = mulberry32(2); for (let i = 0; i < 900; i++) { g.fillStyle = r() < .5 ? 'rgba(255,255,255,.12)' : 'rgba(0,0,0,.08)'; g.fillRect(r() * W, r() * H, 2, 2); } });
+  floorTex.wrapS = floorTex.wrapT = THREE.RepeatWrapping; floorTex.repeat.set(6, 5);
+  const floorM = new THREE.MeshStandardMaterial({ map: floorTex, roughness: .3, metalness: .05 });
+  for (let fi = 0; fi < T.floors; fi++) {
+    const F = new THREE.Group(); F.position.y = fi * TV_FH; G.add(F);
+    const fl = new THREE.Mesh(new THREE.PlaneGeometry(12, 10), floorM); fl.rotation.x = -Math.PI / 2; fl.position.z = 2; F.add(fl);
+    const ceil = new THREE.Mesh(new THREE.PlaneGeometry(12, 10), new THREE.MeshStandardMaterial({ color: '#f4f0e8', emissive: '#fff8e8', emissiveIntensity: .25 })); ceil.rotation.x = Math.PI / 2; ceil.position.set(0, 4.2, 2); F.add(ceil);
+    const back = new THREE.Mesh(new THREE.PlaneGeometry(12, 4.2), wallM); back.position.set(0, 2.1, -3); F.add(back);
+    [-1, 1].forEach(s => {
+      const w = new THREE.Mesh(new THREE.PlaneGeometry(10, 4.2), wallM); w.rotation.y = -s * Math.PI / 2; w.position.set(s * 6, 2.1, 2); F.add(w);
+      const fill = new THREE.Mesh(new THREE.PlaneGeometry(2.8, 3.2), fillerM); fill.position.set(s * 4.4, 1.9, -2.96); F.add(fill);   // 他家塔位
+      const fill2 = new THREE.Mesh(new THREE.PlaneGeometry(6, 3.2), fillerM); fill2.material = fillerM; fill2.rotation.y = -s * Math.PI / 2; fill2.position.set(s * 5.96, 1.9, 0); F.add(fill2);
+    });
+    // 樓層牌
+    const sign = boardTexture(640, 120, (g, W, H) => { g.fillStyle = th.accent; g.fillRect(0, 0, W, H); g.strokeStyle = '#e8c66a'; g.lineWidth = 6; g.strokeRect(6, 6, W - 12, H - 12); g.fillStyle = '#f6e2a0'; g.font = `900 56px ${FONT}`; g.fillText(`${T.place}・${CN[fi + 1]}樓`, W / 2, H / 2 + 4); });
+    const sg = new THREE.Mesh(new THREE.PlaneGeometry(3.2, .6), new THREE.MeshStandardMaterial({ map: sign, emissive: '#ffffff', emissiveMap: sign, emissiveIntensity: .25 })); sg.position.set(0, 3.75, -2.95); F.add(sg);
+    // 本層實際塔位
+    const n = tvSlots(k, fi), cols = Math.min(6, n), rows = Math.ceil(n / cols), w = .62, h = .8, gap = .07;
+    const W0 = cols * (w + gap) - gap, H0 = rows * (h + gap) - gap, y0 = .95 + H0;
+    const frame = new THREE.Mesh(new THREE.BoxGeometry(W0 + .3, H0 + .3, .3), cabM); frame.position.set(0, y0 - H0 / 2, -2.85); F.add(frame);
+    const cap = new THREE.Mesh(new THREE.BoxGeometry(W0 + .5, .1, .4), goldM); cap.position.set(0, y0 + .2, -2.8); F.add(cap);
+    for (let si = 0; si < n; si++) {
+      const c = si % cols, r = Math.floor(si / cols), p = (occ[fi] || {})[si] || null;
+      const x = -W0 / 2 + w / 2 + c * (w + gap), y = y0 - h / 2 - r * (h + gap);
+      const tex = tvDoorTex(slotLabel(k, fi, si), p, th);
+      const door = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ map: tex, roughness: p ? .35 : .7, metalness: p ? .35 : 0, emissive: p ? '#ffcc66' : '#000', emissiveIntensity: p ? .12 : 0 }));
+      door.position.set(x, y, -2.69); F.add(door);
+      door.userData.action = `niche:${k}:${fi}:${si}`; pickables.push(door);
+      TV.niches[k][`${fi}_${si}`] = { door, p, pos: new THREE.Vector3(x, y + fi * TV_FH, -2.69) };
+      if (p) { const lamp = new THREE.Mesh(new THREE.SphereGeometry(.035, 8, 6), new THREE.MeshBasicMaterial({ color: '#ff9a4a' })); lamp.position.set(x, y + h / 2 - .05, -2.64); F.add(lamp); }
+    }
+    // 小香案
+    const tb = new THREE.Mesh(new THREE.BoxGeometry(1.6, .9, .6), rtMat('#6a2a18', .5)); tb.position.set(0, .45, -1.4); F.add(tb);
+    const cl = new THREE.Mesh(new THREE.BoxGeometry(1.4, .5, .02), rtMat('#a81c18', .8)); cl.position.set(0, .55, -1.09); F.add(cl);
+    const pot = new THREE.Mesh(new THREE.CylinderGeometry(.16, .12, .18, 18), M.bronze); pot.position.set(0, .99, -1.4); F.add(pot);
+    [-.04, 0, .04].forEach(dx => { const st = new THREE.Mesh(new THREE.CylinderGeometry(.006, .006, .38, 5), rtMat('#a8321e')); st.position.set(dx, 1.27, -1.4); F.add(st); makeEmber(F, dx, 1.46, -1.4); });
+    [-1, 1].forEach(s => {
+      const v = lathe([[0, 0], [.06, 0], [.08, .08], [.05, .2], [.07, .26], [0, .26]], rtMat('#f2efe6', .3)); v.position.set(s * .6, .9, -1.45); F.add(v);
+      for (let i = 0; i < 3; i++) { const fl2 = new THREE.Mesh(new THREE.SphereGeometry(.05, 8, 6), rtMat(i % 2 ? '#f2c43a' : '#f6f2ea', .6)); fl2.position.set(s * .6 + (i - 1) * .05, 1.27 + (i % 2) * .05, -1.45); F.add(fl2); }
+    });
+    const lt = new THREE.PointLight('#fff3dc', 1.8, 9, 1); lt.position.set(0, 3.6, 0); F.add(lt);
+    G.updateMatrixWorld(true);
+    const tip = G.localToWorld(new THREE.Vector3(0, fi * TV_FH + 1.48, -1.4));
+    addSmoke(tip, 6, 0, { sz: .3, op: .22, h: 1.5 });
+    TV.niches[k]['tip_' + fi] = tip;
+  }
+  tMax.x = Math.max(tMax.x, base + 8); tMin.y = Math.min(tMin.y, -16);
+}
+const tvW = (k, v) => TV.g[k].localToWorld(v.clone());
+function tvFloorView(k, fi) {
+  const y = fi * TV_FH;
+  const d = Math.max(6.5, fitDist(5.2, 4));
+  return [tvW(k, new THREE.Vector3(.3, y + 2.4 + d * .08, -2.7 + d)), tvW(k, new THREE.Vector3(0, y + .15, -2.7))];   // 面板在下：塔位牆落在畫面上半
+}
+function tvNicheView(k, fi, si) {
+  const n = TV.niches[k][`${fi}_${si}`]; if (!n) return tvFloorView(k, fi);
+  const w = tvW(k, n.pos);
+  const d = Math.max(2.8, fitDist(1.9, 1.6));
+  return [w.clone().add(new THREE.Vector3(.2, .55, d)), w.clone().add(new THREE.Vector3(0, -1.05, 0))];
+}
+function openTowerVisit(k, fi, si) {
+  stopTour(); closeCard(); buildRoute(); buildTowerVisit(k);
+  document.getElementById('towerPick').classList.remove('on');
+  document.getElementById('routeBox').classList.remove('on');
+  document.body.classList.remove('route', 'dizang'); document.body.classList.add('tower');
+  controls.minDistance = .4; controls.minPolarAngle = .05;
+  TV.k = k; TV.sel = null;
+  if (fi === undefined) { const occ = tvOccupants(k), fs = Object.keys(occ).map(Number).sort((a, b) => a - b); fi = fs.length ? fs[0] : 0; }
+  TV.fi = fi;
+  setGen(0); renderTowerBox();
+  if (si !== undefined) selectNiche(k, fi, si, 2); else flyTo(tvFloorView(k, fi), 2);
+}
+function closeTowerVisit() {
+  document.body.classList.remove('tower'); document.getElementById('twBox').classList.remove('on');
+  controls.minDistance = 3; controls.minPolarAngle = Math.PI * 0.22; flyTo(overviewView(), 1.6);
+}
+function selectNiche(k, fi, si, dur = 1.2) {
+  TV.k = k; TV.fi = fi; TV.sel = [fi, si];
+  Object.values(TV.niches[k]).forEach(n => n.door && n.door.material.emissiveIntensity !== undefined && (n.door.material.emissiveIntensity = n.p ? .12 : 0));
+  const n = TV.niches[k][`${fi}_${si}`]; if (n) n.door.material.emissiveIntensity = n.p ? .55 : .15;
+  renderTowerBox(); flyTo(tvNicheView(k, fi, si), dur);
+}
+function renderTowerBox() {
+  const el = document.getElementById('twBox'), k = TV.k, T = TOWERS[k], occ = tvOccupants(k);
+  el.querySelector('.tabs').innerHTML = Object.keys(TOWERS).map(t => `<button data-t="${t}" class="${t === k ? 'on' : ''}">${TOWERS[t].place}</button>`).join('');
+  el.querySelector('h3').textContent = T.name; el.querySelector('.sub').textContent = TV_THEME[k].sub;
+  el.querySelector('.floors').innerHTML = Array.from({ length: T.floors }, (_, fi) => { const c = Object.keys(occ[fi] || {}).length; return `<button data-f="${fi}" class="${fi === TV.fi ? 'on' : ''}">${CN[fi + 1]}樓${c ? `<i>${c}</i>` : ''}</button>`; }).join('');
+  const all = [];
+  Object.entries(occ).forEach(([fi, o]) => Object.entries(o).forEach(([si, p]) => all.push([+fi, +si, p])));
+  all.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  el.querySelector('.ppl').innerHTML = all.length ? all.map(([fi, si, p]) => `<button data-f="${fi}" data-s="${si}" class="${TV.sel && TV.sel[0] === fi && TV.sel[1] === si ? 'on' : ''}">${escH(p.name)}<small>${CN[fi + 1]}樓${slotLabel(k, fi, si)}號</small></button>`).join('') : '<em>紀念堂尚未登記祖先安奉於此塔</em>';
+  const d = el.querySelector('.detail');
+  if (TV.sel) {
+    const [fi, si] = TV.sel, p = (occ[fi] || {})[si], urn = tvUrn(k, fi, si);
+    if (p) {
+      const real = byId[p.id] && !p.extra;
+      d.innerHTML = `<b>${escH(p.name)}</b><span>${p.gen ? `第${CN[p.gen]}世` : ''}${p.role === 'spouse' ? '・配偶' : ''}</span>
+        <p>${escH(T.place)}・${CN[fi + 1]}樓・${slotLabel(k, fi, si)}號${urn ? `・骨灰編號 ${escH(urn)}` : ''}</p>
+        ${p.lines && p.lines.length ? `<p>${escH(p.lines.join(' ').replace('— ', '～'))}</p>` : ''}
+        <div class="acts"><button class="bow">合十致意</button>${real ? '<button class="tab">到神位</button>' : ''}</div>`;
+      d.querySelector('.bow').onclick = () => {
+        const tip = TV.niches[k]['tip_' + fi]; if (tip) addSmoke(tip, 10, 60e3, { sz: .35, op: .3, h: 1.6 });
+        const n = TV.niches[k][`${fi}_${si}`]; if (n) { n.door.material.emissiveIntensity = 1; setTimeout(() => n.door.material.emissiveIntensity = .55, 1500); }
+        toast(`向 ${p.name} 合十致意`);
+      };
+      const tb = d.querySelector('.tab'); if (tb) tb.onclick = () => { closeTowerVisit(); const q = byId[p.id]; setTimeout(() => selectPerson(q.id), 50); };
+    } else d.innerHTML = `<b>${slotLabel(k, fi, si)}號</b><span>空位</span><p>此格尚未登記，可於紀念堂「靈骨塔位」登記</p>`;
+    d.style.display = '';
+  } else d.style.display = 'none';
+  el.querySelectorAll('.tabs button').forEach(b => b.onclick = () => openTowerVisit(b.dataset.t));
+  el.querySelectorAll('.floors button').forEach(b => b.onclick = () => { TV.fi = +b.dataset.f; TV.sel = null; renderTowerBox(); flyTo(tvFloorView(k, TV.fi), 1.4); });
+  el.querySelectorAll('.ppl button').forEach(b => b.onclick = () => selectNiche(k, +b.dataset.f, +b.dataset.s));
+  el.classList.add('on');
+}
+function openTowerPick() {
+  stopTour(); closeCard();
+  const el = document.getElementById('towerPick');
+  el.querySelector('.list').innerHTML = Object.keys(TOWERS).map(k => {
+    const occ = tvOccupants(k), ppl = [];
+    Object.entries(occ).forEach(([fi, o]) => Object.entries(o).forEach(([si, p]) => ppl.push([+fi, +si, p])));
+    ppl.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+    return `<div class="tw-item"><button class="go" data-t="${k}"><b>${TOWERS[k].name}</b><small>${TV_THEME[k].sub}・${TOWERS[k].floors} 層・安奉 ${ppl.length} 位</small></button>
+      <div class="chips">${ppl.map(([fi, si, p]) => `<button data-t="${k}" data-f="${fi}" data-s="${si}">${escH(p.name)}<small>${CN[fi + 1]}樓${slotLabel(k, fi, si)}號</small></button>`).join('') || '<em>尚無登記</em>'}</div></div>`;
+  }).join('');
+  el.querySelectorAll('.go').forEach(b => b.onclick = () => openTowerVisit(b.dataset.t));
+  el.querySelectorAll('.chips button').forEach(b => b.onclick = () => openTowerVisit(b.dataset.t, +b.dataset.f, +b.dataset.s));
+  el.classList.add('on');
+}
+(() => {
+  const tp = document.getElementById('towerPick');
+  tp.querySelector('.x').onclick = () => tp.classList.remove('on');
+  tp.querySelector('.ov').onclick = () => { tp.classList.remove('on'); if (towerHall) { setGen(0); flyTo(towerView(null), 1.6); } };
+  document.querySelector('#twBox .x').onclick = closeTowerVisit;
+  document.querySelector('#twBox .bk').onclick = () => { document.getElementById('twBox').classList.remove('on'); document.body.classList.remove('tower'); openTowerPick(); };
+})();
+
 /* 沿革展讀 */
 function openHistory() {
   const el = document.getElementById('scrollReader');
@@ -3350,7 +3606,7 @@ function buildBar() {
   mk('導覽', () => { closeCard(); tour(); });
   mk('祭祀', () => { stopTour(); closeCard(); openRitePanel(); });
   mk('掃墓', openRoute);
-  if (towerHall) mk('塔位', () => { stopTour(); closeCard(); setGen(0); flyTo(towerView(null), 1.6); });
+  mk('塔位', openTowerPick);
   mk('沿革', () => { stopTour(); closeCard(); openHistory(); });
   mk('字輩', () => { stopTour(); closeCard(); openZibei(0); });
   mk('攝影', enterPhoto);
@@ -3384,7 +3640,7 @@ function openCard(p) {
     const pl = placementOf(p);
     if (pl) rows.push(['塔位', `${TOWERS[pl.tower].place}・${placeText(pl, '・')}`]);
   }
-  card.querySelector('.tw').style.display = (towerHall && hasSlot(placementOf(p))) ? '' : 'none';
+  card.querySelector('.tw').style.display = hasSlot(placementOf(p)) ? '' : 'none';
   card.querySelector('.inc').style.display = (p.empty || p.alive) ? 'none' : '';
   card.querySelector('.ofr').style.display = (p.empty || p.alive) ? 'none' : '';
   card.querySelector('.chn').style.display = (p.empty || p.alive) ? 'none' : '';
@@ -3410,7 +3666,7 @@ card.querySelector('.chn').onclick = () => selected && openSutra(selected);
 card.querySelector('.rec').onclick = () => selected && openRecorder(selected);
 card.querySelector('.tw').onclick = () => {
   if (!selected) return;
-  const id = selected; closeCard(); setGen(0); flyTo(towerView(id), 1.6);
+  const pl = placementOf(byId[selected]); closeCard(); openTowerVisit(pl.tower, +pl.floor, +pl.slot);
 };
 card.querySelector('.flip').onclick = () => {
   if (!selected) return;
@@ -3449,6 +3705,7 @@ canvas.addEventListener('pointerup', e => {
   if (act === 'incense-all') offerIncense('all');
   else if (act === 'altar') { flyTo(altarView(), 1.1); openOfferSheet('all'); }
   else if (act.startsWith('altar:')) { const p = byId[act.slice(6)]; if (p) { flyTo(personAltarView(p), 1.1); openOfferSheet(p.id); } }
+  else if (act.startsWith('niche:')) { const [, k, fi, si] = act.split(':'); selectNiche(k, +fi, +si); }
   else if (act.startsWith('hall-offer:')) { HK = act.slice(11); DZ = HS[HK]; flyTo(dzView('altar'), 1.1); openOfferSheet(HK); }
   else if (act === 'history') openHistory();
   else if (act === 'plaque') openPlaque();
