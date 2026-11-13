@@ -2137,7 +2137,7 @@ const ROUTE = { built: false, g: null, curve: null, dots: null, marker: null, an
 const RT_K = .008, RT_X0 = 594, RT_Y0 = 1300;   // 截圖像素 → 沙盤座標（1188×1700 px → 9.5×13.6）
 const RT_PATH = [[215, 1105], [300, 1102], [440, 1130], [442, 1190], [432, 1300], [428, 1395], [470, 1462], [560, 1540], [632, 1628],
   [660, 1590], [700, 1482], [742, 1416], [790, 1322], [860, 1180], [930, 1042], [985, 935], [1035, 848], [1056, 820]];
-const RT_61 = [[0, 1048], [180, 1215], [500, 1478], [700, 1685], [1000, 1960], [1188, 2120]];
+const RT_61 = [[0, 1215], [180, 1362], [420, 1522], [700, 1690], [1000, 1960], [1188, 2120]];   // 西段往西南移，距成龍納骨塔約百米以上
 const RT_131 = [[640, 1625], [700, 1482], [790, 1322], [930, 1042], [1035, 848], [1120, 700], [1188, 610]];
 const RT_RIVER = [[1188, 1050], [1120, 1300], [1060, 1560], [1000, 1800], [940, 1980], [880, 2150]];
 const rtV = (px, py, y = 0) => new THREE.Vector3((px - RT_X0) * RT_K, y, (py - RT_Y0) * RT_K);
@@ -2312,7 +2312,7 @@ function buildRoute() {
     for (let t = 0; t < 1; t += .2) { const q = a.clone().lerp(b, t), pil = new THREE.Mesh(new THREE.BoxGeometry(.05, .16, .05), rtMat('#9a9584')); pil.position.set(q.x, .08, q.z); g.add(pil); }
   }
   const s61 = new THREE.Sprite(new THREE.SpriteMaterial({ map: boardTexture(128, 128, (x) => { x.fillStyle = '#fff'; x.beginPath(); x.moveTo(14, 10); x.lineTo(114, 10); x.lineTo(114, 70); x.quadraticCurveTo(64, 126, 14, 70); x.fill(); x.fillStyle = '#c8282a'; x.beginPath(); x.moveTo(22, 18); x.lineTo(106, 18); x.lineTo(106, 66); x.quadraticCurveTo(64, 114, 22, 66); x.fill(); x.fillStyle = '#fff'; x.font = `900 50px ${FONT}`; x.fillText('61', 64, 56); }), transparent: true }));
-  s61.scale.set(.45, .45, 1); s61.position.copy(rtV(520, 1500, .55)); g.add(s61);
+  s61.scale.set(.45, .45, 1); s61.position.copy(rtV(300, 1405, .55)); g.add(s61);
   // 路線（藍色圓點，流動）
   ROUTE.curve = new THREE.CatmullRomCurve3(RT_PATH.map(([x, y]) => rtV(x, y, .05)), false, 'centripetal', .3);
   const N = 90, dm = new THREE.InstancedMesh(new THREE.SphereGeometry(.045, 10, 8), new THREE.MeshBasicMaterial({ color: '#ffffff' }), N);
