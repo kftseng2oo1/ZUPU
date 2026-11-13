@@ -422,9 +422,10 @@ function tabletText(p) {
   if (p.empty) return '無配偶';
   if (p.tablet) return p.tablet;
   if (p.role === 'main') return `顯${CN[p.gen]}世祖考曾公諱${norm(p.name)}之神位`;
-  const n = p.name.replace(/（.*?）/g, '');
-  const sur = (n.length >= 3 && n.startsWith('曾')) ? n[1] : n[0];
-  return `顯${CN[p.gen]}世祖妣曾門${sur}氏孺人之神位`;
+  // 配偶：冠夫姓者去掉「曾」，第一字為本姓，其餘為名，寫成「曾門X氏○○」
+  const n = (p.name.length >= 3 && p.name.startsWith('曾')) ? p.name.slice(1) : p.name;
+  const sur = n[0], given = n.slice(1);
+  return `顯${CN[p.gen]}世祖妣曾門${sur}氏${given || '孺人'}之神位`;
 }
 /* 生卒顯示 */
 function lifeLines(p) {
@@ -471,7 +472,7 @@ measure(root); place(root, -root.w / 2);
 /* ---------- 字型就緒後才畫牌位文字（iOS 必要） ---------- */
 async function waitFonts() {
   const txt = PEOPLE.map(p => p.name + p.tabletText + (p.tag || '') + (p.lines || []).join('') + (p.bio || '') + (p.alias || '')).join('')
-            + '祠堂全景香案燭火清香奉茶供果餅乾鮮花來台祖神位三省堂匾額家族沿革碑攝影離開自動掃描停止繼續拍攝下載' + SUTRA.title + SUTRA.open + SUTRA.body + SUTRA.close + '念經超渡誦心卷語音木魚慢中快開始暫停繼續再一次圓滿功德迴向偈為' + HALL.plaque + HALL.plaqueSub + HALL.couplet.join('') + HALL.zibei + '龍山字輩大宗曾氏沿革輕觸展讀塔位側殿樓號口湖鄉公所靈骨塔蚵寮新舊' + historyText().split('\n').filter(s => /^[一二三四五六七八九十]+、/.test(s)).join('') + '第一二三四五六七八九十世配偶︵︶無—年生仙逝之本支在世農曆卒生平待補於紀念堂祖先名冊填寫字號0123456789.';
+            + '依族譜資料整理可於紀念堂補寫生平祖先名冊' + '祠堂全景香案燭火清香奉茶供果餅乾鮮花來台祖神位三省堂匾額家族沿革碑攝影離開自動掃描停止繼續拍攝下載' + SUTRA.title + SUTRA.open + SUTRA.body + SUTRA.close + '念經超渡誦心卷語音木魚慢中快開始暫停繼續再一次圓滿功德迴向偈為' + HALL.plaque + HALL.plaqueSub + HALL.couplet.join('') + HALL.zibei + '龍山字輩大宗曾氏沿革輕觸展讀塔位側殿樓號口湖鄉公所靈骨塔蚵寮新舊' + historyText().split('\n').filter(s => /^[一二三四五六七八九十]+、/.test(s)).join('') + '第一二三四五六七八九十世配偶︵︶無—年生仙逝之本支在世農曆卒生平待補於紀念堂祖先名冊填寫字號0123456789.';
   try {
     await Promise.race([
       Promise.all([
@@ -520,6 +521,52 @@ const M = {
   lacquerTable: new THREE.MeshStandardMaterial({ color: '#4a0e0e', roughness: .35, envMapIntensity: .6 }),
 };
 
+/* ---------- 生平：紀念堂未填寫時，依族譜既有的生卒、親屬、字輩、塔位整理一段 ---------- */
+function eraOf(y) {   // 台灣紀年：清（道光、咸豐、同治、光緒）→ 日治（明治、大正、昭和）→ 民國
+  const n = k => k === 1 ? '元' : cnNum(k);
+  if (y < 1821) return '';
+  if (y <= 1850) return `清道光${n(y - 1820)}年`;
+  if (y <= 1861) return `清咸豐${n(y - 1850)}年`;
+  if (y <= 1874) return `清同治${n(y - 1861)}年`;
+  if (y <= 1895) return `清光緒${n(y - 1874)}年`;
+  if (y <= 1911) return `日治明治${n(y - 1867)}年`;
+  if (y <= 1925) return `日治大正${n(y - 1911)}年`;
+  if (y <= 1944) return `日治昭和${n(y - 1925)}年`;
+  return `民國${n(y - 1911)}年`;
+}
+function fmtLifeDate(s, lunar) {
+  const m = /(\d{4})(?:\D(\d{1,2})\D(\d{1,2}))?/.exec(s || ''); if (!m) return '';
+  const y = +m[1], era = eraOf(y);
+  const md = m[2] ? (lunar ? `農曆${CN_MON[+m[2]]}月${cnDay(+m[3])}` : `${+m[2]}月${+m[3]}日`) : '';
+  return `${y}年${md}${era ? `（${era}）` : ''}`;
+}
+function ageAt(b, d) {
+  const mb = /(\d{4})\D(\d{1,2})\D(\d{1,2})/.exec(b || ''), md = /(\d{4})\D(\d{1,2})\D(\d{1,2})/.exec(d || '');
+  if (!mb || !md) return null;
+  let a = md[1] - mb[1]; if (+md[2] < +mb[2] || (+md[2] === +mb[2] && +md[3] < +mb[3])) a--;
+  return a >= 0 && a < 130 ? a : null;
+}
+function autoBio(p) {
+  if (p.bio || p.empty) return;
+  const main = p.role === 'main' ? p : byId[p.spouseOf], z = zibeiOf(p.gen), out = [];
+  if (p.role === 'main') {
+    out.push(`${p.name}，龍山派曾氏第${CN[p.gen]}世${p.tag ? `，${p.tag}` : ''}${z.ch ? `，「${z.ch}」字輩（大宗第${cnNum(z.world)}世）` : ''}。`);
+  } else out.push(`${p.name}，${main.name}之配偶。`);
+  const b = fmtLifeDate(p.birth), d = fmtLifeDate(p.death, p.deathLunar), age = ageAt(p.birth, p.death);
+  if (b) out.push(`生於${b}${d ? `，卒於${d}${age !== null ? `，享年${age}歲` : ''}` : (p.alive ? '' : '，已仙逝')}。`);
+  else if (d) out.push(`卒於${d}。`);
+  else if (p.datesText) out.push(`生卒：${p.datesText}。`);
+  if (p.role === 'main') {
+    if (p.parent) out.push(`父${byId[p.parent].name}${byId[p.parent].spouse && !byId[p.parent].spouse.empty ? `，母${byId[p.parent].spouse.name}` : ''}。`);
+    if (p.spouse && !p.spouse.empty) out.push(`配${p.spouse.name}。`);
+    if (p.children.length) out.push(`育有${p.children.map(c => c.name).join('、')}。`);
+  } else if (main.children.length) out.push(`育有${main.children.map(c => c.name).join('、')}。`);
+  const pl = placementOf(p);
+  if (pl) out.push(`安奉於${TOWERS[pl.tower].name.replace(/^[A-Z_]+｜/, '')}${['一', '二', '三', '四', '五'][+pl.floor]}樓${slotLabel(pl.tower, +pl.floor, +pl.slot)}號。`);
+  if (out.length < 2 && !p.parent && !p.children) return;
+  p.bio = out.join('\n'); p.bioAuto = true;
+}
+
 /* ---------- 牌位貼圖（正面神位、背面生平、在世者卡片） ---------- */
 const TEX_W = 320, TEX_H = 768;
 const vert = s => s.replace(/（|\(/g, '︵').replace(/）|\)/g, '︶').replace(/—|-/g, '︱');
@@ -559,7 +606,7 @@ function splitTablet(t) {
     const big = m ? rest.slice(0, m.index) : rest;
     return [[t.slice(0, i + 1), false], [big, true], [rest.slice(big.length), false]];
   }
-  const m = t.match(/曾門(.{1,2}氏)/);
+  const m = t.match(/曾門(.{1,2}氏[^之]*)/);
   if (m) { const a = m.index + 2; return [[t.slice(0, a), false], [m[1], true], [t.slice(a + m[1].length), false]]; }
   return [[t, false]];
 }
@@ -643,7 +690,10 @@ function makeBackTexture(p) {
       top = y + h + 26;
     }
     const bottom = p.alias ? 668 : 712;
-    if (p.bio) drawVerticalText(g, p.bio, 52, TEX_W - 58, top, bottom, '#f1dfae');
+    if (p.bio) {
+      drawVerticalText(g, p.bio, 52, TEX_W - 58, top, p.bioAuto ? bottom - 26 : bottom, '#f1dfae');
+      if (p.bioAuto) { g.font = `400 16px ${FONT}`; g.fillStyle = 'rgba(232,198,106,.6)'; g.fillText('依族譜資料整理・可於紀念堂補寫', TEX_W / 2, bottom - 6); }
+    }
     else {
       g.fillStyle = 'rgba(232,198,106,.45)'; g.font = `900 46px ${FONT}`;
       const ch = [...'生平待補'], st = 56, y0 = (top + bottom) / 2 - st * 1.5 - 20;
@@ -2233,7 +2283,7 @@ function openCard(p) {
   const av = card.querySelector('.av');
   av.style.display = p.avatar ? '' : 'none'; if (p.avatar) av.src = p.avatar;
   const bio = card.querySelector('.bio');
-  bio.style.display = p.bio ? '' : 'none'; bio.textContent = p.bio || '';
+  bio.style.display = p.bio ? '' : 'none'; bio.textContent = (p.bio || '') + (p.bioAuto ? '\n（依族譜資料整理，可於紀念堂「祖先名冊」補寫生平）' : '');
   const fb = card.querySelector('.flip');
   fb.style.display = (p.empty || p.alive) ? 'none' : '';
   fb.textContent = tablets[p.id].flip ? '看正面神位' : '翻面看生平';
@@ -2566,6 +2616,7 @@ function loop() {
 async function start() {
   const introT0 = performance.now();
   const riteP = loadRite();
+  PEOPLE.forEach(autoBio);   // 先整理生平，字型才會一併載入
   await waitFonts();
   PEOPLE.forEach(buildTablet);
   buildLines();
