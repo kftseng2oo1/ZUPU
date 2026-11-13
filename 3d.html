@@ -1225,11 +1225,19 @@ function buildOfferSet(key, x, y, z, s, mini) {
 }
 function buildOfferings() { buildOfferSet('main', ALTAR.x, ALTAR.y, ALTAR.z, 1, false); }
 /* 某位祖先的小供桌（第一次供奉時建立） */
-const MINI_S = .48;
+const MINI_S1 = .78, MINI_S2 = .95;
+/* 夫妻共用一張供桌，放在兩塊牌位中間、橫跨兩位；單身者一張略小的。
+   供桌加大到與牌位相稱（原本 0.48 倍太小）。 */
+const setOwner = p => (p.spouseOf ? byId[p.spouseOf] : p) || p;
 function personSet(p) {
   if (p === root) return OFFER_SETS.main;
-  return OFFER_SETS[p.id] || buildOfferSet(p.id, p.x, p.y - BOT_OFF - .05, .78, MINI_S, true);
+  const o = setOwner(p);
+  if (o === root) return OFFER_SETS.main;
+  if (OFFER_SETS[o.id]) return OFFER_SETS[o.id];
+  const sp = o.spouse && !o.spouse.empty ? o.spouse : null;
+  return buildOfferSet(o.id, sp ? (o.x + sp.x) / 2 : o.x, o.y - BOT_OFF - .08, .95, sp ? MINI_S2 : MINI_S1, true);
 }
+const setPids = set => { const o = byId[set.key]; return o ? [o.id].concat(o.spouse && !o.spouse.empty ? [o.spouse.id] : []) : [set.key]; };
 /* 狀態：od[日期][牌位][供品] = 次數（舊格式 od[日期][供品] 視為歷代祖先） */
 function odOf(dayObj, pid) {
   if (!dayObj) return {};
@@ -1255,8 +1263,9 @@ function refreshOfferings() {
   Object.keys(HS).forEach(k => OFFER_SETS[k] && apply(OFFER_SETS[k], [k]));
   const od = RITE.state.od || {}, active = new Set();
   for (let i = 0; i < 8; i++) { const d = od[twDay(-i).s]; if (!d || typeof Object.values(d)[0] === 'number') continue; Object.keys(d).forEach(k => active.add(k)); }
-  active.forEach(pid => { const p = byId[pid]; if (p && p !== root && !p.alive && !p.empty) apply(personSet(p), [pid]); });
-  Object.values(OFFER_SETS).forEach(set => { if (set.mini && !active.has(set.key)) set.R.visible = false; });
+  const used = new Set();
+  active.forEach(pid => { const p = byId[pid]; if (p && p !== root && !p.alive && !p.empty) { const set = personSet(p); if (set.mini && !used.has(set)) { used.add(set); apply(set, setPids(set)); } } });
+  Object.values(OFFER_SETS).forEach(set => { if (set.mini && !used.has(set)) set.R.visible = false; });
 }
 
 /* ================= 祠堂陳設：匾額、對聯、沿革碑、字輩柱、塔位側殿 =================
@@ -1860,8 +1869,8 @@ function altarView() {
   return [V(ALTAR.x + d * .12, ALTAR.y + d * .28, ALTAR.z + d), V(ALTAR.x, ALTAR.y + .3, ALTAR.z)];
 }
 function personAltarView(p) {
-  const y = p.y - BOT_OFF + .3, d = Math.max(4, fitDist(2.4, 3.6));
-  return [V(p.x + d * .1, y + d * .22, .78 + d), V(p.x, y + .5, .5)];
+  const set = personSet(p), x = set.R.position.x, y = p.y - BOT_OFF + .3, d = Math.max(5, fitDist(set.s * 2.9, 4.4));
+  return [V(x + d * .1, y + d * .2, .95 + d), V(x, y + .9, .4)];
 }
 function openOfferSheet(pid) {
   const el = document.getElementById('offerBox'), p = (pid === 'all' || pid === 'every' || SPECIAL_NAMES[pid]) ? null : byId[pid];
