@@ -10,13 +10,14 @@
  *        }
  *
  * KV 結構（f = 家族代號，預設 longshan）
- *   s:<f>              祭祀狀態 JSON {total, days{日期:次數}, byPid{牌位:次數}, recent[], voices{牌位:[...]}}
+ *   s:<f>              祭祀狀態 JSON {total, days{日期:上香次數}, byPid{牌位:上香次數}, od{日期:{供品:次數}}, recent[], voices{牌位:[...]}}
  *   v:<f>:<voiceId>    錄音原始內容；metadata {m: mime}
  *   k:<f>:<voiceId>    刪除金鑰的 SHA-256
  *
  * API（路徑在 /zupu 之後，皆帶 ?f=家族代號）
  *   GET    /state                                   → {ok, state}
- *   POST   /incense   JSON {pid, name, who}         → {ok, state}
+ *   POST   /offer     JSON {pid, name, who, type}   → {ok, state}   type：incense 上香／tea 奉茶／flower 獻花／fruit 供果／candle 點燭
+ *   POST   /incense   JSON {pid, name, who}         → 同 /offer（type=incense，相容舊版）
  *   POST   /voice?pid=&who=&title=&dur=   原始音訊   → {ok, voice, key, state}
  *   GET    /voice/:id                               → 音訊
  *   DELETE /voice/:id?key=                          → {ok, state}
@@ -32,6 +33,8 @@ const ZUPU_MAX_VOICE = 5 * 1024 * 1024;
 const ZUPU_MAX_VOICES_PER_PID = 30;
 const ZUPU_RECENT = 40;
 const ZUPU_DAYS_KEEP = 400;
+const ZUPU_OD_KEEP = 30;
+const ZUPU_TYPES = ['incense', 'tea', 'flower', 'fruit', 'candle'];
 
 function withZupuCors(res) {
   const h = new Headers(res.headers);
@@ -54,11 +57,13 @@ async function zSha(s) {
 const zToday = () => new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);
 async function zLoad(kv, f) {
   const s = await kv.get('s:' + f, 'json');
-  return Object.assign({ total: 0, days: {}, byPid: {}, recent: [], voices: {} }, s || {});
+  return Object.assign({ total: 0, days: {}, byPid: {}, od: {}, recent: [], voices: {} }, s || {});
 }
 async function zSave(kv, f, s) {
   const keys = Object.keys(s.days).sort();
   while (keys.length > ZUPU_DAYS_KEEP) delete s.days[keys.shift()];
+  const ok = Object.keys(s.od || {}).sort();
+  while (ok.length > ZUPU_OD_KEEP) delete s.od[ok.shift()];
   await kv.put('s:' + f, JSON.stringify(s));
 }
 
@@ -70,13 +75,16 @@ async function handleZupu(request, env, path, url) {
 
   if (path === '/state' && m === 'GET') return zJson({ ok: true, state: await zLoad(kv, f) });
 
-  if (path === '/incense' && m === 'POST') {
+  if ((path === '/offer' || path === '/incense') && m === 'POST') {
     let b; try { b = await request.json(); } catch (e) { return zErr('格式錯誤'); }
     const pid = b.pid === 'all' ? 'all' : zPid(b.pid);
     if (!pid) return zErr('缺少 pid');
+    const type = path === '/incense' ? 'incense' : b.type;
+    if (!ZUPU_TYPES.includes(type)) return zErr('不支援的供品');
     const s = await zLoad(kv, f), day = zToday();
-    s.total += 1; s.days[day] = (s.days[day] || 0) + 1; s.byPid[pid] = (s.byPid[pid] || 0) + 1;
-    s.recent = [{ pid, name: zStr(b.name, 20), who: zStr(b.who, 20) || '族人', at: Date.now() }, ...s.recent].slice(0, ZUPU_RECENT);
+    if (type === 'incense') { s.total += 1; s.days[day] = (s.days[day] || 0) + 1; s.byPid[pid] = (s.byPid[pid] || 0) + 1; }
+    s.od[day] = s.od[day] || {}; s.od[day][type] = (s.od[day][type] || 0) + 1;
+    s.recent = [{ pid, name: zStr(b.name, 20), who: zStr(b.who, 20) || '族人', type, at: Date.now() }, ...s.recent].slice(0, ZUPU_RECENT);
     await zSave(kv, f, s);
     return zJson({ ok: true, state: s });
   }
