@@ -59,6 +59,13 @@
   #card dl{display:grid;grid-template-columns:4.2em 1fr;row-gap:6px;font-size:15px}
   #card dt{color:#7a5a2a}
   #card dd{color:var(--ink);font-weight:700}
+  #card{max-height:62vh;overflow-y:auto}
+  #card .av{width:44px;height:54px;object-fit:cover;border:2px solid var(--gold);border-radius:2px;align-self:center}
+  #card .bio{margin-top:10px;padding-top:8px;border-top:1px dashed #c9a045;font-size:14px;line-height:1.75;color:#3d2b1a;white-space:pre-wrap}
+  #card .flip{margin-top:12px;width:100%;height:38px;border:1px solid var(--gold);border-radius:3px;background:#3d2006;color:var(--gold-l);font-family:var(--font);font-size:15px;font-weight:700;letter-spacing:.2em;cursor:pointer}
+  #card dd{word-break:break-all}
+  #card.mini dl,#card.mini .bio{display:none}
+  #card.mini .hd{border-bottom:0;margin-bottom:0}
   #card .x{position:absolute;top:6px;right:8px;border:0;background:none;font-size:22px;color:#7a5a2a;cursor:pointer;padding:4px}
 
   /* 開場卷軸 */
@@ -107,8 +114,10 @@
 
 <div id="card">
   <button class="x" aria-label="關閉">×</button>
-  <div class="hd"><span class="nm"></span><span class="gn"></span><span class="tg"></span></div>
+  <div class="hd"><img class="av" alt=""><span class="nm"></span><span class="gn"></span><span class="tg"></span></div>
   <dl></dl>
+  <p class="bio"></p>
+  <button class="flip">翻面看生平</button>
 </div>
 
 <div id="bar"></div>
@@ -144,53 +153,84 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 /* ================= 族譜資料 =================
-   新增成員只要在這裡加一筆：
-   主脈：{id, name, gen, parent, tag?, lines?}
-   配偶：{id, name, spouseOf, lines?, empty?}
+   內建資料（與紀念堂預設一致）；紀念堂「祖先名冊」填寫的內容會自動覆蓋/補上。
+   主脈：{id, name, gen, parent, tag?, tablet?, birth?, death?, bio?, avatar?, alias?, alive?}
+   配偶：{id, name, spouseOf, birth?, death?, datesText?, tablet?, empty?}
 */
 const PEOPLE = [
-  { id:'p1',  name:'曾虎',     gen:1, tag:'來台祖' },
-  { id:'p2',  name:'曾奎德',   gen:2, parent:'p1' },
-  { id:'p3',  name:'曾武六',   gen:3, parent:'p2' },
-  { id:'p4',  name:'曾呈獅',   gen:4, parent:'p3' },
+  { id:'p1',  name:'曾虎',     gen:1, tag:'來台祖', tablet:'顯一世祖考曾公諱虎之神位' },
+  { id:'p2',  name:'曾奎德',   gen:2, parent:'p1', tablet:'顯二世祖考諱奎德之神位' },
+  { id:'p3',  name:'曾武六',   gen:3, parent:'p2', tablet:'顯三世祖考諱武六之神位' },
+  { id:'p4',  name:'曾呈獅',   gen:4, parent:'p3', tablet:'顯四世祖考曾公諱呈獅之神位' },
   { id:'s4',  name:'吳香',     spouseOf:'p4' },
-  { id:'p5',  name:'曾水陀',   gen:5, parent:'p4', lines:['1874 年生','仙逝'] },
-  { id:'s5',  name:'許羿（藝）', spouseOf:'p5', lines:['1878.08.03','— 1916.05.26'] },
-  { id:'p6a', name:'曾瑞麟',   gen:6, parent:'p5', lines:['1900 年生','仙逝'] },
-  { id:'s6a', name:'曾楊玉枝', spouseOf:'p6a', lines:['1904.08.11','— 1983.04.08'] },
-  { id:'p6b', name:'曾實',     gen:6, parent:'p5' },
+  { id:'p5',  name:'曾水陀',   gen:5, parent:'p4', birth:'1874', tablet:'顯五世祖考曾公諱水陀之神位' },
+  { id:'s5',  name:'許羿（藝）', spouseOf:'p5', birth:'1878.08.03', death:'1916.05.26' },
+  { id:'p6a', name:'曾瑞麟',   gen:6, parent:'p5', birth:'1900', tablet:'顯六世祖考曾公諱瑞麟之神位' },
+  { id:'s6a', name:'曾楊玉枝', spouseOf:'p6a', birth:'1904.08.11', death:'1983.04.08' },
+  { id:'p6b', name:'曾實',     gen:6, parent:'p5', tablet:'顯六世祖考曾公諱實之神位' },
   { id:'s6b', name:'無配偶',   spouseOf:'p6b', empty:true },
-  { id:'p7',  name:'曾人定',   gen:7, parent:'p6a', lines:['1934 年生','仙逝'] },
-  { id:'s7',  name:'曾張月嬌', spouseOf:'p7', lines:['1934.01.10','— 2021.11.18'] },
+  { id:'p7',  name:'曾人定',   gen:7, parent:'p6a', birth:'1934', tablet:'顯七世祖考曾公諱人定之神位' },
+  { id:'s7',  name:'曾張月嬌', spouseOf:'p7', birth:'1934.01.10', death:'2021.11.18' },
 ];
 
-const CN = ['','一','二','三','四','五','六','七','八','九','十','十一','十二'];
+const CN = ['','一','二','三','四','五','六','七','八','九','十','十一','十二','十三','十四','十五'];
 const FONT = '"Noto Serif TC","Songti TC","PMingLiU",serif';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+const norm = s => (s || '').replace(/^曾/, '').trim();
+const fmtDate = d => (d || '').trim().replace(/-/g, '.');
 
-/* ---------- 同步紀念堂（index.html）新增的祖先 ----------
-   同網域下讀取 localStorage 'ancestorApp_v28'，
-   以「去掉曾字」比對姓名；不在上面清單中的已故祖先自動加入主脈。 */
+/* ---------- 同步紀念堂（index.html）的祖先名冊 ----------
+   同網域讀取 localStorage 'ancestorApp_v28'：
+   已有的人 → 補上神位文字、生卒忌日、生平、照片、字號、配偶
+   新增的人 → 依「上一代」接到世系；在世者做成家族樹卡片（不立牌位） */
 (function mergeFromMemorial() {
   let data;
   try { data = JSON.parse(localStorage.getItem('ancestorApp_v28') || 'null'); } catch (e) { return; }
   if (!data || !Array.isArray(data.ancestors)) return;
-  const norm = s => (s || '').replace(/^曾/, '').trim();
-  const find = n => PEOPLE.find(p => !p.spouseOf && norm(p.name) === norm(n));
-  const pending = data.ancestors.filter(a => a && a.name && !a.isAlive && a.gen);
-  pending.sort((a, b) => a.gen - b.gen).forEach(a => {
-    const hit = find(a.name) || (a.alias && find(a.alias));
-    if (hit) {
-      if (!hit.lines && (a.birth || a.death)) hit.lines = [a.birth || '', a.death ? '— ' + a.death : ''].filter(Boolean);
-      return;
+  const find = n => n && PEOPLE.find(p => !p.spouseOf && norm(p.name) === norm(n));
+  const apply = (p, a) => {
+    ['alias', 'bio', 'avatar'].forEach(k => { if (a[k]) p[k] = a[k]; });
+    if (a.tablet && !a.isAlive) p.tablet = a.tablet;
+    if (a.birth) p.birth = fmtDate(a.birth);
+    if (a.death) { p.death = fmtDate(a.death); p.deathLunar = a.deathCalendar === 'lunar'; }
+    p.alive = !!a.isAlive;
+    if (a.spouse) {
+      const sp = PEOPLE.find(s => s.spouseOf === p.id);
+      if (!sp) PEOPLE.push({ id: 'ms_' + p.id, name: a.spouse, spouseOf: p.id, datesText: a.spouseDates || '' });
+      else if (sp.empty) Object.assign(sp, { name: a.spouse, empty: false, datesText: a.spouseDates || '' });
+      else if (a.spouseDates && !sp.birth && !sp.death) sp.datesText = a.spouseDates;
     }
-    const parent = a.parent && find(a.parent);
-    if (!parent || parent.gen !== a.gen - 1) return;
-    const name = a.name.startsWith('曾') ? a.name : '曾' + a.name;
-    PEOPLE.push({ id: 'm_' + a.id, name, gen: a.gen, parent: parent.id,
-      lines: (a.birth || a.death) ? [a.birth || '', a.death ? '— ' + a.death : ''].filter(Boolean) : undefined });
+  };
+  data.ancestors.filter(a => a && a.name && a.gen).sort((a, b) => a.gen - b.gen).forEach(a => {
+    const hit = find(a.name) || find(a.alias);
+    if (hit) { apply(hit, a); return; }
+    const parent = find(a.parent);
+    if (!parent || +parent.gen !== +a.gen - 1) return;
+    const p = { id: 'm_' + a.id, name: a.name.startsWith('曾') ? a.name : '曾' + a.name, gen: +a.gen, parent: parent.id };
+    PEOPLE.push(p); apply(p, a);
   });
 })();
+
+/* ---------- 神位文字（未填則依慣例產生） ---------- */
+function tabletText(p) {
+  if (p.empty) return '無配偶';
+  if (p.tablet) return p.tablet;
+  if (p.role === 'main') return `顯${CN[p.gen]}世祖考曾公諱${norm(p.name)}之神位`;
+  const n = p.name.replace(/（.*?）/g, '');
+  const sur = (n.length >= 3 && n.startsWith('曾')) ? n[1] : n[0];
+  return `顯${CN[p.gen]}世祖妣曾門${sur}氏孺人之神位`;
+}
+/* 生卒顯示 */
+function lifeLines(p) {
+  if (p.alive) return [p.birth ? p.birth + (p.birth.length === 4 ? ' 年生' : ' 生') : '', '在世'].filter(Boolean);
+  if (p.datesText) return [p.datesText];
+  const b = p.birth ? (p.birth.length === 4 ? p.birth + ' 年生' : p.birth) : '';
+  const d = p.death ? (p.deathLunar ? '農曆 ' : '') + p.death : '';
+  if (b && d) return [b, '— ' + d];
+  if (b) return [b, '仙逝'];
+  if (d) return ['卒 ' + d];
+  return null;
+}
 
 /* ---------- 關係整理 ---------- */
 const byId = Object.fromEntries(PEOPLE.map(p => [p.id, p]));
@@ -198,6 +238,8 @@ PEOPLE.forEach(p => {
   if (p.spouseOf) { const m = byId[p.spouseOf]; p.gen = m.gen; p.role = 'spouse'; m.spouse = p; }
   else p.role = 'main';
 });
+PEOPLE.forEach(p => { if (p.spouseOf && byId[p.spouseOf].alive) p.alive = true; });
+PEOPLE.forEach(p => { p.lines = lifeLines(p); p.tabletText = tabletText(p); });
 const mains = PEOPLE.filter(p => p.role === 'main');
 mains.forEach(p => p.children = mains.filter(c => c.parent === p.id));
 const root = mains.find(p => !p.parent);
@@ -222,8 +264,8 @@ measure(root); place(root, -root.w / 2);
 
 /* ---------- 字型就緒後才畫牌位文字（iOS 必要） ---------- */
 async function waitFonts() {
-  const txt = PEOPLE.map(p => p.name + (p.tag || '') + (p.lines || []).join('')).join('')
-            + '第一二三四五六七八九十世配偶︵︶無—年生仙逝之本支0123456789.';
+  const txt = PEOPLE.map(p => p.name + p.tabletText + (p.tag || '') + (p.lines || []).join('') + (p.bio || '') + (p.alias || '')).join('')
+            + '第一二三四五六七八九十世配偶︵︶無—年生仙逝之本支在世農曆卒生平待補於紀念堂祖先名冊填寫字號0123456789.';
   try {
     await Promise.race([
       Promise.all([
@@ -272,63 +314,167 @@ const M = {
   lacquerTable: new THREE.MeshStandardMaterial({ color: '#4a0e0e', roughness: .35, envMapIntensity: .6 }),
 };
 
-/* ---------- 牌位正面文字貼圖 ---------- */
+/* ---------- 牌位貼圖（正面神位、背面生平、在世者卡片） ---------- */
 const TEX_W = 320, TEX_H = 768;
-const vert = s => s.replace(/（/g, '︵').replace(/）/g, '︶');
-function makeTabletTexture(p) {
-  const c = document.createElement('canvas'); c.width = TEX_W; c.height = TEX_H;
-  const g = c.getContext('2d');
-  const base = p.empty ? ['#4a3a30', '#2e241e'] : p.role === 'spouse' ? ['#7e3022', '#561a12'] : ['#701414', '#3e0808'];
-  let grd = g.createLinearGradient(0, 0, TEX_W, TEX_H);
-  grd.addColorStop(0, base[0]); grd.addColorStop(1, base[1]);
-  g.fillStyle = grd; g.fillRect(0, 0, TEX_W, TEX_H);
-  // 漆面光澤
-  const sh = g.createLinearGradient(0, 0, TEX_W, 0);
-  sh.addColorStop(0, 'rgba(255,255,255,0)'); sh.addColorStop(.32, 'rgba(255,225,180,.10)'); sh.addColorStop(.55, 'rgba(255,255,255,0)');
-  g.fillStyle = sh; g.fillRect(0, 0, TEX_W, TEX_H);
-  // 金框
-  g.strokeStyle = '#d4a843'; g.lineWidth = 9; g.strokeRect(14, 14, TEX_W - 28, TEX_H - 28);
-  g.lineWidth = 2; g.strokeRect(32, 32, TEX_W - 64, TEX_H - 64);
-  g.fillStyle = '#d4a843';
-  [[32, 32], [TEX_W - 32, 32], [32, TEX_H - 32], [TEX_W - 32, TEX_H - 32]].forEach(([x, y]) => {
-    g.save(); g.translate(x, y); g.rotate(Math.PI / 4); g.fillRect(-7, -7, 14, 14); g.restore();
-  });
-  g.textAlign = 'center'; g.textBaseline = 'middle';
-  // 世代 / 配偶
-  g.fillStyle = '#e8c66a'; g.font = `700 34px ${FONT}`;
-  g.fillText(p.role === 'main' ? `第 ${CN[p.gen]} 世` : '配 偶', TEX_W / 2, 82);
-  g.fillRect(74, 116, TEX_W - 148, 2);
-  // 姓名直書
-  const chars = [...vert(p.name)];
-  const top = 150, bottom = p.lines ? 585 : 680;
-  const size = Math.min(112, (bottom - top) / chars.length * 0.92);
-  const step = Math.min(size * 1.12, (bottom - top) / chars.length);
-  const y0 = (top + bottom) / 2 - step * (chars.length - 1) / 2;
-  const ng = g.createLinearGradient(0, top, 0, bottom);
-  ng.addColorStop(0, '#fbe7a6'); ng.addColorStop(.5, '#e0b24e'); ng.addColorStop(1, '#f6d98a');
-  g.font = `900 ${size}px ${FONT}`;
-  g.shadowColor = 'rgba(0,0,0,.55)'; g.shadowBlur = 6; g.shadowOffsetY = 3;
-  g.fillStyle = p.empty ? 'rgba(220,200,160,.55)' : ng;
-  chars.forEach((ch, i) => g.fillText(ch, TEX_W / 2, y0 + i * step));
-  g.shadowColor = 'transparent';
-  // 標記（例：來台祖）直書於右欄
-  if (p.tag) {
-    const tc = [...p.tag], fs = 26;
-    const bx = TEX_W - 66, by = 150, bh = tc.length * (fs + 6) + 14;
-    g.fillStyle = '#d4a843'; g.fillRect(bx, by, 36, bh);
-    g.fillStyle = '#5a0d0d'; g.font = `900 ${fs}px ${FONT}`;
-    tc.forEach((ch, i) => g.fillText(ch, bx + 18, by + 7 + fs / 2 + i * (fs + 6)));
-  }
-  // 生卒
-  if (p.lines) {
-    g.fillStyle = '#e8c66a'; g.fillRect(74, 612, TEX_W - 148, 1.5);
-    g.font = `700 25px ${FONT}`;
-    p.lines.forEach((l, i) => g.fillText(l, TEX_W / 2, 648 + i * 36));
-  }
+const vert = s => s.replace(/（|\(/g, '︵').replace(/）|\)/g, '︶').replace(/—|-/g, '︱');
+const GOLD_TXT = '#e8c66a';
+function newCanvas() { const c = document.createElement('canvas'); c.width = TEX_W; c.height = TEX_H; return [c, c.getContext('2d')]; }
+function toTex(c) {
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace;
   t.anisotropy = renderer.capabilities.getMaxAnisotropy();
   return t;
+}
+function paintLacquer(g, base, frame = '#d4a843') {
+  const grd = g.createLinearGradient(0, 0, TEX_W, TEX_H);
+  grd.addColorStop(0, base[0]); grd.addColorStop(1, base[1]);
+  g.fillStyle = grd; g.fillRect(0, 0, TEX_W, TEX_H);
+  const sh = g.createLinearGradient(0, 0, TEX_W, 0);
+  sh.addColorStop(0, 'rgba(255,255,255,0)'); sh.addColorStop(.32, 'rgba(255,225,180,.10)'); sh.addColorStop(.55, 'rgba(255,255,255,0)');
+  g.fillStyle = sh; g.fillRect(0, 0, TEX_W, TEX_H);
+  g.strokeStyle = frame; g.lineWidth = 9; g.strokeRect(14, 14, TEX_W - 28, TEX_H - 28);
+  g.lineWidth = 2; g.strokeRect(32, 32, TEX_W - 64, TEX_H - 64);
+  g.fillStyle = frame;
+  [[32, 32], [TEX_W - 32, 32], [32, TEX_H - 32], [TEX_W - 32, TEX_H - 32]].forEach(([x, y]) => {
+    g.save(); g.translate(x, y); g.rotate(Math.PI / 4); g.fillRect(-7, -7, 14, 14); g.restore();
+  });
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+}
+function topOrnament(g, color) {
+  g.fillStyle = color;
+  g.save(); g.translate(TEX_W / 2, 66); g.rotate(Math.PI / 4); g.fillRect(-8, -8, 16, 16); g.restore();
+  g.fillRect(70, 65, 70, 2); g.fillRect(TEX_W - 140, 65, 70, 2);
+}
+/* 神位文字切段：「諱」後到「之神位」為名諱、「曾門X氏」的 X氏 放大 */
+function splitTablet(t) {
+  let i = t.indexOf('諱');
+  if (i >= 0) {
+    const rest = t.slice(i + 1), m = rest.match(/(府君)?之神位$/);
+    const big = m ? rest.slice(0, m.index) : rest;
+    return [[t.slice(0, i + 1), false], [big, true], [rest.slice(big.length), false]];
+  }
+  const m = t.match(/曾門(.{1,2}氏)/);
+  if (m) { const a = m.index + 2; return [[t.slice(0, a), false], [m[1], true], [t.slice(a + m[1].length), false]]; }
+  return [[t, false]];
+}
+function nameGradient(g, top, bottom) {
+  const ng = g.createLinearGradient(0, top, 0, bottom);
+  ng.addColorStop(0, '#fbe7a6'); ng.addColorStop(.5, '#e0b24e'); ng.addColorStop(1, '#f6d98a');
+  return ng;
+}
+function makeTabletTexture(p) {
+  const [c, g] = newCanvas();
+  paintLacquer(g, p.empty ? ['#4a3a30', '#2e241e'] : p.role === 'spouse' ? ['#7e3022', '#561a12'] : ['#701414', '#3e0808']);
+  topOrnament(g, '#d4a843');
+  const top = 96, bottom = p.lines ? 596 : 700;
+  if (p.empty) {
+    const chars = [...p.name], size = 92, step = 104, y0 = (top + bottom) / 2 - step * (chars.length - 1) / 2;
+    g.font = `900 ${size}px ${FONT}`; g.fillStyle = 'rgba(220,200,160,.55)';
+    chars.forEach((ch, i) => g.fillText(ch, TEX_W / 2, y0 + i * step));
+  } else {
+    // 神位文字直書，名諱放大
+    const segs = splitTablet(p.tabletText).map(([t, big]) => [[...vert(t)], big]).filter(s => s[0].length);
+    const S0 = 40, B0 = 100, gs = 1.07, gb = 1.03;
+    const total = segs.reduce((s, [ch, big]) => s + ch.length * (big ? B0 * gb : S0 * gs), 0);
+    const k = Math.min(1.12, (bottom - top) / total);
+    const S = S0 * k, B = Math.min(B0 * k, 108);
+    const used = segs.reduce((s, [ch, big]) => s + ch.length * (big ? B * gb : S * gs), 0);
+    let y = (top + bottom) / 2 - used / 2;
+    const ng = nameGradient(g, top, bottom);
+    g.shadowColor = 'rgba(0,0,0,.55)'; g.shadowBlur = 6; g.shadowOffsetY = 3;
+    segs.forEach(([chars, big]) => {
+      const sz = big ? B : S, st = sz * (big ? gb : gs);
+      g.font = `900 ${sz}px ${FONT}`; g.fillStyle = big ? ng : GOLD_TXT;
+      chars.forEach(ch => { g.fillText(ch, TEX_W / 2, y + st / 2); y += st; });
+    });
+    g.shadowColor = 'transparent';
+  }
+  if (p.tag) {   // 右欄標記（來台祖）
+    const tc = [...p.tag], fs = 26, bx = TEX_W - 70, by = 104, bh = tc.length * (fs + 6) + 14;
+    g.fillStyle = '#d4a843'; g.fillRect(bx, by, 34, bh);
+    g.fillStyle = '#5a0d0d'; g.font = `900 ${fs}px ${FONT}`;
+    tc.forEach((ch, i) => g.fillText(ch, bx + 17, by + 7 + fs / 2 + i * (fs + 6)));
+  }
+  if (p.lines) {
+    g.fillStyle = GOLD_TXT; g.fillRect(74, 620, TEX_W - 148, 1.5);
+    g.font = `700 ${p.lines.some(l => l.length > 13) ? 20 : 25}px ${FONT}`;
+    p.lines.forEach((l, i) => g.fillText(l, TEX_W / 2, (p.lines.length > 1 ? 652 : 668) + i * 36));
+  }
+  return toTex(c);
+}
+/* 直書段落：由右至左分欄 */
+function drawVerticalText(g, text, x0, x1, top, bottom, color, maxFs = 28, minFs = 17) {
+  const paras = text.replace(/\r/g, '').split('\n').map(s => s.trim()).filter(Boolean).map(s => [...vert(s)]);
+  let fs = maxFs, cols;
+  const layout = f => {
+    const per = Math.floor((bottom - top) / (f * 1.1)), out = [];
+    paras.forEach(chs => { for (let i = 0; i < chs.length; i += per) out.push(chs.slice(i, i + per)); });
+    return out;
+  };
+  while (true) {
+    cols = layout(fs);
+    if (cols.length <= Math.floor((x1 - x0) / (fs * 1.38)) + 1 || fs <= minFs) break;
+    fs -= 1;
+  }
+  const maxCols = Math.floor((x1 - x0) / (fs * 1.38)) + 1;
+  if (cols.length > maxCols) { cols = cols.slice(0, maxCols); const l = cols[maxCols - 1]; l[l.length - 1] = '…'; }
+  g.fillStyle = color; g.font = `700 ${fs}px ${FONT}`;
+  cols.forEach((col, ci) => col.forEach((ch, i) => g.fillText(ch, x1 - ci * fs * 1.38, top + fs * .55 + i * fs * 1.1)));
+}
+function makeBackTexture(p) {
+  const [c, g] = newCanvas();
+  const draw = img => {
+    paintLacquer(g, ['#3c0d0d', '#200505']);
+    g.fillStyle = GOLD_TXT; g.font = `900 34px ${FONT}`; g.fillText('生　平', TEX_W / 2, 78);
+    g.fillRect(74, 108, TEX_W - 148, 2);
+    let top = 134;
+    if (img) {   // 照片（裁成直式）
+      const w = 190, h = 230, x = (TEX_W - w) / 2, y = 128;
+      const r = Math.max(w / img.width, h / img.height), sw = w / r, sh = h / r;
+      g.save(); g.beginPath(); g.rect(x, y, w, h); g.clip();
+      g.drawImage(img, (img.width - sw) / 2, (img.height - sh) / 2, sw, sh, x, y, w, h); g.restore();
+      g.strokeStyle = '#d4a843'; g.lineWidth = 4; g.strokeRect(x, y, w, h);
+      top = y + h + 26;
+    }
+    const bottom = p.alias ? 668 : 712;
+    if (p.bio) drawVerticalText(g, p.bio, 52, TEX_W - 58, top, bottom, '#f1dfae');
+    else {
+      g.fillStyle = 'rgba(232,198,106,.45)'; g.font = `900 46px ${FONT}`;
+      const ch = [...'生平待補'], st = 56, y0 = (top + bottom) / 2 - st * 1.5 - 20;
+      ch.forEach((t, i) => g.fillText(t, TEX_W / 2, y0 + i * st));
+      g.font = `400 17px ${FONT}`; g.fillStyle = 'rgba(232,198,106,.6)';
+      g.fillText('於紀念堂「祖先名冊」填寫', TEX_W / 2, bottom - 8);
+    }
+    if (p.alias) { g.fillStyle = GOLD_TXT; g.font = `700 22px ${FONT}`; g.fillText('字號　' + p.alias, TEX_W / 2, 700); }
+  };
+  draw(null);
+  const t = toTex(c);
+  if (p.avatar) {
+    const img = new Image();
+    img.onload = () => { draw(img); t.needsUpdate = true; };
+    img.src = p.avatar;
+  }
+  return t;
+}
+function makeLivingTexture(p) {
+  const c = document.createElement('canvas'); c.width = 320; c.height = 560;
+  const g = c.getContext('2d'), W = 320, H = 560;
+  const grd = g.createLinearGradient(0, 0, W, H); grd.addColorStop(0, '#fbf4e2'); grd.addColorStop(1, '#ecdcb6');
+  g.fillStyle = grd; g.fillRect(0, 0, W, H);
+  g.strokeStyle = '#a82020'; g.lineWidth = 6; g.strokeRect(12, 12, W - 24, H - 24);
+  g.lineWidth = 1.5; g.strokeRect(26, 26, W - 52, H - 52);
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillStyle = '#a82020'; g.font = `700 28px ${FONT}`;
+  g.fillText(p.role === 'main' ? `第 ${CN[p.gen]} 世` : '配 偶', W / 2, 64);
+  g.fillRect(80, 92, W - 160, 1.5);
+  const chars = [...vert(p.name)], top = 116, bottom = 452;
+  const size = Math.min(92, (bottom - top) / chars.length * .9), step = Math.min(size * 1.1, (bottom - top) / chars.length);
+  const y0 = (top + bottom) / 2 - step * (chars.length - 1) / 2;
+  g.fillStyle = '#1a0f00'; g.font = `900 ${size}px ${FONT}`;
+  chars.forEach((ch, i) => g.fillText(ch, W / 2, y0 + i * step));
+  g.fillStyle = '#7a5a2a'; g.font = `700 22px ${FONT}`;
+  (p.lines || ['在世']).forEach((l, i, a) => g.fillText(l, W / 2, (a.length > 1 ? 482 : 496) + i * 30));
+  return toTex(c);
 }
 
 /* ---------- 牌位模型 ---------- */
@@ -343,16 +489,19 @@ const archInnerGeo = new THREE.ShapeGeometry(archInnerShape, 24);
 const bodyGeo = new THREE.BoxGeometry(TW, BODY_H, .16);
 const ped1 = new THREE.BoxGeometry(1.45, .22, .5), ped2 = new THREE.BoxGeometry(1.25, .14, .4);
 const finialGeo = new THREE.SphereGeometry(.075, 16, 12);
+const LIVE_H = 1.95, liveGeo = new THREE.BoxGeometry(TW, LIVE_H, .05);
 
 const pickables = [];
 const tablets = {};
 function buildTablet(p) {
+  if (p.alive) return buildLivingCard(p);
   const grp = new THREE.Group();
   const side = new THREE.MeshStandardMaterial({ color: p.empty ? '#3a2e26' : p.role === 'spouse' ? '#5e1c14' : '#4e0c0c', roughness: .35, envMapIntensity: .6 });
   const front = new THREE.MeshStandardMaterial({ map: makeTabletTexture(p), roughness: .4, envMapIntensity: .5,
     emissive: new THREE.Color('#ffb84a'), emissiveIntensity: 0 });
   front.emissiveMap = front.map;
-  const mats = [side, side, side, side, front, side];
+  const back = p.empty ? side : new THREE.MeshStandardMaterial({ map: makeBackTexture(p), roughness: .45, envMapIntensity: .4 });
+  const mats = [side, side, side, side, front, back];
   if (p.empty) mats.forEach(m => { m.transparent = true; m.opacity = .38; m.depthWrite = false; });
   const body = new THREE.Mesh(bodyGeo, mats);
   body.userData.pid = p.id; pickables.push(body); grp.add(body);
@@ -361,14 +510,40 @@ function buildTablet(p) {
   const woodM = p.empty ? M.woodDark.clone() : M.woodDark;
   if (p.empty) [goldM, woodM].forEach(m => { m.transparent = true; m.opacity = .35; m.depthWrite = false; });
   const arch = new THREE.Mesh(archGeo, goldM); arch.position.y = BODY_H / 2; arch.scale.y = .6; grp.add(arch);
-  const inner = new THREE.Mesh(archInnerGeo, side); inner.position.set(0, BODY_H / 2 + .02, .125); inner.scale.y = .55; grp.add(inner);
+  [.125, -.125].forEach(z => {
+    const inner = new THREE.Mesh(archInnerGeo, side); inner.position.set(0, BODY_H / 2 + .02, z); inner.scale.y = .55;
+    if (z < 0) inner.rotation.y = Math.PI; grp.add(inner);
+  });
   const fin = new THREE.Mesh(finialGeo, goldM); fin.position.y = BODY_H / 2 + .62 * .6 + .06; grp.add(fin);
   const b1 = new THREE.Mesh(ped1, woodM); b1.position.y = -BODY_H / 2 - .18; grp.add(b1);
   const b2 = new THREE.Mesh(ped2, goldM); b2.position.y = -BODY_H / 2 - .02; grp.add(b2);
 
   grp.position.set(p.x, p.y, 0);
   scene.add(grp);
-  tablets[p.id] = { grp, front };
+  tablets[p.id] = { grp, front, flip: 0 };
+}
+/* 在世者：不立牌位，做成懸掛在世系線下的宣紙卡 */
+const cordM = new THREE.MeshStandardMaterial({ color: '#a82020', roughness: .6 });
+function buildLivingCard(p) {
+  const grp = new THREE.Group();
+  const wood = new THREE.MeshStandardMaterial({ color: '#8a6a3e', roughness: .6 });
+  const front = new THREE.MeshStandardMaterial({ map: makeLivingTexture(p), roughness: .8,
+    emissive: new THREE.Color('#ffcf7a'), emissiveIntensity: 0 });
+  front.emissiveMap = front.map;
+  const paper = new THREE.MeshStandardMaterial({ color: '#efe3c4', roughness: .9 });
+  const card = new THREE.Mesh(liveGeo, [wood, wood, wood, wood, front, paper]);
+  card.userData.pid = p.id; pickables.push(card); grp.add(card);
+  const cordLen = .45;
+  if (p.role === 'main') {   // 配偶卡不掛繩，與主脈卡同高並排
+    const cord = new THREE.Mesh(new THREE.CylinderGeometry(.012, .012, cordLen, 6), cordM);
+    cord.position.y = LIVE_H / 2 + cordLen / 2; grp.add(cord);
+    const knotR = new THREE.Mesh(new THREE.TorusGeometry(.07, .022, 8, 16), cordM);
+    knotR.position.y = LIVE_H / 2 + .1; grp.add(knotR);
+  }
+  // 卡片頂端 + 繩長 = 世系線終點
+  grp.position.set(p.x, p.y + TOP_OFF - cordLen - LIVE_H / 2, 0);
+  scene.add(grp);
+  tablets[p.id] = { grp, front, flip: 0, sway: Math.random() * 6 };
 }
 
 /* ---------- 金色世系連線 ---------- */
@@ -387,14 +562,15 @@ const V = (x, y, z = 0) => new THREE.Vector3(x, y, z);
 const TOP_OFF = BODY_H / 2 + .62 * .6 + .14, BOT_OFF = BODY_H / 2 + .3;
 function buildLines() {
   mains.forEach(p => {
+    const coupleY = p.alive ? p.y + .5 : p.y - .55;
     if (p.spouse) {   // 夫妻連結
-      const y = p.y - .55;
+      const y = coupleY;
       rod(V(p.x + TW / 2, y, -.02), V(p.spouse.x - TW / 2, y, -.02), .028);
       knot(V(p.cx, y, -.02), .9);
     }
     if (!p.children.length) return;
-    const sy = p.y - BOT_OFF, ty = p.y - GEN_H + TOP_OFF, my = (sy + ty) / 2;
-    rod(V(p.cx, p.spouse ? p.y - .55 : sy), V(p.cx, my));
+    const sy = p.alive ? p.y + TOP_OFF - .45 - LIVE_H : p.y - BOT_OFF, ty = p.y - GEN_H + TOP_OFF, my = (p.y - BOT_OFF + ty) / 2;
+    rod(V(p.cx, p.spouse ? coupleY : sy), V(p.cx, my));
     const xs = p.children.map(c => c.x);
     const minX = Math.min(p.cx, ...xs), maxX = Math.max(p.cx, ...xs);
     if (maxX - minX > .01) rod(V(minX, my), V(maxX, my));
@@ -564,22 +740,38 @@ function openCard(p) {
   card.querySelector('.nm').textContent = p.name;
   card.querySelector('.gn').textContent = `第${CN[p.gen]}世` + (p.role === 'spouse' ? '・配偶' : '');
   const tg = card.querySelector('.tg'); tg.textContent = p.tag || ''; tg.style.display = p.tag ? '' : 'none';
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const rows = [];
   if (p.empty) rows.push(['說明', `${main.name} 未有配偶記錄`]);
   else {
-    rows.push(['身分', p.role === 'main' ? (p.tag ? `${p.tag}・主脈` : '主脈') : `${main.name} 之配偶`]);
-    rows.push(['生卒', p.lines ? p.lines.join(' ').replace('— ', '～') : '—']);
+    rows.push(['身分', p.alive ? '在世' : p.role === 'main' ? (p.tag ? `${p.tag}・主脈` : '主脈') : `${main.name} 之配偶`]);
+    if (!p.alive) rows.push(['神位', p.tabletText]);
+    if (p.alias) rows.push(['字號', p.alias]);
+    rows.push([p.alive ? '生辰' : '生卒', p.lines ? p.lines.join(' ').replace('— ', '～') : '待補']);
     if (p.role === 'main' && p.spouse && !p.spouse.empty) rows.push(['配偶', p.spouse.name]);
     if (main.parent) rows.push(['父系', byId[main.parent].name]);
     if (main.children.length) rows.push(['子嗣', main.children.map(c => c.name).join('、')]);
   }
-  card.querySelector('dl').innerHTML = rows.map(([a, b]) => `<dt>${a}</dt><dd>${b}</dd>`).join('');
+  card.querySelector('dl').innerHTML = rows.map(([a, b]) => `<dt>${a}</dt><dd>${esc(b)}</dd>`).join('');
+  const av = card.querySelector('.av');
+  av.style.display = p.avatar ? '' : 'none'; if (p.avatar) av.src = p.avatar;
+  const bio = card.querySelector('.bio');
+  bio.style.display = p.bio ? '' : 'none'; bio.textContent = p.bio || '';
+  const fb = card.querySelector('.flip');
+  fb.style.display = (p.empty || p.alive) ? 'none' : '';
+  fb.textContent = tablets[p.id].flip ? '看正面神位' : '翻面看生平';
   card.classList.add('on');
 }
 function closeCard() {
-  card.classList.remove('on');
-  if (selected) { tablets[selected].front.emissiveIntensity = 0; selected = null; }
+  card.classList.remove('on', 'mini');
+  if (selected) { const t = tablets[selected]; t.front.emissiveIntensity = 0; t.flip = 0; selected = null; }
 }
+card.querySelector('.flip').onclick = () => {
+  if (!selected) return;
+  const t = tablets[selected]; t.flip = t.flip ? 0 : 1;
+  card.classList.toggle('mini', !!t.flip);
+  card.querySelector('.flip').textContent = t.flip ? '看正面神位' : '翻面看生平';
+};
 card.querySelector('.x').onclick = closeCard;
 
 function selectPerson(id) {
@@ -587,8 +779,8 @@ function selectPerson(id) {
   const p = byId[id]; selected = id; setGen(p.gen);
   openCard(p);
   // 卡片在下方，鏡頭目標略往下讓牌位在畫面上半
-  const d = Math.max(6.5, fitDist(TW * 3.2, 7.4));
-  flyTo([V(p.x + d * .12, p.y - .6, d), V(p.x, p.y - 1.5, 0)], 1.0);
+  const d = Math.max(8.6, fitDist(TW * 3.2, 9));
+  flyTo([V(p.x + d * .1, p.y - .7, d), V(p.x, p.y - 1.55, 0)], 1.0);
 }
 
 /* 點擊判斷（與拖曳區分） */
@@ -657,6 +849,11 @@ function loop() {
   }
 
   if (selected) tablets[selected].front.emissiveIntensity = .18 + .14 * Math.sin(T * 3);
+  for (const id in tablets) {
+    const t = tablets[id], goal = t.flip * Math.PI;
+    if (Math.abs(t.grp.rotation.y - goal) > .001) t.grp.rotation.y += (goal - t.grp.rotation.y) * Math.min(1, dt * 5);
+    if (t.sway !== undefined) t.grp.rotation.z = Math.sin(T * .9 + t.sway) * .025;
+  }
 
   if (dust) {
     const a = dust.geometry.attributes.position, { sp, b } = dust.userData;
