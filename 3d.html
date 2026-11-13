@@ -125,6 +125,7 @@
   #offerBox .row .go{flex:2;background:#8b1a1a;border-color:#8b1a1a;color:#f6d98a;letter-spacing:.15em}
   #offerBox .row .go:disabled{opacity:.45}
   #offerBox .chant{width:100%;margin-top:10px;height:44px;font-family:var(--font);font-size:15px;font-weight:900;letter-spacing:.15em;border:1px solid #6b4a1a;border-radius:3px;background:linear-gradient(90deg,#2a1a08,#4a2e10,#2a1a08);color:#f6d98a}
+  #offerBox .evy{width:100%;margin-top:10px;height:40px;font-family:var(--font);font-size:14px;font-weight:700;letter-spacing:.1em;border:1px dashed #8b1a1a;border-radius:3px;background:#fff8ec;color:#8b1a1a}
   #offerBox .row .all{background:#fbf4e2;color:#5a0d0d}
   #recBox .tm{text-align:center;font-size:20px;font-weight:900;color:#5a0d0d;margin:6px 0 10px;letter-spacing:.1em}
   #recBox audio{width:100%;margin-bottom:10px;display:none}
@@ -153,6 +154,7 @@
   .rrow{display:flex;align-items:baseline;gap:8px;padding:8px 2px;border-bottom:1px dashed #d9c48a;font-size:15px;cursor:pointer}
   .rrow b{color:#2a1a08;white-space:nowrap}.rrow span{flex:1;color:#5a3a10;font-size:14px}.rrow em{font-style:normal;font-size:12px;color:#7a5a2a;white-space:nowrap}
   .rrow em.hot{color:#fff;background:#8b1a1a;padding:1px 6px;border-radius:2px}
+  .rbtn.revery{margin-top:8px;background:#fff8ec;color:#8b1a1a;border:1px solid #8b1a1a}
   .rbtn.rchant{margin-top:8px;background:linear-gradient(90deg,#2a1a08,#4a2e10,#2a1a08);border-color:#6b4a1a}
   .rtoday{font-size:14px!important;text-align:center;color:#5a3a10!important;margin:0 0 10px!important}
   .rnote{font-size:12px!important;color:#7a5a2a!important;margin-top:12px}
@@ -283,6 +285,7 @@
   <p class="hint">可複選，一次敬奉</p>
   <div class="grid"></div>
   <div class="row"><button class="no">取消</button><button class="all">全選</button><button class="go">敬奉</button></div>
+  <button class="evy">改為所有祖先都擺香案</button>
   <button class="chant">念經超渡・誦《心經》</button>
 </div></div>
 <div id="recBox" class="dlg" data-st="idle"><div class="in">
@@ -927,7 +930,17 @@ function buildOfferSet(key, x, y, z, s, mini) {
     const rim = new THREE.Mesh(new THREE.TorusGeometry(.2, .022, 8, 20), M.gold); rim.rotation.x = Math.PI / 2; rim.position.y = .26; cg.add(rim);
     [-1, 1].forEach(sx => { const ear = new THREE.Mesh(new THREE.TorusGeometry(.05, .014, 6, 12), M.gold); ear.position.set(sx * .21, .26, 0); cg.add(ear); });
     R.add(cg);
-    set.types.incense = { group: cg, show: on => { cg.visible = on; } };
+    const sm = new THREE.MeshStandardMaterial({ color: '#a8321e' }), tm = new THREE.MeshBasicMaterial({ color: '#ff8a3a' });
+    [-.06, 0, .06].forEach(dx => {   // 三支香平行直立，上香當日常駐
+      const st = new THREE.Mesh(new THREE.CylinderGeometry(.008, .008, .5, 6), sm); st.position.set(dx, .47, 0); cg.add(st);
+      const tp = new THREE.Mesh(new THREE.SphereGeometry(.014, 6, 6), tm); tp.position.set(dx, .72, 0); cg.add(tp);
+    });
+    let smoke = null;
+    set.types.incense = { group: cg, show: on => {
+      cg.visible = on;
+      if (on && !smoke) { R.updateMatrixWorld(true); smoke = addSmoke(R.localToWorld(new THREE.Vector3(0, .74, 0)), 14, 0, { h: 1.6, sz: .6 }); }
+      if (!on && smoke) { smoke.until = performance.now(); smoke = null; }
+    } };
     set.censerTip = new THREE.Vector3(0, .22, 0);
   }
   // 燭台
@@ -1575,30 +1588,42 @@ async function makeOfferings(types, pid) {
   if (!types.length) { toast('剛剛已經供奉過，請稍候再奉'); return; }
   const who = await getWho(); if (who === null) return;
   types.forEach(t => lastOffer[t + ':' + pid] = now);
-  const p = pid === 'all' ? null : byId[pid];
-  const set = p ? personSet(p) : OFFER_SETS.main;
-  const name = p ? p.name : '歷代祖先', st = RITE.state, day = twDay().s;
+  // pid：'all' 歷代祖先（主香案）、'every' 所有祖先各擺一張香案、或某位祖先 id
+  const every = pid === 'every';
+  const p = (pid === 'all' || every) ? null : byId[pid];
+  const targets = every ? ['all', ...PEOPLE.filter(q => !q.alive && !q.empty && q !== root).map(q => q.id)] : [pid];
+  const name = every ? `所有祖先（${PEOPLE.filter(q => !q.alive && !q.empty).length} 位）` : p ? p.name : '歷代祖先', st = RITE.state, day = twDay().s;
   st.od = st.od || {};
   if (st.od[day] && typeof Object.values(st.od[day])[0] === 'number') st.od[day] = { all: st.od[day] };
-  st.od[day] = st.od[day] || {}; st.od[day][pid] = st.od[day][pid] || {};
-  types.forEach(type => {
-    if (type === 'incense') { st.total = (st.total || 0) + 1; st.days[day] = (st.days[day] || 0) + 1; st.byPid[pid] = (st.byPid[pid] || 0) + 1; }
-    st.od[day][pid][type] = (st.od[day][pid][type] || 0) + 1;
+  st.od[day] = st.od[day] || {};
+  targets.forEach(tp => {
+    st.od[day][tp] = st.od[day][tp] || {};
+    types.forEach(type => {
+      if (type === 'incense') { st.total = (st.total || 0) + 1; st.days[day] = (st.days[day] || 0) + 1; st.byPid[tp] = (st.byPid[tp] || 0) + 1; }
+      st.od[day][tp][type] = (st.od[day][tp][type] || 0) + 1;
+    });
   });
   st.recent = [{ pid, name, who: who || '族人', type: types[0], types, at: now }, ...(st.recent || [])].slice(0, 40);
   refreshOfferings();
-  if (types.includes('incense')) {   // 插香冒煙兩分鐘
-    if (set.censerTip) { set.R.updateMatrixWorld(true); const w = set.R.localToWorld(set.censerTip.clone()); plantIncense(w.x, w.y, w.z, 120e3, set.s); }
-    else addSmoke(altarTip, 18, 120e3);   // 主香案已有三支香：只加濃香煙，不再多插
+  if (types.includes('incense')) {   // 剛上的香：香煙加濃兩分鐘（三支香常駐於香爐）
+    targets.forEach(tp => {
+      const q = byId[tp], set = q ? personSet(q) : OFFER_SETS.main;
+      if (set === OFFER_SETS.main) addSmoke(altarTip, 18, 120e3);
+      else if (set.censerTip) { set.R.updateMatrixWorld(true); addSmoke(set.R.localToWorld(new THREE.Vector3(0, .74, 0)), 12, 120e3, { h: 1.6, sz: .6 }); }
+    });
   }
-  if (p && tablets[p.id]) tablets[p.id].offerGlow = performance.now();
+  targets.forEach(tp => { if (tablets[tp]) tablets[tp].offerGlow = performance.now(); });
   if (RITE.online) {
-    try { const r = await riteFetch('/offer', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pid, name, who: who || '族人', types }) }); if (r && r.state) { RITE.state = { ...RITE.state, ...r.state }; refreshOfferings(); } }
-    catch (e) { RITE.online = false; saveLocal(); }
+    try {
+      const body = every ? { pid: 'every', pids: targets, name, who: who || '族人', types } : { pid, name, who: who || '族人', types };
+      const r = await riteFetch('/offer', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      if (r && r.state) { RITE.state = { ...RITE.state, ...r.state }; refreshOfferings(); }
+    } catch (e) { RITE.online = false; saveLocal(); }
   } else saveLocal();
   toast(`${who || '族人'} 為 ${name} ${types.map(t => OFFER[t].verb).join('、')}`);
-  closeCard(); setGen(p ? p.gen : 1);
-  flyTo(p && p !== root ? personAltarView(p) : altarView(), 1.2);
+  closeCard();
+  if (every) { setGen(0); flyTo(overviewView(), 1.4); }
+  else { setGen(p ? p.gen : 1); flyTo(p && p !== root ? personAltarView(p) : altarView(), 1.2); }
 }
 const offerIncense = pid => makeOfferings(['incense'], pid);
 function altarView() {
@@ -1610,8 +1635,11 @@ function personAltarView(p) {
   return [V(p.x + d * .1, y + d * .22, .78 + d), V(p.x, y + .5, .5)];
 }
 function openOfferSheet(pid) {
-  const el = document.getElementById('offerBox'), p = pid === 'all' ? null : byId[pid];
-  el.querySelector('h4').textContent = `供奉・${p ? p.name : '歷代祖先'}`;
+  const el = document.getElementById('offerBox'), p = (pid === 'all' || pid === 'every') ? null : byId[pid];
+  const nEvery = PEOPLE.filter(q => !q.alive && !q.empty).length;
+  el.querySelector('h4').textContent = pid === 'every' ? `供奉・所有祖先（${nEvery} 位，各擺香案）` : `供奉・${p ? p.name : '歷代祖先'}`;
+  el.querySelector('.evy').style.display = pid === 'all' ? '' : 'none';
+  el.querySelector('.evy').onclick = () => openOfferSheet('every');
   const day = (RITE.state.od || {})[twDay().s], od = odOf(day, pid);
   const desc = { incense: '三炷清香，敬告祖先', tea: '清茶三杯', flower: '菊花百合・七日', fruit: '水果、餅乾・三日', candle: '紅燭一對' };
   el.querySelector('.grid').innerHTML = Object.entries(OFFER).filter(([k, o]) => !o.special).map(([k, o]) =>
@@ -1622,7 +1650,7 @@ function openOfferSheet(pid) {
   el.querySelector('.all').onclick = () => { const all = [...el.querySelectorAll('.grid button')], on = all.some(b => !b.classList.contains('sel')); all.forEach(b => b.classList.toggle('sel', on)); upd(); };
   go.onclick = () => { const ts = [...el.querySelectorAll('.grid .sel')].map(b => b.dataset.k); if (!ts.length) return; el.classList.remove('on'); makeOfferings(ts, pid); };
   el.querySelector('.no').onclick = () => el.classList.remove('on');
-  el.querySelector('.chant').onclick = () => { el.classList.remove('on'); openSutra(pid); };
+  el.querySelector('.chant').onclick = () => { el.classList.remove('on'); openSutra(pid === 'every' ? 'all' : pid); };
   upd(); el.classList.add('on');
 }
 
@@ -1729,10 +1757,12 @@ function openRitePanel() {
     <div class="rstat"><div><b>${st.days[day] || 0}</b><small>今日上香</small></div><div><b>${st.total || 0}</b><small>累計上香</small></div><div><b>${Object.values(st.voices || {}).reduce((s, l) => s + l.length, 0)}</b><small>語音口述</small></div></div>
     <p class="rtoday">今日供奉：${(() => { const d = (st.od || {})[day] || {}, flat = typeof Object.values(d)[0] === 'number' ? [d] : Object.values(d); return Object.entries(OFFER).filter(([k]) => k !== 'incense').map(([k, o]) => `${o.label} ${flat.reduce((s, x) => s + (x[k] || 0), 0)}`).join('・'); })()}</p>
     <button class="rbtn" data-act="all">前往香案供奉</button>
+    <button class="rbtn revery">所有祖先都擺香案</button>
     <button class="rbtn rchant">念經超渡・誦《心經》</button>
     <h3>近期忌日</h3>${ann.length ? ann.map(a => `<div class="rrow" data-pid="${a.p.id}"><b>${escH(a.p.name)}</b><span>${escH(annivLabel(a.p))}</span><em class="${a.days === 0 ? 'hot' : ''}">${a.days === 0 ? '今日' : nextSolarDate(a.days) + '・' + a.days + ' 天後'}</em></div>`).join('') : '<p>六十天內沒有忌日。忌日請在紀念堂「祖先名冊」填寫。</p>'}
     <h3>祭祀紀錄</h3>${(st.recent || []).length ? st.recent.slice(0, 20).map(r => `<div class="rrow" data-pid="${r.pid}"><b>${escH(r.who)}</b><span>為 ${escH(r.name)} ${(r.types || [r.type || 'incense']).map(t => (OFFER[t] || OFFER.incense).verb + (t === 'sutra' && r.n ? ` ${r.n} 卷` : '')).join('、')}</span><em>${fmtT(r.at)}</em></div>`).join('') : '<p>還沒有祭祀紀錄。</p>'}
     <p class="rnote">${RITE.online ? '紀錄已與家人同步。' : '目前為本機模式：紀錄只存在這台裝置（雲端路由尚未部署）。'}</p>`;
+  el.querySelector('.revery').onclick = () => { el.classList.remove('on'); setGen(0); flyTo(overviewView(), 1.2); openOfferSheet('every'); };
   el.querySelector('.rchant').onclick = () => { el.classList.remove('on'); openSutra('all'); };
   el.querySelector('.rbtn').onclick = () => { el.classList.remove('on'); setGen(1); flyTo(altarView(), 1.2); openOfferSheet('all'); };
   el.querySelectorAll('.rrow[data-pid]').forEach(r => r.onclick = () => { if (byId[r.dataset.pid]) { el.classList.remove('on'); selectPerson(r.dataset.pid); } });
