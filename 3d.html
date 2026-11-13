@@ -597,7 +597,7 @@ function autoBio(p) {
     if (p.children.length) out.push(`育有${p.children.map(c => c.name).join('、')}。`);
   } else if (main.children.length) out.push(`育有${main.children.map(c => c.name).join('、')}。`);
   const pl = placementOf(p);
-  if (pl) out.push(`安奉於${TOWERS[pl.tower].name.replace(/^[A-Z_]+｜/, '')}${['一', '二', '三', '四', '五'][+pl.floor]}樓${slotLabel(pl.tower, +pl.floor, +pl.slot)}號。`);
+  if (pl) out.push(`安奉於${TOWERS[pl.tower].place}${hasSlot(pl) ? placeText(pl) : ''}。`);
   if (out.length < 2 && !p.parent && !p.children) return;
   p.bio = out.join('\n'); p.bioAuto = true;
 }
@@ -1463,17 +1463,23 @@ function buildStele(pos) {
 
 /* 塔位側殿：只有紀念堂登記過塔位才建立 */
 const TOWERS = {
-  A: { name: 'A｜口湖鄉公所靈骨塔', floors: 3 },   // 口湖鄉成龍納骨堂
-  B_new: { name: 'B｜蚵寮新塔', floors: 3 },
-  B_old: { name: 'B｜蚵寮舊塔', floors: 5 },
+  A: { name: 'A｜口湖鄉公所靈骨塔', place: '成龍納骨塔', floors: 3 },   // 口湖鄉成龍納骨堂
+  B_new: { name: 'B｜蚵寮新塔', place: '眾靈祠新塔', floors: 3 },          // 藍瓦頂、灰色五層
+  B_old: { name: 'B｜蚵寮舊塔', place: '眾靈祠舊塔', floors: 5 },          // 黃牆綠瓦、正殿後方
 };
 const SLOTS = 12;
+/* 已知安奉處（紀念堂未登記時使用；樓層號位待紀念堂補登） */
+const DEFAULT_PLACE = { p1: { tower: 'A' } };   // 來台祖曾虎：成龍納骨塔
 function placementOf(p) {
-  if (!MEM || !MEM.placements) return null;
   const main = p.role === 'main' ? p : byId[p.spouseOf];
-  if (!main.mid) return null;
-  const pl = MEM.placements[p.role === 'main' ? main.mid : main.mid + '_spouse'];
-  return pl && pl.tower && TOWERS[pl.tower] ? pl : null;
+  const pl = MEM && MEM.placements && main.mid ? MEM.placements[p.role === 'main' ? main.mid : main.mid + '_spouse'] : null;
+  if (pl && pl.tower && TOWERS[pl.tower]) return pl;
+  const d = DEFAULT_PLACE[p.id];
+  return d && TOWERS[d.tower] ? d : null;
+}
+const hasSlot = pl => pl && pl.floor !== undefined && pl.floor !== '' && pl.slot !== undefined && pl.slot !== '';
+function placeText(pl, sep = '') {   // 「二樓4號」；沒有樓層號位時寫「位置待補」
+  return hasSlot(pl) ? `${['一', '二', '三', '四', '五'][+pl.floor]}樓${sep}${slotLabel(pl.tower, +pl.floor, +pl.slot)}號` : '（樓層號位待補）';
 }
 function slotLabel(tower, floor, slot) {
   const c = MEM && MEM.slotNumbers && MEM.slotNumbers[tower + '_' + floor];
@@ -1481,7 +1487,7 @@ function slotLabel(tower, floor, slot) {
 }
 function buildTowerHall() {
   const occ = {};
-  PEOPLE.forEach(p => { const pl = placementOf(p); if (pl) (occ[pl.tower] = occ[pl.tower] || []).push([p, pl]); });
+  PEOPLE.forEach(p => { const pl = placementOf(p); if (hasSlot(pl)) (occ[pl.tower] = occ[pl.tower] || []).push([p, pl]); });
   const used = Object.keys(TOWERS).filter(k => occ[k]);
   if (!used.length) return;
   const hx = Math.max(pillarX, bounds.maxX) + 9, W = 5.2;
@@ -1523,7 +1529,7 @@ function buildTowerHall() {
   towerHall.top = 1.8; towerHall.bottom = y;
 }
 function towerView(hiId) {
-  const pl = hiId && placementOf(byId[hiId]);
+  const pl0 = hiId && placementOf(byId[hiId]), pl = hasSlot(pl0) ? pl0 : null;
   Object.entries(towerHall.panels).forEach(([k, pn]) => {
     const old = pn.mesh.material[4].map;
     pn.mesh.material[4].map = pn.mesh.material[4].emissiveMap = pn.draw(pl && pl.tower === k ? hiId : null);
@@ -2244,7 +2250,7 @@ function hipRoof(w, d, h, color, flare = .08) {   // 四坡頂（簡化）＋翹
   [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz]) => { const t = new THREE.Mesh(new THREE.ConeGeometry(.02, flare, 6), rtMat(color, .45)); t.position.set(sx * w / 2, -h / 2 + flare * .4, sz * d / 2); t.rotation.z = -sx * .9; g.add(t); });
   return g;
 }
-/* 眾靈祠：紅柱綠瓦正殿＋新塔（黃牆紅欄綠瓦樓閣）＋舊塔（灰色五層、梯間、藍瓦頂） */
+/* 眾靈祠：紅柱綠瓦正殿＋舊塔（殿後，黃牆紅欄綠瓦樓閣）＋新塔（右側，灰色五層、梯間、藍瓦頂） */
 function buildZhongling() {
   const g = new THREE.Group();
   const red = rtMat('#b0262a', .5), cream = rtMat('#e8dcc0'), green = '#3f7d5a';
@@ -2279,8 +2285,8 @@ function buildZhongling() {
   const stair = new THREE.Mesh(new THREE.BoxGeometry(.16, 1.22, .16), rtMat('#7f817c')); stair.position.set(.36, .61, .05); ot.add(stair);
   const broof = hipRoof(.66, .6, .2, '#2d4f8e', .1); broof.position.y = 1.15; ot.add(broof);
   const bsp = new THREE.Mesh(new THREE.ConeGeometry(.025, .16, 8), rtMat('#2a2a2a')); bsp.position.y = 1.32; ot.add(bsp);
-  ot.position.set(1.15, 0, -.25); g.add(ot);
-  g.userData.newTower = nt; g.userData.oldTower = ot;
+  ot.position.set(1.3, 0, .3); g.add(ot);   // 新塔：面對眾靈祠的右側，與正殿並列
+  g.userData.newTower = ot; g.userData.oldTower = nt;   // 藍瓦頂＝新塔；殿後黃牆綠瓦＝舊塔
   return g;
 }
 function buildRoute() {
@@ -2319,8 +2325,10 @@ function buildRoute() {
   const occ = keys => PEOPLE.filter(p => { const pl = placementOf(p); return pl && keys.includes(pl.tower); });
   const la = rtLabel('成龍納骨堂', `起點・安奉 ${occ(['A']).length} 位`); la.position.copy(rtV(215, 1140, 2.25)); g.add(la);
   const lb = rtLabel('眾靈祠', `終點・安奉 ${occ(['B_new', 'B_old']).length} 位`); lb.position.copy(rtV(1056, 800, 2.1)); g.add(lb);
-  const ln = rtLabel('新塔', '', .45); ln.position.copy(rtV(1056, 800, 1.45)).add(new THREE.Vector3(0, 0, -.2)); g.add(ln);
-  const lo = rtLabel('舊塔', '', .45); lo.position.copy(rtV(1056, 800, 1.75)).add(new THREE.Vector3(1.15, 0, -.25)); g.add(lo);
+  g.updateMatrixWorld(true);
+  const tw = (obj, h) => obj.getWorldPosition(new THREE.Vector3()).sub(g.position).add(new THREE.Vector3(0, h, 0));
+  const ln = rtLabel('新塔', '', .45); ln.position.copy(tw(e.userData.newTower, 1.75)); g.add(ln);
+  const lo = rtLabel('舊塔', '', .45); lo.position.copy(tw(e.userData.oldTower, 1.45)); g.add(lo);
   // 行進標記：小車＋光暈
   const mk = new THREE.Group();
   const car = new THREE.Mesh(new THREE.BoxGeometry(.16, .07, .26), rtMat('#c8282a', .35, { metalness: .3 })); car.position.y = .06; mk.add(car);
@@ -2334,7 +2342,7 @@ function buildRoute() {
   ROUTE.stops = [
     { key: 'start', name: '口湖鄉成龍納骨堂', sub: '紀念堂 A 塔', at: ROUTE.startPos, dir: new THREE.Vector3(2.2, 2.6, 4.4), keys: ['A'] },
     { key: 'way', name: '沿途', sub: '往南接台61旁道路，轉雲131往東北', at: wp(rtV(640, 1450, .2)), dir: new THREE.Vector3(.5, 7.5, 6), keys: [] },
-    { key: 'end', name: '眾靈祠（男公女媽廟）', sub: '紀念堂 B 新塔／B 舊塔', at: ROUTE.endPos, dir: new THREE.Vector3(-2.4, 2.8, 4.6), keys: ['B_new', 'B_old'] },
+    { key: 'end', name: '眾靈祠（男公女媽廟）', sub: '紀念堂 B 新塔／B 舊塔', at: ROUTE.endPos.clone().add(new THREE.Vector3(.65, 0, .2)), dir: new THREE.Vector3(-.3, 3.4, 6.4), keys: ['B_new', 'B_old'] },   // 取景在正殿與新塔之間
   ];
   ROUTE.occ = occ;
   tMax.x = Math.max(tMax.x, hx + 8); tMin.y = Math.min(tMin.y, cy - 4);
@@ -2355,7 +2363,7 @@ function openRoute() {
   const el = document.getElementById('routeBox');
   const gq = encodeURIComponent;
   el.querySelector('.gmap').href = `https://www.google.com/maps/dir/?api=1&origin=${gq('口湖鄉成龍納骨堂')}&destination=${gq('眾靈祠(男公女媽廟)')}&travelmode=driving`;
-  const slot = p => { const pl = placementOf(p); return `${['一', '二', '三', '四', '五'][+pl.floor]}樓${slotLabel(pl.tower, +pl.floor, +pl.slot)}號`; };
+  const slot = p => placeText(placementOf(p));
   el.querySelector('.steps').innerHTML = ROUTE.stops.map((st, i) => {
     const ppl = ROUTE.occ(st.keys);
     const list = st.keys.length ? (ppl.length ? ppl.map(p => `<span>${escH(p.name)}<small>${st.keys.length > 1 ? (placementOf(p).tower === 'B_new' ? '新塔' : '舊塔') + '・' : ''}${slot(p)}</small></span>`).join('') : '<em>紀念堂尚未登記此處塔位</em>') : '';
@@ -2598,9 +2606,9 @@ function openCard(p) {
     }
     if (!p.alive && RITE.state.byPid[p.id]) rows.push(['上香', `${RITE.state.byPid[p.id]} 炷`]);
     const pl = placementOf(p);
-    if (pl) rows.push(['塔位', `${TOWERS[pl.tower].name}・${['一','二','三','四','五'][+pl.floor]}樓・${slotLabel(pl.tower, +pl.floor, +pl.slot)}號`]);
+    if (pl) rows.push(['塔位', `${TOWERS[pl.tower].place}・${placeText(pl, '・')}`]);
   }
-  card.querySelector('.tw').style.display = (towerHall && placementOf(p)) ? '' : 'none';
+  card.querySelector('.tw').style.display = (towerHall && hasSlot(placementOf(p))) ? '' : 'none';
   card.querySelector('.inc').style.display = (p.empty || p.alive) ? 'none' : '';
   card.querySelector('.ofr').style.display = (p.empty || p.alive) ? 'none' : '';
   card.querySelector('.chn').style.display = (p.empty || p.alive) ? 'none' : '';
