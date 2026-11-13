@@ -540,11 +540,11 @@ function fmtLifeDate(s, lunar) {
   const md = m[2] ? (lunar ? `農曆${CN_MON[+m[2]]}月${cnDay(+m[3])}` : `${+m[2]}月${+m[3]}日`) : '';
   return `${y}年${md}${era ? `（${era}）` : ''}`;
 }
-function ageAt(b, d) {
-  const mb = /(\d{4})\D(\d{1,2})\D(\d{1,2})/.exec(b || ''), md = /(\d{4})\D(\d{1,2})\D(\d{1,2})/.exec(d || '');
-  if (!mb || !md) return null;
-  let a = md[1] - mb[1]; if (+md[2] < +mb[2] || (+md[2] === +mb[2] && +md[3] < +mb[3])) a--;
-  return a >= 0 && a < 130 ? a : null;
+function ageAt(b, d) {   // 虛歲：卒年－生年＋1（台灣訃聞、牌位慣用）
+  const yb = /(\d{4})/.exec(b || ''), yd = /(\d{4})/.exec(d || '');
+  if (!yb || !yd) return null;
+  const a = yd[1] - yb[1] + 1;
+  return a > 0 && a < 130 ? a : null;
 }
 function autoBio(p) {
   if (p.bio || p.empty) return;
