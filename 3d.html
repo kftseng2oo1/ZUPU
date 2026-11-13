@@ -62,7 +62,9 @@
   #card{max-height:62vh;overflow-y:auto}
   #card .av{width:44px;height:54px;object-fit:cover;border:2px solid var(--gold);border-radius:2px;align-self:center}
   #card .bio{margin-top:10px;padding-top:8px;border-top:1px dashed #c9a045;font-size:14px;line-height:1.75;color:#3d2b1a;white-space:pre-wrap}
-  #card .flip{margin-top:12px;width:100%;height:38px;border:1px solid var(--gold);border-radius:3px;background:#3d2006;color:var(--gold-l);font-family:var(--font);font-size:15px;font-weight:700;letter-spacing:.2em;cursor:pointer}
+  #card .btns{display:flex;gap:8px;margin-top:12px}
+  #card .tw{flex:1;height:38px;border:1px solid var(--gold);border-radius:3px;background:#f3e3b8;color:#5a0d0d;font-family:var(--font);font-size:15px;font-weight:700;letter-spacing:.15em;cursor:pointer}
+  #card .flip{flex:2;height:38px;border:1px solid var(--gold);border-radius:3px;background:#3d2006;color:var(--gold-l);font-family:var(--font);font-size:15px;font-weight:700;letter-spacing:.2em;cursor:pointer}
   #card dd{word-break:break-all}
   #card.mini dl,#card.mini .bio{display:none}
   #card.mini .hd{border-bottom:0;margin-bottom:0}
@@ -87,6 +89,24 @@
     font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.1}
   #intro .hint{margin-top:22px;color:#c9a045;font-size:13px;letter-spacing:.4em;opacity:.8}
   #intro .err{margin-top:14px;color:#ffb0a0;font-size:13px;max-width:80vw;text-align:center;display:none}
+
+  /* 卷軸展讀 */
+  #scrollReader{position:fixed;inset:0;z-index:25;background:rgba(20,10,2,.88);display:none;flex-direction:column;align-items:center;justify-content:center;padding:calc(var(--st) + 16px) 14px calc(var(--sb) + 16px)}
+  #scrollReader.on{display:flex;animation:fadeIn .35s}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  #scrollReader .rodr{width:min(96vw,560px);height:16px;border-radius:8px;background:linear-gradient(to bottom,#7a4a1a,#c99a3a 40%,#5a3010);box-shadow:0 3px 8px rgba(0,0,0,.6);flex:0 0 auto}
+  #scrollReader .body{width:min(90vw,520px);flex:0 1 auto;max-height:calc(100vh - 150px);overflow-y:auto;-webkit-overflow-scrolling:touch;
+    background:linear-gradient(170deg,#faf3e0,#ede0b8);border-left:2px solid var(--gold);border-right:2px solid var(--gold);padding:20px 22px;user-select:text;-webkit-user-select:text}
+  #scrollReader h2{color:var(--red);font-size:22px;font-weight:900;letter-spacing:.2em;text-align:center;margin-bottom:12px}
+  #scrollReader h3{color:#7a1010;font-size:17px;font-weight:900;margin:18px 0 6px;border-left:4px solid var(--gold);padding-left:8px}
+  #scrollReader p{font-size:16px;line-height:1.9;color:#2a1a08;margin-bottom:8px;text-align:justify}
+  #scrollReader .close{margin-top:14px;font-family:var(--font);font-size:15px;padding:8px 28px;border:1px solid var(--gold);background:#3d2006;color:var(--gold-l);border-radius:3px}
+  .zbgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:10px}
+  .zb{border:1px solid #c9a045;background:#fbf4e2;border-radius:3px;padding:6px 2px;text-align:center}
+  .zb b{display:block;font-size:26px;color:#8b1a1a;font-weight:900}
+  .zb small{display:block;font-size:11px;color:#7a5a2a}
+  .zb em{display:block;font-style:normal;font-size:10px;color:#3d2b1a;margin-top:2px;line-height:1.3}
+  .zb.on{background:#8b1a1a;border-color:#8b1a1a}.zb.on b,.zb.on small,.zb.on em{color:#f6d98a}
 
   /* 海報輸出 */
   #poster{position:fixed;inset:0;z-index:30;background:rgba(20,10,2,.92);display:none;flex-direction:column;
@@ -117,7 +137,7 @@
   <div class="hd"><img class="av" alt=""><span class="nm"></span><span class="gn"></span><span class="tg"></span></div>
   <dl></dl>
   <p class="bio"></p>
-  <button class="flip">翻面看生平</button>
+  <div class="btns"><button class="flip">翻面看生平</button><button class="tw">看塔位</button></div>
 </div>
 
 <div id="bar"></div>
@@ -134,6 +154,13 @@
   </div>
   <div class="hint">輕觸略過</div>
   <div class="err" id="err">3D 元件載入失敗，請確認網路連線後重新整理。</div>
+</div>
+
+<div id="scrollReader">
+  <div class="rodr"></div>
+  <div class="body"></div>
+  <div class="rodr"></div>
+  <button class="close">收起</button>
 </div>
 
 <div id="poster">
@@ -183,12 +210,15 @@ const fmtDate = d => (d || '').trim().replace(/-/g, '.');
    同網域讀取 localStorage 'ancestorApp_v28'：
    已有的人 → 補上神位文字、生卒忌日、生平、照片、字號、配偶
    新增的人 → 依「上一代」接到世系；在世者做成家族樹卡片（不立牌位） */
+let MEM = null;
 (function mergeFromMemorial() {
   let data;
   try { data = JSON.parse(localStorage.getItem('ancestorApp_v28') || 'null'); } catch (e) { return; }
   if (!data || !Array.isArray(data.ancestors)) return;
+  MEM = data;
   const find = n => n && PEOPLE.find(p => !p.spouseOf && norm(p.name) === norm(n));
   const apply = (p, a) => {
+    p.mid = a.id;
     ['alias', 'bio', 'avatar'].forEach(k => { if (a[k]) p[k] = a[k]; });
     if (a.tablet && !a.isAlive) p.tablet = a.tablet;
     if (a.birth) p.birth = fmtDate(a.birth);
@@ -265,7 +295,7 @@ measure(root); place(root, -root.w / 2);
 /* ---------- 字型就緒後才畫牌位文字（iOS 必要） ---------- */
 async function waitFonts() {
   const txt = PEOPLE.map(p => p.name + p.tabletText + (p.tag || '') + (p.lines || []).join('') + (p.bio || '') + (p.alias || '')).join('')
-            + '第一二三四五六七八九十世配偶︵︶無—年生仙逝之本支在世農曆卒生平待補於紀念堂祖先名冊填寫字號0123456789.';
+            + HALL.plaque + HALL.plaqueSub + HALL.couplet.join('') + HALL.zibei + '龍山字輩大宗曾氏沿革輕觸展讀塔位側殿樓號口湖鄉公所靈骨塔蚵寮新舊' + historyText().split('\n').filter(s => /^[一二三四五六七八九十]+、/.test(s)).join('') + '第一二三四五六七八九十世配偶︵︶無—年生仙逝之本支在世農曆卒生平待補於紀念堂祖先名冊填寫字號0123456789.';
   try {
     await Promise.race([
       Promise.all([
@@ -613,6 +643,265 @@ function buildAltar() {
   }
 }
 
+/* ================= 祠堂陳設：匾額、對聯、沿革碑、字輩柱、塔位側殿 =================
+   HALL 可自行修改；對聯為暫擬，請換成族中慣用的楹聯。 */
+const HALL = {
+  plaque: '三省堂',
+  plaqueSub: '龍山派曾氏',
+  couplet: ['三省修身承祖德', '一心耕讀啟後昆'],   // [上聯(右), 下聯(左)]
+  zibei: '奎壁呈雲瑞人文煥國華台衡思繼武鼎甲勵承家一貫書紳永千秋錫福遐貽謀資燕翼世業仰清嘉',
+  zibeiStartWorld: 66,   // 「奎」為大宗第六十六世
+  zibeiLocalGen: 2,      // 本支第二世曾奎德＝「奎」字輩
+};
+const cnNum = n => {
+  const d = ['零','一','二','三','四','五','六','七','八','九'];
+  if (n < 10) return d[n];
+  if (n < 20) return '十' + (n % 10 ? d[n % 10] : '');
+  if (n < 100) return d[Math.floor(n / 10)] + '十' + (n % 10 ? d[n % 10] : '');
+  return String(n);
+};
+const zibeiOf = gen => {
+  const i = gen - HALL.zibeiLocalGen;
+  return { ch: i >= 0 && i < HALL.zibei.length ? HALL.zibei[i] : '', world: HALL.zibeiStartWorld + i };
+};
+const HISTORY_DEFAULT = `曾氏家族沿革
+
+一、姓氏由來與上古淵源
+
+曾氏家族擁有上下銜接四、五千年的悠久源流，其祖脈可追溯至遠古時代。上古祖神神農氏教民耕種、製藥醫病；黃帝（公孫名軒轅）建都有熊，為天下共主；其後仁慈智慧的堯帝、以孝聞名的舜帝，以及治水有功的禹，皆為曾氏先祖。
+
+禹的第五世孫少康中興夏朝後，將最小的兒子曲烈封於「鄫」地（今山東省嶧縣），建立鄫國。春秋時代，鄫國被莒國所併，鄫國太子巫懷著亡國之痛奔往魯國，為紀念故國，決定去「邑」旁為「曾」，以「曾」為姓，此即曾姓之始。
+
+二、血脈淵源與宗聖精神
+
+曾氏後人奉孔子弟子曾子（曾參）為宗聖始祖，以「三省堂」、「武城堂」為堂號，傳承「忠恕」家風，代代不輟。
+
+歷史上曾有「曾、邱二姓聯宗」的佳話。原由福建省海澄縣新安鄉邱姓女子與曾氏子弟結緣，導致新安鄉、厚境、清漳等地的邱、曾兩姓實際上同宗一脈，使用相同的輩序昭穆，彼此間不通婚姻。
+
+三、渡台開墾史（新港開基支脈）
+
+明崇禎十五年（1642年），原籍福建省澄邑的曾振賜公渡海來台，開基於台南，為曾氏入台之始。
+
+康熙末年（約1720年），始祖兄弟五人——連公、旺公、龍公、虎公、耄公，原籍福建泉州府同安縣，由連公率領航海東渡來台，落腳雲林口湖一帶，勤耕務農，篳路藍縷，開創基業。
+
+清道光二十五年（1845年），農曆六月初八，雲嘉沿海發生大海嘯（即「萬善同歸」之由來），曾氏族人家屋被大水沖失，死傷慘重。其中曾武六公一家二十七人，竟有二十人罹難，令人哀慟。
+
+咸豐至光緒年間，曾氏族人於新港（今雲林金湖）一帶與吳姓、林姓等發生多次莊頭衝突，並曾遭受中法戰爭時期法國侵台的波及，族人避難保衛家園，歷盡艱辛，展現出極強的凝聚力。
+
+四、龍山派字輩（昭穆）
+
+龍山派為曾氏南遷後極重要的一支，源於福建省泉州府龍山地區（今晉江一帶），字輩詩意優美，強調人文薈萃與家族傳承：
+
+奎壁呈雲瑞，人文煥國華，台衡思繼武，鼎甲勵承家，
+一貫書紳永，千秋錫福遐，貽謀資燕翼，世業仰清嘉。
+
+（自第六十六世「奎」字輩起排列，象徵文運亨通、家族棟樑、繼承先志、庇蔭後代。）
+
+五、精神傳承
+
+無論身處何地，曾氏子孫皆以「宗聖曾子弟子」自居，重視「忠恕」家風，以曾子「吾日三省吾身」之精神，勉勵後代修身齊家，承先啟後，永傳家聲。`;
+const historyText = () => (MEM && MEM.familyHistory) || HISTORY_DEFAULT;
+
+function boardTexture(w, h, paint) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const g = c.getContext('2d'); g.textAlign = 'center'; g.textBaseline = 'middle';
+  paint(g, w, h); return toTex(c);
+}
+function addBoard(geo, frontTex, sideColor, pos, action) {
+  const side = new THREE.MeshStandardMaterial({ color: sideColor, roughness: .45, envMapIntensity: .5 });
+  const front = new THREE.MeshStandardMaterial({ map: frontTex, roughness: .45, envMapIntensity: .5, emissive: new THREE.Color('#ffb84a'), emissiveIntensity: 0 });
+  front.emissiveMap = front.map;
+  const m = new THREE.Mesh(geo, [side, side, side, side, front, side]);
+  m.position.copy(pos); scene.add(m);
+  if (action) { m.userData.action = action; m.userData.front = front; pickables.push(m); }
+  return m;
+}
+let hallExt = { minX: 0, maxX: 0 }, plaquePos, stelePos, pillarX, towerHall = null;
+
+function buildHall() {
+  const rx = root.x, ry = root.y;
+  // 匾額（由右至左橫書）
+  plaquePos = V(rx, ry + TOP_OFF + 1.05, -.05);
+  const ptex = boardTexture(1024, 320, (g, W, H) => {
+    const gr = g.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, '#241008'); gr.addColorStop(1, '#0e0603');
+    g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    g.strokeStyle = '#d4a843'; g.lineWidth = 16; g.strokeRect(10, 10, W - 20, H - 20);
+    g.lineWidth = 3; g.strokeRect(36, 36, W - 72, H - 72);
+    const chars = [...HALL.plaque].reverse(), step = (W - 260) / chars.length;
+    const ng = nameGradient(g, 80, 240);
+    g.font = `900 170px ${FONT}`; g.fillStyle = ng; g.shadowColor = 'rgba(0,0,0,.6)'; g.shadowBlur = 8; g.shadowOffsetY = 4;
+    chars.forEach((ch, i) => g.fillText(ch, 130 + step * (i + .5), H / 2 + 8));
+    g.shadowColor = 'transparent';
+    g.font = `700 30px ${FONT}`; g.fillStyle = '#e8c66a';
+    [...HALL.plaqueSub].forEach((ch, i) => g.fillText(ch, W - 78, 80 + i * 34));
+    g.fillStyle = '#a82020'; g.fillRect(52, H - 116, 56, 56);
+    g.fillStyle = '#f6d98a'; g.font = `900 22px ${FONT}`; g.fillText('曾', 80, H - 99); g.fillText('氏', 80, H - 75);
+  });
+  addBoard(new THREE.BoxGeometry(3.6, 1.12, .14), ptex, '#1a0a05', plaquePos, 'plaque');
+  [-1.85, 1.85].forEach(dx => { const k = new THREE.Mesh(knotGeo, M.gold); k.position.set(rx + dx, plaquePos.y, .05); k.scale.setScalar(1.3); scene.add(k); });
+
+  // 對聯（右上聯、左下聯）
+  HALL.couplet.forEach((text, i) => {
+    const tex = boardTexture(200, 1200, (g, W, H) => {
+      const gr = g.createLinearGradient(0, 0, W, 0); gr.addColorStop(0, '#8c1414'); gr.addColorStop(.5, '#b22222'); gr.addColorStop(1, '#8c1414');
+      g.fillStyle = gr; g.fillRect(0, 0, W, H);
+      g.strokeStyle = '#d4a843'; g.lineWidth = 8; g.strokeRect(10, 10, W - 20, H - 20);
+      const ch = [...text], step = (H - 120) / ch.length;
+      g.font = `900 ${Math.min(130, step * .86)}px ${FONT}`; g.fillStyle = '#f6d98a';
+      g.shadowColor = 'rgba(0,0,0,.45)'; g.shadowBlur = 5; g.shadowOffsetY = 3;
+      ch.forEach((c, k) => g.fillText(c, W / 2, 60 + step * (k + .5)));
+    });
+    addBoard(new THREE.BoxGeometry(.5, 3.1, .08), tex, '#5a0c0c', V(rx + (i === 0 ? 1.75 : -1.75), ry + .15, -.08), 'plaque');
+  });
+
+  // 字輩牌：掛在每一世最右側，標出字輩與大宗世數
+  computeBounds();
+  let zMax = -Infinity;
+  for (let gen = 1; gen <= MAX_GEN; gen++) {
+    const z = zibeiOf(gen); if (!z.ch) continue;
+    const row = PEOPLE.filter(p => p.gen === gen), y = row[0].y;
+    const x = Math.max(...row.map(p => p.x)) + TW / 2 + .62;
+    zMax = Math.max(zMax, x);
+    const tex = boardTexture(200, 440, (g, W, H) => {
+      g.fillStyle = '#f3e3b8'; g.fillRect(0, 0, W, H);
+      g.strokeStyle = '#a82020'; g.lineWidth = 8; g.strokeRect(8, 8, W - 16, H - 16);
+      g.fillStyle = '#7a5a2a'; g.font = `700 24px ${FONT}`; g.fillText('字 輩', W / 2, 44);
+      g.fillStyle = '#a82020'; g.font = `900 120px ${FONT}`; g.fillText(z.ch, W / 2, 140);
+      g.fillStyle = '#5a3a10'; g.font = `700 26px ${FONT}`;
+      const t = [...`第${cnNum(z.world)}世`]; t.forEach((c, i) => g.fillText(c, W / 2, 232 + i * Math.min(34, 180 / t.length)));
+    });
+    addBoard(new THREE.BoxGeometry(.42, .92, .05), tex, '#8a6a3e', V(x, y + .55, -.05), 'zibei:' + gen);
+    const cord = new THREE.Mesh(new THREE.CylinderGeometry(.01, .01, .5, 6), cordM); cord.position.set(x, y + 1.26, -.05); scene.add(cord);
+    const kn = new THREE.Mesh(new THREE.TorusGeometry(.05, .016, 8, 14), cordM); kn.position.set(x, y + 1.5, -.05); scene.add(kn);
+  }
+  pillarX = isFinite(zMax) ? zMax : bounds.maxX;
+
+  // 沿革碑
+  stelePos = V(rx - 3.5, ry - GEN_H * .62, -.4);
+  const heads = historyText().split('\n').map(s => s.trim()).filter(s => /^[一二三四五六七八九十]+、/.test(s)).map(s => s.replace(/^[一二三四五六七八九十]+、/, '').replace(/（.*?）/g, ''));
+  const stex = boardTexture(400, 900, (g, W, H) => {
+    g.fillStyle = '#6f6a62'; g.fillRect(0, 0, W, H);
+    for (let i = 0; i < 2500; i++) { g.fillStyle = `rgba(${Math.random() < .5 ? '255,255,255' : '0,0,0'},${Math.random() * .07})`; g.fillRect(Math.random() * W, Math.random() * H, 2, 2); }
+    g.strokeStyle = 'rgba(30,25,20,.6)'; g.lineWidth = 4; g.strokeRect(24, 24, W - 48, H - 48);
+    g.fillStyle = '#2a241e'; g.font = `900 56px ${FONT}`;
+    [...'曾氏沿革'].forEach((c, i) => g.fillText(c, W - 80, 110 + i * 70));
+    g.font = `700 26px ${FONT}`; g.fillStyle = '#e8c66a';
+    heads.slice(0, 6).forEach((h, k) => [...vert(h)].slice(0, 14).forEach((c, i) => g.fillText(c, W - 160 - k * 44, 110 + i * 34)));
+    g.fillStyle = 'rgba(30,25,20,.75)'; g.font = `700 22px ${FONT}`; g.fillText('輕觸展讀', W / 2, H - 60);
+  });
+  addBoard(new THREE.BoxGeometry(1.5, 3.4, .32), stex, '#5c5852', stelePos, 'history');
+  const stoneM = new THREE.MeshStandardMaterial({ color: '#57534d', roughness: .9 });
+  const cap = new THREE.Mesh(new THREE.BoxGeometry(1.8, .3, .5), stoneM); cap.position.set(stelePos.x, stelePos.y + 1.85, stelePos.z); scene.add(cap);
+  const base = new THREE.Mesh(new THREE.BoxGeometry(2, .45, .9), stoneM); base.position.set(stelePos.x, stelePos.y - 1.92, stelePos.z); scene.add(base);
+
+  hallExt = { minX: stelePos.x - 1.1, maxX: pillarX + .4 };
+  buildTowerHall();
+}
+
+/* 塔位側殿：只有紀念堂登記過塔位才建立 */
+const TOWERS = {
+  A: { name: 'A｜口湖鄉公所靈骨塔', floors: 3 },
+  B_new: { name: 'B｜蚵寮新塔', floors: 3 },
+  B_old: { name: 'B｜蚵寮舊塔', floors: 5 },
+};
+const SLOTS = 12;
+function placementOf(p) {
+  if (!MEM || !MEM.placements) return null;
+  const main = p.role === 'main' ? p : byId[p.spouseOf];
+  if (!main.mid) return null;
+  const pl = MEM.placements[p.role === 'main' ? main.mid : main.mid + '_spouse'];
+  return pl && pl.tower && TOWERS[pl.tower] ? pl : null;
+}
+function slotLabel(tower, floor, slot) {
+  const c = MEM && MEM.slotNumbers && MEM.slotNumbers[tower + '_' + floor];
+  return (c && c[slot]) || String(slot + 1);
+}
+function buildTowerHall() {
+  const occ = {};
+  PEOPLE.forEach(p => { const pl = placementOf(p); if (pl) (occ[pl.tower] = occ[pl.tower] || []).push([p, pl]); });
+  const used = Object.keys(TOWERS).filter(k => occ[k]);
+  if (!used.length) return;
+  const hx = Math.max(pillarX, bounds.maxX) + 9, W = 5.2;
+  let y = 0;
+  towerHall = { x: hx, panels: {}, top: 0, bottom: 0 };
+  const titleTex = boardTexture(1024, 200, (g, Wc, Hc) => {
+    g.fillStyle = '#1a0a05'; g.fillRect(0, 0, Wc, Hc); g.strokeStyle = '#d4a843'; g.lineWidth = 10; g.strokeRect(8, 8, Wc - 16, Hc - 16);
+    g.fillStyle = '#e8c66a'; g.font = `900 96px ${FONT}`; g.fillText('塔 位 側 殿', Wc / 2, Hc / 2 + 6);
+  });
+  addBoard(new THREE.BoxGeometry(W, 1, .1), titleTex, '#1a0a05', V(hx, y + 1.2, 0));
+  used.forEach(k => {
+    const T = TOWERS[k], rows = T.floors, H = .8 + rows * .62;
+    const draw = hiKey => boardTexture(1040, Math.round(1040 * H / W), (g, Wc, Hc) => {
+      g.fillStyle = '#efe3c4'; g.fillRect(0, 0, Wc, Hc);
+      g.strokeStyle = '#7a5a2a'; g.lineWidth = 8; g.strokeRect(6, 6, Wc - 12, Hc - 12);
+      g.fillStyle = '#5a0d0d'; g.font = `900 46px ${FONT}`; g.fillText(T.name, Wc / 2, 62);
+      const top = 110, rh = (Hc - top - 20) / rows, cw = (Wc - 140) / SLOTS;
+      for (let f = rows - 1, r = 0; f >= 0; f--, r++) {
+        const yy = top + r * rh;
+        g.fillStyle = '#7a5a2a'; g.font = `700 26px ${FONT}`; g.fillText(['一','二','三','四','五'][f] + '樓', 60, yy + rh / 2);
+        for (let s = 0; s < SLOTS; s++) {
+          const x = 110 + s * cw, who = occ[k].find(([, pl]) => +pl.floor === f && +pl.slot === s);
+          const hi = who && hiKey === who[0].id;
+          g.fillStyle = who ? (hi ? '#d4a843' : '#8c1414') : '#d9cba6';
+          g.fillRect(x + 4, yy + 6, cw - 8, rh - 12);
+          g.fillStyle = who ? (hi ? '#3e0808' : '#f6d98a') : '#9a8a66';
+          if (who) {
+            const n = [...who[0].name.replace(/^曾/, '')].slice(0, 3), fs = Math.min(30, (rh - 40) / n.length);
+            g.font = `900 ${fs}px ${FONT}`; n.forEach((c, i) => g.fillText(c, x + cw / 2, yy + 22 + fs / 2 + i * fs));
+          } else { g.font = `400 18px ${FONT}`; g.fillText(slotLabel(k, f, s), x + cw / 2, yy + rh / 2); }
+        }
+      }
+    });
+    y -= H / 2 + .3;
+    const m = addBoard(new THREE.BoxGeometry(W, H, .08), draw(null), '#7a5a2a', V(hx, y, 0));
+    towerHall.panels[k] = { mesh: m, draw, y };
+    y -= H / 2;
+  });
+  towerHall.top = 1.8; towerHall.bottom = y;
+}
+function towerView(hiId) {
+  const pl = hiId && placementOf(byId[hiId]);
+  Object.entries(towerHall.panels).forEach(([k, pn]) => {
+    const old = pn.mesh.material[4].map;
+    pn.mesh.material[4].map = pn.mesh.material[4].emissiveMap = pn.draw(pl && pl.tower === k ? hiId : null);
+    pn.mesh.material[4].needsUpdate = true; old.dispose();
+  });
+  if (pl) {
+    const pn = towerHall.panels[pl.tower], d = Math.max(7, fitDist(6, 4));
+    return [V(towerHall.x + d * .08, pn.y + .2, d), V(towerHall.x, pn.y, 0)];
+  }
+  const h = towerHall.top - towerHall.bottom, cy = (towerHall.top + towerHall.bottom) / 2, d = fitDist(6.4, h * 1.15);
+  return [V(towerHall.x + d * .08, cy, d), V(towerHall.x, cy, 0)];
+}
+
+/* 沿革展讀 */
+function openHistory() {
+  const el = document.getElementById('scrollReader');
+  const t = historyText();
+  el.querySelector('.body').innerHTML = t.split('\n').map(s => s.trim()).filter(Boolean).map((s, i) =>
+    i === 0 ? `<h2>${escH(s)}</h2>` : /^[一二三四五六七八九十]+、/.test(s) ? `<h3>${escH(s)}</h3>` : `<p>${escH(s)}</p>`).join('');
+  el.classList.add('on'); el.querySelector('.body').scrollTop = 0;
+}
+function openZibei(gen) {
+  const el = document.getElementById('scrollReader');
+  const zi = [...HALL.zibei];
+  const cells = zi.map((c, i) => {
+    const lg = i + HALL.zibeiLocalGen, ppl = PEOPLE.filter(p => p.gen === lg && p.role === 'main' && !p.empty);
+    return `<div class="zb${lg === gen ? ' on' : ''}"><b>${c}</b><small>${cnNum(HALL.zibeiStartWorld + i)}世</small>${lg <= MAX_GEN ? `<em>本支第${CN[lg] || lg}世${ppl.length ? '・' + ppl.map(p => escH(p.name)).join('、') : ''}</em>` : ''}</div>`;
+  }).join('');
+  el.querySelector('.body').innerHTML = `<h2>龍山派字輩（昭穆）</h2><p>自大宗第六十六世「奎」字輩起排列；本支第二世曾奎德即「奎」字輩。</p><div class="zbgrid">${cells}</div>`;
+  el.classList.add('on'); el.querySelector('.body').scrollTop = 0;
+}
+function openPlaque() {
+  const el = document.getElementById('scrollReader');
+  el.querySelector('.body').innerHTML = `<h2>${escH(HALL.plaque)}</h2>
+    <p>曾氏後人奉孔子弟子曾子（曾參）為宗聖始祖，以「三省堂」、「武城堂」為堂號，傳承「忠恕」家風。</p>
+    <p>堂號取自曾子「吾日三省吾身」，勉勵後代修身齊家，承先啟後。</p>
+    <h3>楹聯</h3><p>上聯：${escH(HALL.couplet[0])}<br>下聯：${escH(HALL.couplet[1])}</p>`;
+  el.classList.add('on');
+}
+const escH = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
 /* ---------- 水墨遠山 ---------- */
 function mulberry32(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 function ridge(n, rough, seed) {
@@ -644,7 +933,7 @@ function buildBackdrop(cy) {
   });
   const sunM = new THREE.Mesh(new THREE.CircleGeometry(5.5, 48),
     new THREE.MeshBasicMaterial({ color: '#c8553d', transparent: true, opacity: .35, depthWrite: false, fog: false }));
-  sunM.position.set(-34, cy + 24, -85); scene.add(sunM);
+  sunM.position.set(-46, cy + 34, -85); scene.add(sunM);
 }
 
 /* ---------- 金粉 ---------- */
@@ -668,6 +957,7 @@ let bounds;
 function computeBounds() {
   const xs = PEOPLE.map(p => p.x), ys = PEOPLE.map(p => p.y);
   bounds = { minX: Math.min(...xs) - TW, maxX: Math.max(...xs) + TW, minY: Math.min(...ys) - BOT_OFF - .4, maxY: Math.max(...ys) + TOP_OFF + .2 };
+  if (plaquePos) { bounds.minX = Math.min(bounds.minX, hallExt.minX); bounds.maxX = Math.max(bounds.maxX, hallExt.maxX); bounds.maxY = Math.max(bounds.maxY, plaquePos.y + .8); }
 }
 function fitDist(w, h) {
   const t = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
@@ -681,6 +971,10 @@ function overviewView() {
 function genView(g) {
   const ps = PEOPLE.filter(p => p.gen === g), xs = ps.map(p => p.x);
   const cx = (Math.min(...xs) + Math.max(...xs)) / 2, y = ps[0].y;
+  if (g === 1 && plaquePos) {   // 第一世連同匾額、對聯一起入鏡
+    const d = Math.max(6.5, fitDist(4.8, GEN_H * 1.3));
+    return [V(cx + d * .12, y + 1.1, d), V(cx, y + .7, 0)];
+  }
   const d = Math.max(5.5, fitDist(Math.max(...xs) - Math.min(...xs) + TW + 1.4, GEN_H * .95));
   return [V(cx + d * .14, y + .5, d), V(cx, y + .1, 0)];
 }
@@ -729,6 +1023,9 @@ function buildBar() {
   const mk = (t, f) => { const b = document.createElement('button'); b.textContent = t; b.onclick = f; bar.appendChild(b); };
   mk('全覽', () => { stopTour(); closeCard(); setGen(0); flyTo(overviewView(), 1.4); });
   mk('導覽', () => { closeCard(); tour(); });
+  if (towerHall) mk('塔位', () => { stopTour(); closeCard(); setGen(0); flyTo(towerView(null), 1.6); });
+  mk('沿革', () => { stopTour(); closeCard(); openHistory(); });
+  mk('字輩', () => { stopTour(); closeCard(); openZibei(0); });
   mk('存圖', exportPoster);
   mk('紀念堂', () => { location.href = './index.html'; });
 }
@@ -751,7 +1048,11 @@ function openCard(p) {
     if (p.role === 'main' && p.spouse && !p.spouse.empty) rows.push(['配偶', p.spouse.name]);
     if (main.parent) rows.push(['父系', byId[main.parent].name]);
     if (main.children.length) rows.push(['子嗣', main.children.map(c => c.name).join('、')]);
+    const z = zibeiOf(p.gen); if (z.ch && p.role === 'main') rows.push(['字輩', `「${z.ch}」字輩・大宗第${cnNum(z.world)}世`]);
+    const pl = placementOf(p);
+    if (pl) rows.push(['塔位', `${TOWERS[pl.tower].name}・${['一','二','三','四','五'][+pl.floor]}樓・${slotLabel(pl.tower, +pl.floor, +pl.slot)}號`]);
   }
+  card.querySelector('.tw').style.display = (towerHall && placementOf(p)) ? '' : 'none';
   card.querySelector('dl').innerHTML = rows.map(([a, b]) => `<dt>${a}</dt><dd>${esc(b)}</dd>`).join('');
   const av = card.querySelector('.av');
   av.style.display = p.avatar ? '' : 'none'; if (p.avatar) av.src = p.avatar;
@@ -766,6 +1067,10 @@ function closeCard() {
   card.classList.remove('on', 'mini');
   if (selected) { const t = tablets[selected]; t.front.emissiveIntensity = 0; t.flip = 0; selected = null; }
 }
+card.querySelector('.tw').onclick = () => {
+  if (!selected) return;
+  const id = selected; closeCard(); setGen(0); flyTo(towerView(id), 1.6);
+};
 card.querySelector('.flip').onclick = () => {
   if (!selected) return;
   const t = tablets[selected]; t.flip = t.flip ? 0 : 1;
@@ -795,11 +1100,18 @@ canvas.addEventListener('pointerup', e => {
   ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
   ray.setFromCamera(ndc, camera);
   const hit = ray.intersectObjects(pickables, false)[0];
-  if (hit) selectPerson(hit.object.userData.pid); else closeCard();
+  if (!hit) return closeCard();
+  const act = hit.object.userData.action;
+  if (!act) return selectPerson(hit.object.userData.pid);
+  stopTour(); closeCard();
+  if (act === 'history') openHistory();
+  else if (act === 'plaque') openPlaque();
+  else if (act.startsWith('zibei')) openZibei(+act.split(':')[1] || 0);
 });
 
 /* ---------- 海報輸出（含標題與印章） ---------- */
 const posterEl = document.getElementById('poster');
+document.querySelector('#scrollReader .close').onclick = () => document.getElementById('scrollReader').classList.remove('on');
 posterEl.querySelector('button').onclick = () => posterEl.classList.remove('on');
 function exportPoster() {
   renderer.render(scene, camera);
@@ -881,11 +1193,13 @@ async function start() {
   PEOPLE.forEach(buildTablet);
   buildLines();
   buildAltar();
+  buildHall();
   computeBounds();
   buildBackdrop((bounds.minY + bounds.maxY) / 2);
   buildDust(bounds);
   buildBar();
   tMin.set(bounds.minX - 4, bounds.minY - 4, -3); tMax.set(bounds.maxX + 4, bounds.maxY + 4, 3);
+  if (towerHall) { tMax.x = towerHall.x + 4; tMin.y = Math.min(tMin.y, towerHall.bottom - 2); }
 
   const [p0, t0] = genView(1);
   camera.position.copy(p0).add(V(0, 4, 6)); controls.target.copy(t0); camera.lookAt(t0);
