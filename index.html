@@ -722,6 +722,11 @@
   }
   .form-input:focus { border-color: var(--accent2); }
   textarea.form-input { resize: vertical; min-height: 80px; }
+  /* 靈骨放置處：塔名一整行，樓層、號位並排（原本三欄太窄，塔名被截斷） */
+  .pos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .pos-grid .pos-tower { grid-column: 1 / -1; }
+  /* iPhone：輸入框字小於 16px 時點下去會自動放大畫面 */
+  @media (max-width: 640px) { .form-input { font-size: 16px; } }
 
   .avatar-upload {
     display: flex; align-items: center; gap: 12px;
@@ -1577,8 +1582,8 @@
       <!-- 本人靈骨放置處 -->
       <div class="form-group">
         <label class="form-label">靈骨放置處（本人）</label>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-          <select class="form-input" id="f-origin-tower" onchange="updateFloorOptions('f-origin-tower','f-origin-floor','f-origin-slot')">
+        <div class="pos-grid">
+          <select class="form-input pos-tower" id="f-origin-tower" onchange="updateFloorOptions('f-origin-tower','f-origin-floor','f-origin-slot')">
             <option value="">選擇靈骨塔</option>
             <option value="A">A｜口湖鄉成龍納骨塔</option>
             <option value="B_new">B｜眾靈祠新塔</option>
@@ -1602,8 +1607,8 @@
       <!-- 配偶靈骨放置處 -->
       <div class="form-group" id="spouse-origin-group" style="display:none">
         <label class="form-label">靈骨放置處（配偶）</label>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-          <select class="form-input" id="f-spouse-origin-tower" onchange="updateFloorOptions('f-spouse-origin-tower','f-spouse-origin-floor','f-spouse-origin-slot')">
+        <div class="pos-grid">
+          <select class="form-input pos-tower" id="f-spouse-origin-tower" onchange="updateFloorOptions('f-spouse-origin-tower','f-spouse-origin-floor','f-spouse-origin-slot')">
             <option value="">選擇靈骨塔</option>
             <option value="A">A｜口湖鄉成龍納骨塔</option>
             <option value="B_new">B｜眾靈祠新塔</option>
