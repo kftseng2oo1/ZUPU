@@ -1520,18 +1520,16 @@
           <input type="text" class="form-input" id="f-alias" placeholder="如：仁山公">
         </div>
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">生辰</label>
-          <input type="date" class="form-input" id="f-birth">
-        </div>
-        <div class="form-group">
-          <label class="form-label">當前狀態 <span style="font-size:11px;color:var(--text3)">（影響族譜顯示）</span></label>
-          <select class="form-input" id="f-status" onchange="toggleDeathInput()">
-            <option value="deceased" selected>⬛ 已故（仙逝）</option>
-            <option value="alive">🔴 健在（長生）</option>
-          </select>
-        </div>
+      <div class="form-group">
+        <label class="form-label">當前狀態 <span style="font-size:11px;color:var(--text3)">（影響族譜顯示）</span></label>
+        <select class="form-input" id="f-status" onchange="toggleDeathInput()">
+          <option value="deceased" selected>⬛ 已故（仙逝）</option>
+          <option value="alive">🔴 健在（長生）</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">生辰</label>
+        <input type="date" class="form-input" id="f-birth">
       </div>
       <!-- 忌日（已故才顯示） -->
       <div id="death-input-group">
