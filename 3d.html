@@ -186,6 +186,31 @@
   #sutra .go{font-family:var(--font);font-size:calc(16px * var(--fs));font-weight:900;letter-spacing:.15em;min-height:calc(42px * var(--fs));padding:0 22px;border:1px solid var(--gold);border-radius:3px;background:#8b1a1a;color:#f6d98a}
   #sutra[data-st="run"] .go{background:#3d2006}
 
+  /* 掃墓路線 */
+  body.route #title,body.route #genTag,body.route #seal,body.route #riteBanner,body.route #card{display:none!important}
+  #routeBox{position:fixed;left:0;right:0;bottom:0;z-index:12;display:none;padding:0 8px}
+  #routeBox.on{display:block;animation:fadeIn .35s}
+  #routeBox .sheet{position:relative;max-height:48vh;overflow-y:auto;-webkit-overflow-scrolling:touch;background:linear-gradient(170deg,#faf3e0,#ede0b8);border:2px solid var(--gold);border-bottom:0;border-radius:6px 6px 0 0;box-shadow:0 -6px 24px rgba(0,0,0,.35);padding:12px 14px calc(var(--sb) + 12px)}
+  #routeBox h3{color:var(--red);font-size:calc(19px * var(--fs));font-weight:900;letter-spacing:.3em;text-align:center}
+  #routeBox .sub{text-align:center;color:#7a5a2a;font-size:calc(12px * var(--fs));margin:2px 0 8px}
+  #routeBox .x{position:absolute;top:4px;right:8px;border:0;background:none;color:#7a5a2a;font-size:26px;padding:4px 8px}
+  #routeBox .steps{list-style:none;margin:0 0 10px;padding:0}
+  #routeBox .steps li{display:flex;gap:10px;padding:8px 4px;border-bottom:1px dashed #c9a045;cursor:pointer}
+  #routeBox .steps li>b{flex:0 0 auto;width:30px;height:30px;border-radius:50%;background:#8b1a1a;color:#f6d98a;display:flex;align-items:center;justify-content:center;font-size:calc(14px * var(--fs))}
+  #routeBox .steps li:nth-child(2)>b{background:#3a6cff;color:#fff}
+  #routeBox h4{font-size:calc(16px * var(--fs));color:#2a1a08;font-weight:900}
+  #routeBox .steps p{font-size:calc(12px * var(--fs));color:#7a5a2a}
+  #routeBox .ppl{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+  #routeBox .ppl span{background:#fff8ec;border:1px solid #c9a045;border-radius:3px;padding:2px 7px;font-size:calc(13px * var(--fs));color:#5a0d0d;font-weight:700}
+  #routeBox .ppl small{font-weight:400;color:#7a5a2a;margin-left:4px;font-size:calc(11px * var(--fs))}
+  #routeBox .ppl em{font-style:normal;font-size:calc(12px * var(--fs));color:#9a7a4a}
+  #routeBox .row{display:flex;gap:8px}
+  #routeBox.mini .steps,#routeBox.mini .sub{display:none}
+  #routeBox .row button,#routeBox .row a{flex:1;min-height:calc(42px * var(--fs));display:flex;align-items:center;justify-content:center;font-family:var(--font);font-size:calc(14px * var(--fs));font-weight:900;border-radius:3px;border:1px solid var(--gold);text-decoration:none;letter-spacing:.05em}
+  #routeBox .row .ov{background:#fbf4e2;color:#5a0d0d;flex:.7}
+  #routeBox .row .play{background:#8b1a1a;color:#f6d98a}
+  #routeBox .row .gmap{background:#2a6cd6;color:#fff;border-color:#2a6cd6}
+
   /* 卷軸展讀 */
   #scrollReader{position:fixed;inset:0;z-index:25;background:rgba(20,10,2,.88);display:none;flex-direction:column;align-items:center;justify-content:center;padding:calc(var(--st) + 16px) 14px calc(var(--sb) + 16px)}
   #scrollReader.on{display:flex;animation:fadeIn .35s}
@@ -315,6 +340,16 @@
     <div class="prog"><i></i></div>
     <div class="txt"></div>
     <div class="foot"><span class="rnd"></span><span class="done-msg"></span><button class="go">開始誦經</button></div>
+  </div>
+</div>
+
+<div id="routeBox">
+  <div class="sheet">
+    <button class="x" aria-label="離開">×</button>
+    <h3>掃墓路線</h3>
+    <p class="sub">口湖鄉成龍納骨堂 → 眾靈祠（男公女媽廟）・開車約 4 分鐘</p>
+    <ol class="steps"></ol>
+    <div class="row"><button class="ov">全圖</button><button class="play">▶ 路線導覽</button><a class="gmap" target="_blank" rel="noopener">Google 地圖導航</a></div>
   </div>
 </div>
 
@@ -472,7 +507,7 @@ measure(root); place(root, -root.w / 2);
 /* ---------- 字型就緒後才畫牌位文字（iOS 必要） ---------- */
 async function waitFonts() {
   const txt = PEOPLE.map(p => p.name + p.tabletText + (p.tag || '') + (p.lines || []).join('') + (p.bio || '') + (p.alias || '')).join('')
-            + '依族譜資料整理可於紀念堂補寫生平祖先名冊' + '祠堂全景香案燭火清香奉茶供果餅乾鮮花來台祖神位三省堂匾額家族沿革碑攝影離開自動掃描停止繼續拍攝下載' + SUTRA.title + SUTRA.open + SUTRA.body + SUTRA.close + '念經超渡誦心卷語音木魚慢中快開始暫停繼續再一次圓滿功德迴向偈為' + HALL.plaque + HALL.plaqueSub + HALL.couplet.join('') + HALL.zibei + '龍山字輩大宗曾氏沿革輕觸展讀塔位側殿樓號口湖鄉公所靈骨塔蚵寮新舊' + historyText().split('\n').filter(s => /^[一二三四五六七八九十]+、/.test(s)).join('') + '第一二三四五六七八九十世配偶︵︶無—年生仙逝之本支在世農曆卒生平待補於紀念堂祖先名冊填寫字號0123456789.';
+            + '掃墓路線口湖鄉成龍納骨堂眾靈祠男公女媽廟起點終點沿途安奉位新舊塔往南接台旁道路轉雲往東北開車約分鐘全圖導覽停止地圖導航抵達紀念堂尚未登記此處溼地村牛挑灣溪烏麻園豐樺水產行縣' + '依族譜資料整理可於紀念堂補寫生平祖先名冊' + '祠堂全景香案燭火清香奉茶供果餅乾鮮花來台祖神位三省堂匾額家族沿革碑攝影離開自動掃描停止繼續拍攝下載' + SUTRA.title + SUTRA.open + SUTRA.body + SUTRA.close + '念經超渡誦心卷語音木魚慢中快開始暫停繼續再一次圓滿功德迴向偈為' + HALL.plaque + HALL.plaqueSub + HALL.couplet.join('') + HALL.zibei + '龍山字輩大宗曾氏沿革輕觸展讀塔位側殿樓號口湖鄉公所靈骨塔蚵寮新舊' + historyText().split('\n').filter(s => /^[一二三四五六七八九十]+、/.test(s)).join('') + '第一二三四五六七八九十世配偶︵︶無—年生仙逝之本支在世農曆卒生平待補於紀念堂祖先名冊填寫字號0123456789.';
   try {
     await Promise.race([
       Promise.all([
@@ -1428,7 +1463,7 @@ function buildStele(pos) {
 
 /* 塔位側殿：只有紀念堂登記過塔位才建立 */
 const TOWERS = {
-  A: { name: 'A｜口湖鄉公所靈骨塔', floors: 3 },
+  A: { name: 'A｜口湖鄉公所靈骨塔', floors: 3 },   // 口湖鄉成龍納骨堂
   B_new: { name: 'B｜蚵寮新塔', floors: 3 },
   B_old: { name: 'B｜蚵寮舊塔', floors: 5 },
 };
@@ -2089,6 +2124,297 @@ async function recordSutra(pid, n) {
   el.querySelectorAll('.opt [data-r]').forEach(b => b.onclick = () => { if (!CHANT.on) { CHANT.rounds = +b.dataset.r; CHANT.round = 1; updChantUI(); } });
 })();
 
+/* ================= 掃墓路線：口湖鄉成龍納骨堂 → 眾靈祠（男公女媽廟） =================
+   以「沙盤」呈現：魚塭地景、台61、雲131、路線（依 Google 地圖截圖描繪的示意，非精確比例）；
+   兩端建築依實景照片建模。紀念堂塔位：A＝成龍納骨堂，B 新塔／B 舊塔＝眾靈祠新塔／舊塔。 */
+const ROUTE = { built: false, g: null, curve: null, dots: null, marker: null, anim: null, stops: [], center: null };
+const RT_K = .008, RT_X0 = 594, RT_Y0 = 1300;   // 截圖像素 → 沙盤座標（1188×1700 px → 9.5×13.6）
+const RT_PATH = [[215, 1105], [300, 1102], [440, 1130], [442, 1190], [432, 1300], [428, 1395], [470, 1462], [560, 1540], [632, 1628],
+  [660, 1590], [700, 1482], [742, 1416], [790, 1322], [860, 1180], [930, 1042], [985, 935], [1035, 848], [1056, 820]];
+const RT_61 = [[0, 1048], [180, 1215], [500, 1478], [700, 1685], [1000, 1960], [1188, 2120]];
+const RT_131 = [[640, 1625], [700, 1482], [790, 1322], [930, 1042], [1035, 848], [1120, 700], [1188, 610]];
+const RT_RIVER = [[1188, 1050], [1120, 1300], [1060, 1560], [1000, 1800], [940, 1980], [880, 2150]];
+const rtV = (px, py, y = 0) => new THREE.Vector3((px - RT_X0) * RT_K, y, (py - RT_Y0) * RT_K);
+function routeMapTexture() {
+  const W = 1188, H = 1700, c = document.createElement('canvas'); c.width = W; c.height = H;
+  const g = c.getContext('2d'), Y = y => y - 450, rnd = mulberry32(2026);
+  g.fillStyle = '#26352c'; g.fillRect(0, 0, W, H);
+  // 魚塭：不規則格子，水色深淺不一，堤岸淺色
+  for (let y = 0; y < H; y += 46 + rnd() * 30) {
+    let x = -rnd() * 60; const h = 40 + rnd() * 34;
+    while (x < W) {
+      const w = 60 + rnd() * 110, t = rnd();
+      g.fillStyle = t < .55 ? `rgb(${30 + rnd() * 20},${58 + rnd() * 25},${60 + rnd() * 25})` : t < .85 ? `rgb(${38 + rnd() * 20},${70 + rnd() * 20},${52 + rnd() * 15})` : `rgb(${70 + rnd() * 30},${90 + rnd() * 20},${70 + rnd() * 20})`;
+      g.fillRect(x + 4, y + 4, w - 8, h - 8);
+      if (rnd() < .25) { g.fillStyle = 'rgba(200,220,230,.18)'; for (let k = 0; k < 4; k++) g.fillRect(x + 10 + rnd() * (w - 24), y + 10 + rnd() * (h - 24), 3, 3); }   // 水車
+      x += w;
+    }
+  }
+  g.strokeStyle = 'rgba(170,165,140,.5)'; g.lineWidth = 3;   // 魚塭間的堤岸小路（大致南北向）
+  for (let x = 40; x < W; x += 120 + rnd() * 90) { const dx = (rnd() - .5) * 60; g.beginPath(); g.moveTo(x, 0); g.lineTo(x + dx, H); g.stroke(); }
+  // 成龍溼地與外海（左下）
+  g.fillStyle = '#1d3a4a'; g.beginPath(); g.moveTo(0, Y(1640)); g.bezierCurveTo(200, Y(1600), 320, Y(1700), 330, Y(1820)); g.bezierCurveTo(340, Y(1950), 180, Y(2060), 0, Y(2150)); g.fill();
+  // 牛挑灣溪
+  g.strokeStyle = '#1f3d4e'; g.lineWidth = 70; g.lineCap = 'round'; g.beginPath(); RT_RIVER.forEach(([x, y], i) => i ? g.lineTo(x, Y(y)) : g.moveTo(x, Y(y))); g.stroke();
+  // 聚落（成龍村）
+  for (let i = 0; i < 160; i++) {
+    const x = 380 + rnd() * 520, y = 1560 + rnd() * 560; if (x + (y - 1560) * .2 > 980) continue;
+    g.fillStyle = rnd() < .5 ? '#9a978c' : rnd() < .5 ? '#7d7a70' : '#b7b2a2'; g.fillRect(x, Y(y), 10 + rnd() * 22, 8 + rnd() * 16);
+  }
+  // 一般道路
+  g.strokeStyle = '#a9a69a'; g.lineWidth = 6; g.lineCap = 'round';
+  [[[0, 760], [300, 820], [600, 790], [900, 760], [1188, 720]], [[440, 1130], [430, 1400], [470, 1462]], [[215, 1105], [440, 1130]], [[0, 1880], [400, 1840], [700, 1830]]].forEach(seg => { g.beginPath(); seg.forEach(([x, y], i) => i ? g.lineTo(x, Y(y)) : g.moveTo(x, Y(y))); g.stroke(); });
+  // 雲131
+  g.strokeStyle = '#c9c4b2'; g.lineWidth = 9; g.beginPath(); RT_131.forEach(([x, y], i) => i ? g.lineTo(x, Y(y)) : g.moveTo(x, Y(y))); g.stroke();
+  // 地名
+  const tag = (t, x, y, col = '#f3ead2', sz = 30) => { g.font = `900 ${sz}px ${FONT}`; g.lineWidth = 6; g.strokeStyle = 'rgba(0,0,0,.65)'; g.strokeText(t, x, Y(y)); g.fillStyle = col; g.fillText(t, x, Y(y)); };
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  tag('成龍溼地', 200, 1760, '#bfe6b0', 34); tag('成龍村', 640, 1900, '#efe6cf', 28); tag('牛挑灣溪', 1060, 1500, '#bfe0f0', 26);
+  tag('雲131', 990, 1010, '#fff', 24); tag('烏麻園', 1000, 640, '#efe6cf', 26); tag('豐樺水產行', 640, 1310, '#efe6cf', 22);
+  return toTex(c);
+}
+function rtLabel(text, sub, scale = 1) {
+  const c = document.createElement('canvas'); c.width = 512; c.height = sub ? 150 : 104;
+  const g = c.getContext('2d'); g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillStyle = 'rgba(30,14,4,.86)'; g.beginPath(); g.roundRect ? g.roundRect(6, 6, 500, c.height - 12, 18) : g.rect(6, 6, 500, c.height - 12); g.fill();
+  g.strokeStyle = '#d4a843'; g.lineWidth = 3; g.stroke();
+  g.fillStyle = '#f6d98a'; g.font = `900 46px ${FONT}`; g.fillText(text, 256, sub ? 54 : 54);
+  if (sub) { g.fillStyle = '#e8d3a0'; g.font = `700 28px ${FONT}`; g.fillText(sub, 256, 110); }
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: toTex(c), transparent: true, depthWrite: false }));
+  sp.scale.set(2.4 * scale, 2.4 * scale * c.height / 512, 1); sp.renderOrder = 5; return sp;
+}
+const rtMat = (color, rough = .7, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: rough, ...extra });
+/* 成龍納骨堂：方形六層樓、頂部挑簷與拱形冠飾、屋頂水塔、正面藍底金佛、法輪窗、紅框雨遮、右側小祠 */
+function buildChenglong() {
+  const g = new THREE.Group(), W = 1, D = .8, H = 1.36;
+  const wall = rtMat('#b2a193'), trim = rtMat('#8d7c70'), pink = rtMat('#a07d73', .5), red = rtMat('#8b2a22', .5);
+  const facade = (front) => boardTexture(256, 340, (x, w, h) => {
+    x.fillStyle = '#b2a193'; x.fillRect(0, 0, w, h);
+    for (let f = 0; f < 5; f++) {
+      const y0 = 30 + f * 60; x.fillStyle = 'rgba(90,75,65,.35)'; x.fillRect(0, y0 + 50, w, 4);
+      for (let k = 0; k < 4; k++) {
+        const cx = 22 + k * 62; if (front && k >= 1 && k <= 2) continue;
+        if ((f + k) % 3 === 0) { x.fillStyle = '#2b2a2a'; x.beginPath(); x.ellipse(cx + 12, y0 + 22, 8, 10, 0, 0, 7); x.fill(); }
+        else { x.fillStyle = '#e9ecef'; x.fillRect(cx, y0 + 8, 26, 34); x.fillStyle = '#5b6a76'; x.fillRect(cx + 3, y0 + 11, 9, 13); x.fillRect(cx + 14, y0 + 11, 9, 13); x.fillRect(cx + 3, y0 + 26, 9, 13); x.fillRect(cx + 14, y0 + 26, 9, 13); }
+      }
+    }
+  });
+  const fm = new THREE.MeshStandardMaterial({ map: facade(true), roughness: .8 }), sm = new THREE.MeshStandardMaterial({ map: facade(false), roughness: .8 });
+  const body = new THREE.Mesh(new THREE.BoxGeometry(W, H, D), [sm, sm, wall, wall, fm, sm]); body.position.y = H / 2; g.add(body);
+  const sign = boardTexture(512, 96, (x, w, h) => {
+    x.fillStyle = '#9a887a'; x.fillRect(0, 0, w, h); x.fillStyle = '#e2c26a'; x.font = `900 30px ${FONT}`;
+    x.fillText('雲林縣', w / 2, 26); x.font = `900 40px ${FONT}`; x.fillText('口湖鄉納骨堂', w / 2, 68);
+  });
+  const band = new THREE.Mesh(new THREE.BoxGeometry(W + .08, .16, D + .06), [trim, trim, trim, trim, new THREE.MeshStandardMaterial({ map: sign }), trim]); band.position.y = H - .02; g.add(band);
+  const corn = new THREE.Mesh(new THREE.BoxGeometry(W + .2, .07, D + .18), trim); corn.position.y = H + .08; g.add(corn);
+  const par = new THREE.Mesh(new THREE.BoxGeometry(.46, .12, .08), wall); par.position.set(0, H + .17, D / 2 - .02); g.add(par);
+  const crest = new THREE.Mesh(new THREE.CylinderGeometry(.15, .15, .07, 24, 1, false, -Math.PI / 2, Math.PI), wall); crest.rotation.x = Math.PI / 2; crest.position.set(0, H + .22, D / 2 - .02); g.add(crest);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(.06, .01, 6, 20), trim); ring.position.set(0, H + .25, D / 2 + .02); g.add(ring);
+  [[-1, 1], [1, 1], [-1, -1], [1, -1]].forEach(([sx, sz]) => { const b = new THREE.Mesh(new THREE.BoxGeometry(.14, .09, .1), wall); b.position.set(sx * (W / 2 - .02), H + .16, sz * (D / 2 - .05)); g.add(b); });
+  const tank = new THREE.Mesh(new THREE.BoxGeometry(.3, .3, .3), rtMat('#9b9282', .6)); tank.position.set(.18, H + .27, -.12); g.add(tank);
+  // 正面藍底金佛
+  const buddha = boardTexture(128, 240, (x, w, h) => {
+    const gr = x.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, '#3f7fd0'); gr.addColorStop(1, '#8ab8ea'); x.fillStyle = gr; x.fillRect(0, 0, w, h);
+    x.fillStyle = 'rgba(255,255,255,.55)'; for (let i = 0; i < 6; i++) { x.beginPath(); x.ellipse(20 + i * 18, 200 + (i % 2) * 14, 26, 10, 0, 0, 7); x.fill(); }
+    x.strokeStyle = '#f0c95a'; x.lineWidth = 5; x.beginPath(); x.arc(64, 70, 34, 0, 7); x.stroke();
+    x.fillStyle = '#e0b040'; x.beginPath(); x.arc(64, 62, 13, 0, 7); x.fill();
+    x.beginPath(); x.ellipse(64, 112, 28, 34, 0, 0, 7); x.fill();
+    x.fillStyle = '#c7962c'; x.beginPath(); x.ellipse(64, 148, 40, 12, 0, 0, 7); x.fill();
+    x.fillStyle = '#5fae7a'; x.fillRect(26, 160, 76, 12);
+  });
+  const bp = new THREE.Mesh(new THREE.PlaneGeometry(.24, .44), new THREE.MeshStandardMaterial({ map: buddha, roughness: .5 })); bp.position.set(0, H * .64, D / 2 + .006); g.add(bp);
+  const col = new THREE.CylinderGeometry(.03, .03, H * .55, 10);
+  [-.15, .15].forEach(x => { const c = new THREE.Mesh(col, wall); c.position.set(x, H * .62, D / 2 + .02); g.add(c); });
+  [.46, .74].forEach(fy => [-1, 1].forEach(sx => { const b = new THREE.Mesh(new THREE.BoxGeometry(.28, .035, .08), trim); b.position.set(sx * .33, H * fy, D / 2 + .04); g.add(b); }));
+  // 入口：粉紅花崗石門廊、法輪窗、紅框雨遮、台階
+  const por = new THREE.Mesh(new THREE.BoxGeometry(.5, .36, .12), pink); por.position.set(0, .18, D / 2 + .06); g.add(por);
+  const wheel = new THREE.Mesh(new THREE.TorusGeometry(.055, .012, 6, 20), rtMat('#d9dde0', .3)); wheel.position.set(0, .3, D / 2 + .125); g.add(wheel);
+  for (let i = 0; i < 4; i++) { const s = new THREE.Mesh(new THREE.BoxGeometry(.1, .008, .006), rtMat('#d9dde0', .3)); s.position.copy(wheel.position); s.rotation.z = i * Math.PI / 4; g.add(s); }
+  const canopy = new THREE.Mesh(new THREE.BoxGeometry(.38, .02, .2), rtMat('#e8e6e0', .5)); canopy.position.set(0, .2, D / 2 + .2); g.add(canopy);
+  [-.17, .17].forEach(x => { const p = new THREE.Mesh(new THREE.BoxGeometry(.02, .2, .02), red); p.position.set(x, .1, D / 2 + .29); g.add(p); });
+  const steps = new THREE.Mesh(new THREE.BoxGeometry(.62, .04, .2), pink); steps.position.set(0, .02, D / 2 + .22); g.add(steps);
+  // 右側小祠
+  const sh = new THREE.Mesh(new THREE.BoxGeometry(.24, .22, .22), rtMat('#c4a99d')); sh.position.set(W / 2 + .2, .11, .15); g.add(sh);
+  const shr = new THREE.Mesh(new THREE.BoxGeometry(.3, .04, .28), rtMat('#3a3a3a')); shr.position.set(W / 2 + .2, .24, .15); g.add(shr);
+  return g;
+}
+function hipRoof(w, d, h, color, flare = .08) {   // 四坡頂（簡化）＋翹角
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(.08, Math.SQRT1_2, h, 4, 1), rtMat(color, .45));
+  m.rotation.y = Math.PI / 4; m.scale.set(w, 1, d); const g = new THREE.Group(); g.add(m);
+  [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz]) => { const t = new THREE.Mesh(new THREE.ConeGeometry(.02, flare, 6), rtMat(color, .45)); t.position.set(sx * w / 2, -h / 2 + flare * .4, sz * d / 2); t.rotation.z = -sx * .9; g.add(t); });
+  return g;
+}
+/* 眾靈祠：紅柱綠瓦正殿＋新塔（黃牆紅欄綠瓦樓閣）＋舊塔（灰色五層、梯間、藍瓦頂） */
+function buildZhongling() {
+  const g = new THREE.Group();
+  const red = rtMat('#b0262a', .5), cream = rtMat('#e8dcc0'), green = '#3f7d5a';
+  const hall = new THREE.Mesh(new THREE.BoxGeometry(1.5, .26, .5), [cream, cream, cream, cream, rtMat('#4a2a22'), cream]); hall.position.set(0, .13, .25); g.add(hall);
+  for (let i = 0; i < 7; i++) { const p = new THREE.Mesh(new THREE.CylinderGeometry(.022, .022, .26, 10), red); p.position.set(-.66 + i * .22, .13, .52); g.add(p); }
+  const beam = new THREE.Mesh(new THREE.BoxGeometry(1.56, .05, .06), rtMat('#d8d2c0')); beam.position.set(0, .28, .52); g.add(beam);
+  const hr = hipRoof(1.6, .64, .14, green); hr.position.set(0, .34, .25); g.add(hr);
+  const plaque = boardTexture(256, 96, (x, w, h) => {
+    x.fillStyle = '#b0262a'; x.fillRect(0, 0, w, h); x.strokeStyle = '#2d5bb0'; x.lineWidth = 8; x.strokeRect(4, 4, w - 8, h - 8);
+    x.fillStyle = '#f6d98a'; x.font = `900 28px ${FONT}`; x.fillText('男公女媽', w / 2, 30); x.font = `900 34px ${FONT}`; x.fillText('眾靈祠', w / 2, 68);
+  });
+  const pl = new THREE.Mesh(new THREE.PlaneGeometry(.42, .16), new THREE.MeshStandardMaterial({ map: plaque })); pl.position.set(0, .4, .58); g.add(pl);
+  // 新塔：殿後中央
+  const nt = new THREE.Group(), yel = rtMat('#dcc583'), rail = rtMat('#8a8a8a', .4);
+  for (let f = 0; f < 4; f++) {
+    const y = .28 + f * .2;
+    const fl = new THREE.Mesh(new THREE.BoxGeometry(.46, .17, .4), yel); fl.position.y = y + .085; nt.add(fl);
+    const rb = new THREE.Mesh(new THREE.BoxGeometry(.56, .03, .5), red); rb.position.y = y; nt.add(rb);
+    const rl = new THREE.Mesh(new THREE.BoxGeometry(.56, .05, .5), rail); rl.position.y = y + .045; rl.scale.set(1, 1, 1); rl.material = new THREE.MeshStandardMaterial({ color: '#999', transparent: true, opacity: .45 }); nt.add(rl);
+    if (f === 3) { const roof = hipRoof(.64, .58, .16, green, .1); roof.position.y = y + .26; nt.add(roof); const sp = new THREE.Mesh(new THREE.ConeGeometry(.03, .14, 8), rtMat('#2f5f45')); sp.position.y = y + .4; nt.add(sp); }
+  }
+  const base = new THREE.Mesh(new THREE.BoxGeometry(.46, .28, .4), yel); base.position.y = .14; nt.add(base);
+  nt.position.set(0, 0, -.15); g.add(nt);
+  // 舊塔：右後方
+  const ot = new THREE.Group(), grey = rtMat('#b8b5ad'), dark = rtMat('#3b3936');
+  for (let f = 0; f < 5; f++) {
+    const y = f * .21;
+    const slab = new THREE.Mesh(new THREE.BoxGeometry(.6, .035, .56), grey); slab.position.y = y + .2; ot.add(slab);
+    const core = new THREE.Mesh(new THREE.BoxGeometry(.42, .18, .38), dark); core.position.y = y + .09; ot.add(core);
+    [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz]) => { const c = new THREE.Mesh(new THREE.BoxGeometry(.025, .18, .025), red); c.position.set(sx * .2, y + .09, sz * .18); ot.add(c); });
+  }
+  const stair = new THREE.Mesh(new THREE.BoxGeometry(.16, 1.22, .16), rtMat('#7f817c')); stair.position.set(.36, .61, .05); ot.add(stair);
+  const broof = hipRoof(.66, .6, .2, '#2d4f8e', .1); broof.position.y = 1.15; ot.add(broof);
+  const bsp = new THREE.Mesh(new THREE.ConeGeometry(.025, .16, 8), rtMat('#2a2a2a')); bsp.position.y = 1.32; ot.add(bsp);
+  ot.position.set(1.15, 0, -.25); g.add(ot);
+  g.userData.newTower = nt; g.userData.oldTower = ot;
+  return g;
+}
+function buildRoute() {
+  if (ROUTE.built) return; ROUTE.built = true;
+  const hx = (towerHall ? towerHall.x : bounds.maxX + 4) + 11, cy = -14;
+  const g = new THREE.Group(); g.position.set(hx, cy, 0); scene.add(g); ROUTE.g = g;
+  // 沙盤：木座金邊
+  const W = 1188 * RT_K, Dp = 1700 * RT_K;
+  const map = new THREE.Mesh(new THREE.PlaneGeometry(W, Dp), new THREE.MeshStandardMaterial({ map: routeMapTexture(), roughness: .9 }));
+  map.rotation.x = -Math.PI / 2; map.position.set(0, .012, 0); g.add(map);
+  const base = new THREE.Mesh(new THREE.BoxGeometry(W + .5, .5, Dp + .5), M.lacquerTable); base.position.y = -.26; g.add(base);
+  [[0, Dp / 2 + .25, W + .56, .06], [0, -Dp / 2 - .25, W + .56, .06], [W / 2 + .25, 0, .06, Dp + .56], [-W / 2 - .25, 0, .06, Dp + .56]].forEach(([x, z, w, d]) => {   // 金邊只在四周
+    const rim = new THREE.Mesh(new THREE.BoxGeometry(w, .06, d), M.gold); rim.position.set(x, 0, z); g.add(rim);
+  });
+  const plate = boardTexture(1024, 120, (x, w, h) => { x.fillStyle = '#4a0e0e'; x.fillRect(0, 0, w, h); x.fillStyle = '#f6d98a'; x.font = `900 64px ${FONT}`; x.fillText('掃 墓 路 線', w / 2, h / 2 + 4); });
+  const pl = new THREE.Mesh(new THREE.PlaneGeometry(3.6, .42), new THREE.MeshStandardMaterial({ map: plate })); pl.position.set(0, -.25, Dp / 2 + .252); g.add(pl);
+  // 台61（高架）
+  const p61 = RT_61.map(([x, y]) => rtV(x, y, .16));
+  for (let i = 0; i < p61.length - 1; i++) {
+    const a = p61[i], b = p61[i + 1], len = a.distanceTo(b);
+    const deck = new THREE.Mesh(new THREE.BoxGeometry(.34, .04, len), rtMat('#d8cfae', .8)); deck.position.copy(a).lerp(b, .5); deck.lookAt(b.x + g.position.x, b.y + g.position.y, b.z); g.add(deck);
+    deck.rotation.set(0, Math.atan2(b.x - a.x, b.z - a.z), 0);
+    for (let t = 0; t < 1; t += .2) { const q = a.clone().lerp(b, t), pil = new THREE.Mesh(new THREE.BoxGeometry(.05, .16, .05), rtMat('#9a9584')); pil.position.set(q.x, .08, q.z); g.add(pil); }
+  }
+  const s61 = new THREE.Sprite(new THREE.SpriteMaterial({ map: boardTexture(128, 128, (x) => { x.fillStyle = '#fff'; x.beginPath(); x.moveTo(14, 10); x.lineTo(114, 10); x.lineTo(114, 70); x.quadraticCurveTo(64, 126, 14, 70); x.fill(); x.fillStyle = '#c8282a'; x.beginPath(); x.moveTo(22, 18); x.lineTo(106, 18); x.lineTo(106, 66); x.quadraticCurveTo(64, 114, 22, 66); x.fill(); x.fillStyle = '#fff'; x.font = `900 50px ${FONT}`; x.fillText('61', 64, 56); }), transparent: true }));
+  s61.scale.set(.45, .45, 1); s61.position.copy(rtV(520, 1500, .55)); g.add(s61);
+  // 路線（藍色圓點，流動）
+  ROUTE.curve = new THREE.CatmullRomCurve3(RT_PATH.map(([x, y]) => rtV(x, y, .05)), false, 'centripetal', .3);
+  const N = 90, dm = new THREE.InstancedMesh(new THREE.SphereGeometry(.045, 10, 8), new THREE.MeshBasicMaterial({ color: '#ffffff' }), N);
+  const tmp = new THREE.Object3D();
+  for (let i = 0; i < N; i++) { tmp.position.copy(ROUTE.curve.getPointAt(i / (N - 1))); tmp.updateMatrix(); dm.setMatrixAt(i, tmp.matrix); dm.setColorAt(i, new THREE.Color('#3a6cff')); }
+  g.add(dm); ROUTE.dots = dm; ROUTE.N = N;
+  // 起訖建築
+  const s = buildChenglong(); s.position.copy(rtV(215, 1140)); s.rotation.y = Math.PI * .05; s.scale.setScalar(1.15); g.add(s);
+  const e = buildZhongling(); e.position.copy(rtV(1056, 800)); e.rotation.y = -Math.PI * .08; e.scale.setScalar(1.05); g.add(e);
+  const occ = keys => PEOPLE.filter(p => { const pl = placementOf(p); return pl && keys.includes(pl.tower); });
+  const la = rtLabel('成龍納骨堂', `起點・安奉 ${occ(['A']).length} 位`); la.position.copy(rtV(215, 1140, 2.25)); g.add(la);
+  const lb = rtLabel('眾靈祠', `終點・安奉 ${occ(['B_new', 'B_old']).length} 位`); lb.position.copy(rtV(1056, 800, 2.1)); g.add(lb);
+  const ln = rtLabel('新塔', '', .45); ln.position.copy(rtV(1056, 800, 1.45)).add(new THREE.Vector3(0, 0, -.2)); g.add(ln);
+  const lo = rtLabel('舊塔', '', .45); lo.position.copy(rtV(1056, 800, 1.75)).add(new THREE.Vector3(1.15, 0, -.25)); g.add(lo);
+  // 行進標記：小車＋光暈
+  const mk = new THREE.Group();
+  const car = new THREE.Mesh(new THREE.BoxGeometry(.16, .07, .26), rtMat('#c8282a', .35, { metalness: .3 })); car.position.y = .06; mk.add(car);
+  const cab = new THREE.Mesh(new THREE.BoxGeometry(.13, .06, .13), rtMat('#2a3440', .2)); cab.position.set(0, .12, -.01); mk.add(cab);
+  const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: softTex('rgba(255,210,120,.9)', 'rgba(255,190,80,0)'), transparent: true, depthWrite: false })); halo.scale.setScalar(.7); halo.position.y = .1; mk.add(halo);
+  const pin = new THREE.Mesh(new THREE.ConeGeometry(.09, .26, 16), rtMat('#f2c230', .3, { emissive: '#7a4a00', emissiveIntensity: .6 })); pin.rotation.x = Math.PI; pin.position.y = .5; mk.add(pin);   // 頭上金色指標
+  mk.scale.setScalar(1.6); mk.position.copy(ROUTE.curve.getPointAt(0)); g.add(mk); ROUTE.marker = mk;
+  const wp = v => v.clone().add(g.position);
+  ROUTE.center = wp(new THREE.Vector3(.2, 0, -.6));
+  ROUTE.startPos = wp(rtV(215, 1140, .5)); ROUTE.endPos = wp(rtV(1056, 800, .5));
+  ROUTE.stops = [
+    { key: 'start', name: '口湖鄉成龍納骨堂', sub: '紀念堂 A 塔', at: ROUTE.startPos, dir: new THREE.Vector3(2.2, 2.6, 4.4), keys: ['A'] },
+    { key: 'way', name: '沿途', sub: '往南接台61旁道路，轉雲131往東北', at: wp(rtV(640, 1450, .2)), dir: new THREE.Vector3(.5, 7.5, 6), keys: [] },
+    { key: 'end', name: '眾靈祠（男公女媽廟）', sub: '紀念堂 B 新塔／B 舊塔', at: ROUTE.endPos, dir: new THREE.Vector3(-2.4, 2.8, 4.6), keys: ['B_new', 'B_old'] },
+  ];
+  ROUTE.occ = occ;
+  tMax.x = Math.max(tMax.x, hx + 8); tMin.y = Math.min(tMin.y, cy - 4);
+}
+function routeOverview() {
+  const d = Math.max(16, fitDist(10.5, 15));
+  return [ROUTE.center.clone().add(new THREE.Vector3(0, d * .86, d * .5)), ROUTE.center.clone().add(new THREE.Vector3(0, 0, d * .2))];
+}
+function routeStopView(st) {   // 下方有面板：目標點放在主體下方，主體就落在畫面上半
+  const tgt = st.at.clone().add(new THREE.Vector3(0, .5, 0)), back = st.dir.length();
+  const drop = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * back * .45;
+  return [st.at.clone().add(st.dir).add(new THREE.Vector3(0, -drop * .3, 0)), tgt.add(new THREE.Vector3(0, -drop, 0))];
+}
+function openRoute() {
+  stopTour(); closeCard(); buildRoute();
+  document.body.classList.add('route');
+  controls.minDistance = .8; controls.minPolarAngle = .05;   // 沙盤可俯視
+  const el = document.getElementById('routeBox');
+  const gq = encodeURIComponent;
+  el.querySelector('.gmap').href = `https://www.google.com/maps/dir/?api=1&origin=${gq('口湖鄉成龍納骨堂')}&destination=${gq('眾靈祠(男公女媽廟)')}&travelmode=driving`;
+  const slot = p => { const pl = placementOf(p); return `${['一', '二', '三', '四', '五'][+pl.floor]}樓${slotLabel(pl.tower, +pl.floor, +pl.slot)}號`; };
+  el.querySelector('.steps').innerHTML = ROUTE.stops.map((st, i) => {
+    const ppl = ROUTE.occ(st.keys);
+    const list = st.keys.length ? (ppl.length ? ppl.map(p => `<span>${escH(p.name)}<small>${st.keys.length > 1 ? (placementOf(p).tower === 'B_new' ? '新塔' : '舊塔') + '・' : ''}${slot(p)}</small></span>`).join('') : '<em>紀念堂尚未登記此處塔位</em>') : '';
+    return `<li data-i="${i}"><b>${i === 0 ? '起' : i === 2 ? '終' : '經'}</b><div><h4>${escH(st.name)}</h4><p>${escH(st.sub)}</p>${list ? `<div class="ppl">${list}</div>` : ''}</div></li>`;
+  }).join('');
+  el.querySelectorAll('.steps li').forEach(li => li.onclick = () => { ROUTE.anim = null; flyTo(routeStopView(ROUTE.stops[+li.dataset.i]), 1.4); });
+  el.classList.add('on');
+  setGen(0); flyTo(routeOverview(), 2);
+}
+function closeRoute() {
+  ROUTE.anim = null; document.body.classList.remove('route');
+  document.getElementById('routeBox').classList.remove('on');
+  controls.minDistance = 3; controls.minPolarAngle = Math.PI * 0.22; flyTo(overviewView(), 1.6);
+}
+async function playRoute() {
+  ROUTE.anim = null;
+  await flyTo(routeStopView(ROUTE.stops[0]), 1.4);
+  await sleep(900);
+  ROUTE.anim = { t0: performance.now(), dur: 15000 };
+  document.querySelector('#routeBox .play').textContent = '■ 停止';
+  document.getElementById('routeBox').classList.add('mini');   // 導覽時面板縮小
+}
+const rtEase = k => .5 - .5 * Math.cos(Math.PI * k);
+function tickRoute(now, dt) {
+  if (!ROUTE.anim) ROUTE.lastNow = 0;
+  if (!ROUTE.built) return;
+  // 路線圓點流動
+  const k = (now / 1400) % 1, c = new THREE.Color();
+  const prog = ROUTE.anim ? Math.min(1, (now - ROUTE.anim.t0) / ROUTE.anim.dur) : -1;
+  for (let i = 0; i < ROUTE.N; i++) {
+    const f = i / (ROUTE.N - 1), w = .5 + .5 * Math.sin((f * 6 - k) * Math.PI * 2);
+    if (prog >= 0 && f <= rtEase(prog)) c.setRGB(1, .78, .3);   // 已走過的路段變金色 else c.setRGB(.2 + .2 * w, .38 + .25 * w, 1);
+    ROUTE.dots.setColorAt(i, c);
+  }
+  ROUTE.dots.instanceColor.needsUpdate = true;
+  if (!ROUTE.anim) return;
+  const e = rtEase(prog), p = ROUTE.curve.getPointAt(e), ahead = ROUTE.curve.getPointAt(Math.min(1, e + .02));
+  const rdt = Math.min(.5, (now - (ROUTE.lastNow || now)) / 1000), al = 1 - Math.exp(-rdt * 4); ROUTE.lastNow = now;   // 依實際經過時間跟隨，低幀率也跟得上
+  ROUTE.marker.position.copy(p); ROUTE.marker.lookAt(ahead.clone().add(ROUTE.g.position).setY(p.y + ROUTE.g.position.y));
+  const wpP = p.clone().add(ROUTE.g.position), dir = ahead.clone().sub(p).setY(0).normalize();
+  const camWant = wpP.clone().addScaledVector(dir, -4).add(new THREE.Vector3(0, 5.2, 0));
+  camera.position.lerp(camWant, al); controls.target.lerp(wpP.clone().addScaledVector(dir, -.3).add(new THREE.Vector3(0, -1.6, 0)), al);
+  camera.lookAt(controls.target);
+  if (prog >= 1) {
+    ROUTE.anim = null; document.querySelector('#routeBox .play').textContent = '▶ 路線導覽';
+    document.getElementById('routeBox').classList.remove('mini');
+    toast('抵達眾靈祠（男公女媽廟）'); flyTo(routeStopView(ROUTE.stops[2]), 1.6);
+  }
+}
+(() => {
+  const el = document.getElementById('routeBox');
+  el.querySelector('.x').onclick = closeRoute;
+  el.querySelector('.play').onclick = () => {
+    if (ROUTE.anim) { ROUTE.anim = null; el.querySelector('.play').textContent = '▶ 路線導覽'; el.classList.remove('mini'); return; }
+    playRoute();
+  };
+  el.querySelector('.ov').onclick = () => { ROUTE.anim = null; el.querySelector('.play').textContent = '▶ 路線導覽'; flyTo(routeOverview(), 1.4); };
+})();
+
 /* 沿革展讀 */
 function openHistory() {
   const el = document.getElementById('scrollReader');
@@ -2239,6 +2565,7 @@ function buildBar() {
   mk('全覽', () => { stopTour(); closeCard(); setGen(0); flyTo(overviewView(), 1.4); });
   mk('導覽', () => { closeCard(); tour(); });
   mk('祭祀', () => { stopTour(); closeCard(); openRitePanel(); });
+  mk('掃墓', openRoute);
   if (towerHall) mk('塔位', () => { stopTour(); closeCard(); setGen(0); flyTo(towerView(null), 1.6); });
   mk('沿革', () => { stopTour(); closeCard(); openHistory(); });
   mk('字輩', () => { stopTour(); closeCard(); openZibei(0); });
@@ -2321,11 +2648,11 @@ function selectPerson(id) {
 /* 點擊判斷（與拖曳區分） */
 const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
 let down = null;
-canvas.addEventListener('pointerdown', e => { down = { x: e.clientX, y: e.clientY, t: performance.now() }; if (PHOTO.on && PHOTO.scan) photoStopScan(); if (touring) stopTour(); if (flight) { flight.res(); flight = null; } });
+canvas.addEventListener('pointerdown', e => { down = { x: e.clientX, y: e.clientY, t: performance.now() }; if (PHOTO.on && PHOTO.scan) photoStopScan(); if (touring) stopTour(); if (ROUTE.anim) { ROUTE.anim = null; const b = document.querySelector('#routeBox .play'); if (b) b.textContent = '▶ 路線導覽'; document.getElementById('routeBox').classList.remove('mini'); } if (flight) { flight.res(); flight = null; } });
 canvas.addEventListener('pointerup', e => {
   if (!down) return;
   const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y), dt = performance.now() - down.t; down = null;
-  if (moved > 8 || dt > 450 || PHOTO.on) return;
+  if (moved > 8 || dt > 450 || PHOTO.on || document.body.classList.contains('route')) return;
   const r = canvas.getBoundingClientRect();
   ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
   ray.setFromCamera(ndc, camera);
@@ -2541,7 +2868,7 @@ function loop() {
     controls.target.lerpVectors(flight.t0, flight.t1, e);
     camera.lookAt(controls.target);
     if (k >= 1) { const r = flight.res; flight = null; controls.update(); r(); }
-  } else {
+  } else if (!ROUTE.anim) {   // 路線導覽時由追蹤鏡頭控制
     controls.target.clamp(tMin, tMax);
     controls.update();
   }
@@ -2568,6 +2895,7 @@ function loop() {
     for (const k in set.types) { const g = set.types[k].group; if (g.visible && g.scale.x < .999) g.scale.setScalar(Math.min(1, g.scale.x + dt * 2.2)); else if (!g.visible) g.scale.setScalar(.01); }
   }
   chantAudioTick();
+  tickRoute(now, dt);
   tickEmbers(T, dt);
   if (steleFront) { steleFront.emissiveIntensity = .05 + .04 * Math.sin(T * 1.3); steleHalo.material.opacity = .42 + .12 * Math.sin(T * 1.3); }
   for (const id in tablets) {
