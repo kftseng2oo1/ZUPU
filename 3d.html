@@ -751,10 +751,9 @@ function buildAltar() {
   const rim = new THREE.Mesh(new THREE.TorusGeometry(.2, .022, 8, 24), M.gold); rim.rotation.x = Math.PI / 2; rim.position.set(ax, ay + .26, az); scene.add(rim);
   const stickG = new THREE.CylinderGeometry(.008, .008, .5, 6), stickM = new THREE.MeshStandardMaterial({ color: '#a8321e' });
   const tipM = new THREE.MeshBasicMaterial({ color: '#ff8a3a' });
-  [-.06, 0, .06].forEach((dx, i) => {
-    const s = new THREE.Mesh(stickG, stickM); s.position.set(ax + dx, ay + .47, az); s.rotation.z = (i - 1) * .12; scene.add(s);
-    const tip = new THREE.Mesh(new THREE.SphereGeometry(.014, 6, 6), tipM);
-    tip.position.set(ax + dx - Math.sin((i - 1) * .12) * .25, ay + .72, az); scene.add(tip);
+  [-.06, 0, .06].forEach(dx => {   // 三支香平行直立
+    const s = new THREE.Mesh(stickG, stickM); s.position.set(ax + dx, ay + .47, az); scene.add(s);
+    const tip = new THREE.Mesh(new THREE.SphereGeometry(.014, 6, 6), tipM); tip.position.set(ax + dx, ay + .72, az); scene.add(tip);
   });
   altarTip = V(ax, ay + .74, az);
   addSmoke(altarTip, 26);
@@ -834,7 +833,12 @@ function buildOfferSet(key, x, y, z, s, mini) {
     const c = new THREE.Mesh(new THREE.CylinderGeometry(.035, .035, .26, 16), m.candle); c.position.set(cx, Y + .35, 0); cg.add(c);
     const wick = new THREE.Mesh(new THREE.CylinderGeometry(.004, .004, .03, 4), m.wick); wick.position.set(cx, Y + .495, 0); cg.add(wick);
     const fl = new THREE.Sprite(new THREE.SpriteMaterial({ map: m.flame, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
-    fl.scale.set(.09, .17, 1); fl.position.set(cx, Y + .56, 0); cg.add(fl); set.flames.push(fl);
+    fl.scale.set(.09, .17, 1); fl.position.set(cx, Y + .56, 0); cg.add(fl);
+    const core = new THREE.Sprite(new THREE.SpriteMaterial({ map: m.flame, color: '#fffbe8', transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+    core.scale.set(.035, .08, 1); core.position.set(cx, Y + .54, 0); cg.add(core);
+    const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: m.flame, color: '#ff9a3a', transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: .35 }));
+    glow.scale.set(.32, .32, 1); glow.position.set(cx, Y + .55, 0); cg.add(glow);
+    set.flames.push({ fl, core, glow, x: cx, y: Y + .56, v: 1, tv: 1, sway: 0, ts: 0 });
   });
   set.light = new THREE.PointLight('#ffb86b', 0, 4 * s, 1.5); set.light.position.set(0, Y + .7, .3); R.add(set.light);
   R.add(cg);
@@ -856,27 +860,52 @@ function buildOfferSet(key, x, y, z, s, mini) {
   });
   R.add(fg);
   set.types.flower = { group: fg, show: on => { fg.visible = on; } };
-  // 素果
-  const frg = new THREE.Group(), fx = -.42, fr = new THREE.SphereGeometry(.055, 16, 12);
-  const plate = lathe([[0, 0], [.09, 0], [.05, .03], [.03, .08], [.16, .1], [.18, .12], [0, .12]], M.gold); plate.position.set(fx, Y, 0); frg.add(plate);
-  [[-.06, -.03], [.06, -.03], [0, .06], [0, -.08]].forEach(([dx, dz]) => { const o = new THREE.Mesh(fr, m.orange); o.scale.y = .88; o.position.set(fx + dx, Y + .17, dz); frg.add(o); });
-  const topO = new THREE.Mesh(fr, m.orange); topO.scale.y = .88; topO.position.set(fx, Y + .26, -.01); frg.add(topO);
-  [[-.13, .02], [.13, .02]].forEach(([dx, dz]) => { const a = new THREE.Mesh(fr, m.apple); a.scale.setScalar(.95); a.position.set(fx + dx, Y + .16, dz); frg.add(a); });
-  const gg = new THREE.SphereGeometry(.018, 8, 6);
-  for (let i = 0; i < 14; i++) { const gr = new THREE.Mesh(gg, m.grape), row = Math.floor(i / 4); gr.position.set(fx + .02 + ((i % 4) - 1.5) * .03 * (1 - row * .2), Y + .2 - row * .03, .1); frg.add(gr); }
+  // 素果：高腳果盤堆滿（橘塔三層、蘋果、葡萄垂邊）＋餅乾盤
+  const frg = new THREE.Group(), fx = -.47, fz = -.04, fr = new THREE.SphereGeometry(.05, 16, 12);
+  const plate = lathe([[0, 0], [.09, 0], [.05, .03], [.03, .08], [.19, .1], [.21, .125], [0, .125]], M.gold); plate.position.set(fx, Y, fz); frg.add(plate);
+  const PY = Y + .17;
+  for (let i = 0; i < 7; i++) {   // 第一層：外圈七顆（橘、蘋果交錯）
+    const a = i / 7 * Math.PI * 2, apple = i % 3 === 1;
+    const o = new THREE.Mesh(fr, apple ? m.apple : m.orange); o.scale.set(1, apple ? 1 : .88, 1);
+    o.position.set(fx + Math.cos(a) * .13, PY, fz + Math.sin(a) * .13); frg.add(o);
+  }
+  const c0 = new THREE.Mesh(fr, m.orange); c0.scale.y = .88; c0.position.set(fx, PY, fz); frg.add(c0);
+  for (let i = 0; i < 4; i++) {   // 第二層
+    const a = i / 4 * Math.PI * 2 + .4, o = new THREE.Mesh(fr, m.orange); o.scale.y = .88;
+    o.position.set(fx + Math.cos(a) * .065, PY + .075, fz + Math.sin(a) * .065); frg.add(o);
+  }
+  const topO = new THREE.Mesh(fr, m.orange); topO.scale.y = .88; topO.position.set(fx, PY + .15, fz); frg.add(topO);
+  const lfG = new THREE.PlaneGeometry(.045, .025);
+  [0, 1.4].forEach(r => { const lf = new THREE.Mesh(lfG, m.leaf); lf.position.set(fx + .015, PY + .2, fz); lf.rotation.set(-1, r, 0); frg.add(lf); });
+  const gg = new THREE.SphereGeometry(.017, 8, 6);   // 葡萄垂在盤緣
+  for (let i = 0; i < 16; i++) { const row = Math.floor(i / 4), gr = new THREE.Mesh(gg, m.grape); gr.position.set(fx + .1 + ((i % 4) - 1.5) * .028 * (1 - row * .18), PY + .02 - row * .028, fz + .15); frg.add(gr); }
+  // 餅乾盤：白瓷盤、圓餅乾圍一圈、中間疊一落、方蘇打餅
+  const bx = .47, bz = -.04;
+  const dish = lathe([[0, 0], [.1, 0], [.19, .02], [.21, .035], [.2, .04], [0, .02]], porcelain); dish.position.set(bx, Y, bz); frg.add(dish);
+  const goldRim = new THREE.Mesh(new THREE.TorusGeometry(.205, .006, 6, 32), M.gold); goldRim.rotation.x = Math.PI / 2; goldRim.position.set(bx, Y + .037, bz); frg.add(goldRim);
+  const ckG = new THREE.CylinderGeometry(.045, .045, .014, 20), ck = new THREE.MeshStandardMaterial({ color: '#d8a456', roughness: .8 }), ck2 = new THREE.MeshStandardMaterial({ color: '#b5773a', roughness: .8 });
+  const sqG = new THREE.BoxGeometry(.07, .012, .07), sq = new THREE.MeshStandardMaterial({ color: '#e8c27e', roughness: .85 });
+  for (let i = 0; i < 8; i++) {
+    const a = i / 8 * Math.PI * 2, c = new THREE.Mesh(i % 2 ? sqG : ckG, i % 2 ? sq : (i % 4 ? ck2 : ck));
+    c.position.set(bx + Math.cos(a) * .12, Y + .04 + (i % 2) * .006, bz + Math.sin(a) * .12); c.rotation.set(Math.cos(a) * .25, a, Math.sin(a) * -.25); frg.add(c);
+  }
+  for (let k = 0; k < 4; k++) { const c = new THREE.Mesh(ckG, k % 2 ? ck2 : ck); c.position.set(bx, Y + .04 + k * .016, bz); c.rotation.y = k; frg.add(c); }
   R.add(frg);
   set.types.fruit = { group: frg, show: on => { frg.visible = on; } };
-  // 奉茶
-  const tg = new THREE.Group(), tx = .42;
-  const tray = new THREE.Mesh(new THREE.BoxGeometry(.42, .03, .26), m.tray); tray.position.set(tx, Y + .015, 0); tg.add(tray);
-  const tpot = lathe([[0, 0], [.05, 0], [.07, .03], [.07, .07], [.04, .1], [0, .1]], m.clay); tpot.position.set(tx - .12, Y + .03, -.04); tg.add(tpot);
-  const spout = new THREE.Mesh(new THREE.CylinderGeometry(.008, .014, .07, 8), m.clay); spout.position.set(tx - .05, Y + .1, -.04); spout.rotation.z = -.9; tg.add(spout);
-  const knob = new THREE.Mesh(new THREE.SphereGeometry(.014, 8, 6), m.clay); knob.position.set(tx - .12, Y + .14, -.04); tg.add(knob);
+  // 奉茶：三杯排在香爐正前方，紫砂壺在杯旁
+  const tg = new THREE.Group(), cz = .29;
+  const tray = new THREE.Mesh(new THREE.BoxGeometry(.5, .025, .13), m.tray); tray.position.set(.03, Y + .012, cz); tg.add(tray);
+  const tpx = .37;
+  const tpot = lathe([[0, 0], [.045, 0], [.065, .025], [.068, .06], [.045, .09], [.02, .095], [0, .095]], m.clay); tpot.position.set(tpx, Y, cz); tg.add(tpot);
+  const lid = lathe([[0, 0], [.03, 0], [.025, .015], [0, .02]], m.clay); lid.position.set(tpx, Y + .095, cz); tg.add(lid);
+  const knob = new THREE.Mesh(new THREE.SphereGeometry(.012, 8, 6), m.clay); knob.position.set(tpx, Y + .12, cz); tg.add(knob);
+  const spout = new THREE.Mesh(new THREE.CylinderGeometry(.007, .013, .07, 8), m.clay); spout.position.set(tpx - .075, Y + .07, cz); spout.rotation.z = .9; tg.add(spout);
+  const handle = new THREE.Mesh(new THREE.TorusGeometry(.03, .008, 6, 12, Math.PI * 1.2), m.clay); handle.position.set(tpx + .07, Y + .05, cz); handle.rotation.z = -Math.PI * .6; tg.add(handle);
   const steamLocal = [];
-  [[.02, .06], [.1, .06], [.17, -.02]].forEach(([dx, dz]) => {
-    const cup = lathe([[0, 0], [.022, 0], [.035, .05], [.032, .05], [0, .008]], porcelain); cup.position.set(tx + dx, Y + .03, dz); tg.add(cup);
-    const tea = new THREE.Mesh(new THREE.CircleGeometry(.03, 16), m.tea); tea.rotation.x = -Math.PI / 2; tea.position.set(tx + dx, Y + .072, dz); tg.add(tea);
-    steamLocal.push(new THREE.Vector3(tx + dx, Y + .09, dz));
+  [-.12, 0, .12].forEach(dx => {
+    const cup = lathe([[0, 0], [.022, 0], [.035, .05], [.032, .05], [0, .008]], porcelain); cup.position.set(dx, Y + .025, cz); tg.add(cup);
+    const tea = new THREE.Mesh(new THREE.CircleGeometry(.03, 16), m.tea); tea.rotation.x = -Math.PI / 2; tea.position.set(dx, Y + .067, cz); tg.add(tea);
+    steamLocal.push(new THREE.Vector3(dx, Y + .085, cz));
   });
   R.add(tg);
   let steam = [];
@@ -1424,9 +1453,9 @@ const stickGeo = new THREE.CylinderGeometry(.008, .008, .5, 6), stickMat = new T
 const tipMat = new THREE.MeshBasicMaterial({ color: '#ff8a3a' });
 function plantIncense(x, y, z, life, sc = 1) {
   const g = new THREE.Group();
-  [-.05, 0, .05].forEach((dx, i) => {
-    const s = new THREE.Mesh(stickGeo, stickMat); s.position.set(dx, .25, 0); s.rotation.z = (i - 1) * .1; g.add(s);
-    const t = new THREE.Mesh(new THREE.SphereGeometry(.016, 6, 6), tipMat); t.position.set(dx - Math.sin((i - 1) * .1) * .25, .5, 0); g.add(t);
+  [-.06, 0, .06].forEach(dx => {   // 三支香平行直立
+    const s = new THREE.Mesh(stickGeo, stickMat); s.position.set(dx, .25, 0); g.add(s);
+    const t = new THREE.Mesh(new THREE.SphereGeometry(.016, 6, 6), tipMat); t.position.set(dx, .5, 0); g.add(t);
   });
   g.position.set(x, y, z); g.scale.setScalar(sc); scene.add(g);
   const e = addSmoke(V(x, y + .52 * sc, z), 16, life, { h: 2.6 * Math.max(.5, sc), sz: Math.max(.6, sc) }); e.group = g;
@@ -1452,7 +1481,7 @@ async function makeOfferings(types, pid) {
   refreshOfferings();
   if (types.includes('incense')) {   // 插香冒煙兩分鐘
     if (set.censerTip) { set.R.updateMatrixWorld(true); const w = set.R.localToWorld(set.censerTip.clone()); plantIncense(w.x, w.y, w.z, 120e3, set.s); }
-    else plantIncense(altarTipBase.x + (Math.random() - .5) * .16, altarTipBase.y, altarTipBase.z, 120e3);
+    else addSmoke(altarTip, 18, 120e3);   // 主香案已有三支香：只加濃香煙，不再多插
   }
   if (p && tablets[p.id]) tablets[p.id].offerGlow = performance.now();
   if (RITE.online) {
@@ -1476,7 +1505,7 @@ function openOfferSheet(pid) {
   const el = document.getElementById('offerBox'), p = pid === 'all' ? null : byId[pid];
   el.querySelector('h4').textContent = `供奉・${p ? p.name : '歷代祖先'}`;
   const day = (RITE.state.od || {})[twDay().s], od = odOf(day, pid);
-  const desc = { incense: '三炷清香，敬告祖先', tea: '清茶三杯', flower: '菊花百合・七日', fruit: '橘蘋果葡萄・三日', candle: '紅燭一對' };
+  const desc = { incense: '三炷清香，敬告祖先', tea: '清茶三杯', flower: '菊花百合・七日', fruit: '水果、餅乾・三日', candle: '紅燭一對' };
   el.querySelector('.grid').innerHTML = Object.entries(OFFER).map(([k, o]) =>
     `<button data-k="${k}" class="of-${k}${k === 'incense' ? ' sel' : ''}"><i></i><b>${o.label}</b><small>${desc[k]}</small>${od[k] ? `<em>今日已奉 ${od[k]}</em>` : ''}</button>`).join('');
   const go = el.querySelector('.go');
@@ -1913,8 +1942,18 @@ function loop() {
     if (!set.R.visible) continue;
     const cg = set.types.candle.group;
     if (cg.visible) {
-      set.flames.forEach((f, i) => { const k = 1 + Math.sin(T * 17 + i * 3 + set.s * 9) * .08 + Math.sin(T * 7.3 + i) * .06; f.scale.set(.09 * k, .17 * (2 - k), 1); });
-      set.light.intensity = (1.5 + Math.sin(T * 13 + set.s) * .15 + Math.sin(T * 5.1) * .1) * set.s;
+      let sum = 0;
+      set.flames.forEach(f => {   // 燭火閃動：亮度、高度隨機跳動，火舌左右擺
+        if (Math.random() < .18) f.tv = .62 + Math.random() * .58;
+        if (Math.random() < .08) f.ts = (Math.random() - .5) * .028;
+        f.v += (f.tv - f.v) * Math.min(1, dt * 22); f.sway += (f.ts - f.sway) * Math.min(1, dt * 9);
+        const h = .17 * (.75 + f.v * .4), w = .09 * (1.08 - f.v * .12);
+        f.fl.scale.set(w, h, 1); f.fl.position.set(f.x + f.sway, f.y + (h - .17) / 2, 0); f.fl.material.opacity = .7 + f.v * .3;
+        f.core.scale.set(.035, .08 * (.8 + f.v * .3), 1); f.core.position.x = f.x + f.sway * .5;
+        f.glow.material.opacity = .18 + f.v * .22; f.glow.scale.setScalar(.26 + f.v * .1);
+        sum += f.v;
+      });
+      set.light.intensity = 1.6 * set.s * (sum / set.flames.length);
     }
     for (const k in set.types) { const g = set.types[k].group; if (g.visible && g.scale.x < .999) g.scale.setScalar(Math.min(1, g.scale.x + dt * 2.2)); else if (!g.visible) g.scale.setScalar(.01); }
   }
