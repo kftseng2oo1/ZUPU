@@ -2454,27 +2454,39 @@ function renderColumbarium() {
       .map(a => a.id)
   );
   // Count ancestors who still need placement (person or spouse unplaced)
-  const unplaced = appData.ancestors.filter(a => {
-    const personPlaced = placed.has(a.id);
-    const spousePlaced = !a.spouse || (appData.placements[a.id+'_spouse'] && appData.placements[a.id+'_spouse'].tower);
-    return !personPlaced || (a.spouse && !spousePlaced);
-  });
+  // 本人、配偶分開列：誰還沒登記就列誰（以前配偶未登記時會列出本人的名字，看起來像本人沒放）
+  const unplaced = placeEntries().filter(e => !isPlacedKey(e.key));
 
   const listEl = document.getElementById('colUnplacedList');
   listEl.innerHTML = unplaced.length === 0
     ? '<div style="padding:16px;text-align:center;color:var(--text3);font-size:13px">所有祖先均已登記塔位</div>'
-    : unplaced.map(a => `
+    : unplaced.map(e => `
       <div class="col-unplaced-item">
-        <div class="col-unplaced-avatar">${a.avatar ? `<img src="${a.avatar}" style="width:30px;height:30px;border-radius:50%;object-fit:cover">` : getEmoji(a)}</div>
+        <div class="col-unplaced-avatar">${!e.isSpouse && e.avatar ? `<img src="${e.avatar}" style="width:30px;height:30px;border-radius:50%;object-fit:cover">` : (e.isSpouse ? '👵' : getEmoji(e.a))}</div>
         <div>
-          <div style="font-weight:500">${a.name}</div>
-          <div style="font-size:11px;color:var(--text3)">第 ${a.gen||'?'} 世${a.urnNumber ? ' ・ No.' + a.urnNumber : ''}</div>
+          <div style="font-weight:500">${e.name}${e.isSpouse ? `<span style="font-size:11px;color:var(--text3);font-weight:400">（${e.a.name}之配偶）</span>` : ''}</div>
+          <div style="font-size:11px;color:var(--text3)">第 ${e.gen||'?'} 世${!e.isSpouse && e.a.urnNumber ? ' ・ No.' + e.a.urnNumber : ''}${e.isSpouse && e.a.spouseUrnNumber ? ' ・ No.' + e.a.spouseUrnNumber : ''}</div>
         </div>
-        <button class="col-assign-btn" onclick="openAssignPickTower('${a.id}')">選塔位</button>
+        <button class="col-assign-btn" onclick="openAssignPickTower('${e.key}')">選塔位</button>
       </div>
     `).join('');
 }
 
+/* 塔位登記的對象：本人、配偶各算一位（key：ancestorId 或 ancestorId_spouse） */
+function placeEntries() {
+  const out = [];
+  appData.ancestors.forEach(a => {
+    if (a.isAlive) return;
+    out.push({ key: a.id, name: a.name, gen: a.gen, avatar: a.avatar, a, isSpouse: false });
+    if (a.spouse) out.push({ key: a.id + '_spouse', name: a.spouse, gen: a.gen, a, isSpouse: true });
+  });
+  return out;
+}
+const isPlacedKey = k => !!(appData.placements[k] && appData.placements[k].tower);
+const entryLabel = e => e.isSpouse ? `${e.name}（${e.a.name}之配偶）` : e.name;
+function slotTaken(towerId, fi, si) {
+  return Object.values(appData.placements || {}).some(p => p && p.tower === towerId && +p.floor === fi && +p.slot === si);
+}
 function openAssignModal(towerId, floorIdx, slotIdx) {
   // Show picker: choose an ancestor from unplaced list
   const placed = new Set(
@@ -2482,13 +2494,13 @@ function openAssignModal(towerId, floorIdx, slotIdx) {
       .filter(a => appData.placements[a.id] && appData.placements[a.id].tower)
       .map(a => a.id)
   );
-  const unplaced = appData.ancestors.filter(a => !placed.has(a.id));
+  const unplaced = placeEntries().filter(e => !isPlacedKey(e.key));
   if (unplaced.length === 0) { showNotif('所有祖先均已登記塔位'); return; }
 
   const tower = TOWERS[towerId];
   const floorLabel = tower.floors[floorIdx].label;
-  const names = unplaced.map(a =>
-    `<option value="${a.id}">${a.name}（第${a.gen||'?'}世）</option>`
+  const names = unplaced.map(e =>
+    `<option value="${e.key}">${entryLabel(e)}（第${e.gen||'?'}世）</option>`
   ).join('');
 
   document.getElementById('assignTower').value = towerId;
@@ -2507,16 +2519,13 @@ function openAssignPickTower(ancestorId) {
 
   for (let fi = 0; fi < tower.floors.length; fi++) {
     for (let si = 0; si < tower.floors[fi].slots; si++) {
-      const occupied = appData.ancestors.some(a => {
-        const p = placements[a.id];
-        return p && p.tower === currentTower && p.floor === fi && p.slot === si;
-      });
-      if (!occupied) {
+      if (!slotTaken(currentTower, fi, si)) {
+        if (isPlacedKey(ancestorId)) { showNotif('此人已登記塔位'); return; }
         appData.placements[ancestorId] = { tower: currentTower, floor: fi, slot: si };
         saveData();
         renderColumbarium();
-        const a = appData.ancestors.find(x => x.id === ancestorId);
-        showNotif(`${a.name} 已登記至 ${tower.name} ${tower.floors[fi].label} 第${si+1}號位`);
+        const e = placeEntries().find(x => x.key === ancestorId);
+        showNotif(`${e ? entryLabel(e) : ''} 已登記至 ${tower.name} ${tower.floors[fi].label} 第${si+1}號位`);
         return;
       }
     }
@@ -2535,7 +2544,7 @@ function confirmAssign() {
   saveData();
   document.getElementById('assignOverlay').classList.remove('open');
   renderColumbarium();
-  const a = appData.ancestors.find(x => x.id === ancestorId);
+  const e = placeEntries().find(x => x.key === ancestorId), a = { name: e ? entryLabel(e) : '' };
   const tower = TOWERS[towerId];
   showNotif(`✓ ${a.name} 已登記至 ${tower.name} ${tower.floors[floorIdx].label} 第${slotIdx+1}號位`);
 }
