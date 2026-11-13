@@ -114,8 +114,17 @@
   #offerBox .grid button b{font-size:19px;letter-spacing:.3em;color:#8b1a1a}
   #offerBox .grid button small{font-size:11px;font-weight:400;color:#7a5a2a}
   #offerBox .grid button em{font-style:normal;font-size:11px;color:#fff;background:#8b1a1a;border-radius:2px;padding:0 6px}
-  #offerBox .grid .of-incense{grid-column:1 / -1;background:#8b1a1a;border-color:#8b1a1a}
-  #offerBox .grid .of-incense b,#offerBox .grid .of-incense small{color:#f6d98a}
+  #offerBox .hint{font-size:12px;color:#7a5a2a;margin:-6px 0 10px}
+  #offerBox .grid .of-incense{grid-column:1 / -1}
+  #offerBox .grid button{position:relative;transition:background .15s,border-color .15s}
+  #offerBox .grid button i{position:absolute;top:7px;right:7px;width:18px;height:18px;border:1.5px solid #c9a045;border-radius:3px;background:#fff}
+  #offerBox .grid button.sel{background:#8b1a1a;border-color:#8b1a1a}
+  #offerBox .grid button.sel b,#offerBox .grid button.sel small{color:#f6d98a}
+  #offerBox .grid button.sel i{background:#f6d98a;border-color:#f6d98a}
+  #offerBox .grid button.sel i::after{content:'';position:absolute;left:5px;top:1px;width:5px;height:10px;border:solid #8b1a1a;border-width:0 2.5px 2.5px 0;transform:rotate(45deg)}
+  #offerBox .row .go{flex:2;background:#8b1a1a;border-color:#8b1a1a;color:#f6d98a;letter-spacing:.15em}
+  #offerBox .row .go:disabled{opacity:.45}
+  #offerBox .row .all{background:#fbf4e2;color:#5a0d0d}
   #recBox .tm{text-align:center;font-size:20px;font-weight:900;color:#5a0d0d;margin:6px 0 10px;letter-spacing:.1em}
   #recBox audio{width:100%;margin-bottom:10px;display:none}
   #recBox .stop,#recBox .redo,#recBox .ok{display:none}
@@ -218,8 +227,9 @@
 <div id="askBox" class="dlg"><div class="in"><h4></h4><input maxlength="20"><div class="row"><button class="no">取消</button><button class="ok">確定</button></div></div></div>
 <div id="offerBox" class="dlg"><div class="in">
   <h4></h4>
+  <p class="hint">可複選，一次敬奉</p>
   <div class="grid"></div>
-  <div class="row"><button class="no">取消</button></div>
+  <div class="row"><button class="no">取消</button><button class="all">全選</button><button class="go">敬奉</button></div>
 </div></div>
 <div id="recBox" class="dlg" data-st="idle"><div class="in">
   <h4></h4>
@@ -751,115 +761,168 @@ function buildAltar() {
   buildOfferings();
 }
 
-/* ---------- 供品：燭台、鮮花、素果、奉茶 ---------- */
+/* ---------- 供品：每個供桌一組（主香案＝歷代祖先與曾虎；其他祖先各自的小供桌） ---------- */
 let ALTAR = null;
 const OFFER = {
-  incense: { label: '上香', verb: '上香', unit: '炷', keep: 0 },
+  incense: { label: '上香', verb: '上香', unit: '炷', keep: 1 },
   tea:     { label: '奉茶', verb: '奉茶', unit: '杯', keep: 1 },
   flower:  { label: '獻花', verb: '獻花', unit: '束', keep: 7 },
   fruit:   { label: '供果', verb: '供果', unit: '盤', keep: 3 },
   candle:  { label: '點燭', verb: '點燭', unit: '對', keep: 1 },
 };
-const offerObj = {};   // type -> { group, show(on) }
-let candleLight = null, candleFlames = [];
+const OFFER_SETS = {};   // key（'main' 或牌位 id）→ set
 const porcelain = new THREE.MeshStandardMaterial({ color: '#f4f1ea', roughness: .25, metalness: .05, envMapIntensity: .8 });
 function lathe(points, mat, seg = 32) { return new THREE.Mesh(new THREE.LatheGeometry(points.map(([x, y]) => new THREE.Vector2(x, y)), seg), mat); }
-function buildOfferings() {
-  const { x: ax, y: ay, z: az } = ALTAR, Y = ay + .04;
-  // 燭台（左右一對）
-  const cg = new THREE.Group();
-  const candleM = new THREE.MeshStandardMaterial({ color: '#c0161a', roughness: .5 });
-  const flameTex = softTex('rgba(255,230,150,1)', 'rgba(255,140,40,0)');
-  [-1, 1].forEach(s => {
-    const x = ax + s * 1.12;
-    const stand = lathe([[0, 0], [.11, 0], [.11, .02], [.04, .05], [.03, .18], [.08, .2], [.08, .22], [0, .22]], M.gold); stand.position.set(x, Y, az); scene.add(stand);
-    const c = new THREE.Mesh(new THREE.CylinderGeometry(.035, .035, .26, 16), candleM); c.position.set(x, Y + .35, az); scene.add(c);
-    const wick = new THREE.Mesh(new THREE.CylinderGeometry(.004, .004, .03, 4), new THREE.MeshBasicMaterial({ color: '#222' })); wick.position.set(x, Y + .495, az); scene.add(wick);
-    const fl = new THREE.Sprite(new THREE.SpriteMaterial({ map: flameTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
-    fl.scale.set(.09, .17, 1); fl.position.set(x, Y + .56, az); cg.add(fl); candleFlames.push(fl);
-  });
-  candleLight = new THREE.PointLight('#ffb86b', 0, 4, 1.5); candleLight.position.set(ax, Y + .7, az + .3); scene.add(candleLight);
-  scene.add(cg);
-  offerObj.candle = { group: cg, show: on => { cg.visible = on; candleLight.intensity = on ? 1.6 : 0; } };
-
-  // 鮮花：青花瓷瓶＋菊花、百合
-  const fg = new THREE.Group();
+let OM = null;   // 供品共用材質（第一次建立時產生）
+function offerMats() {
+  if (OM) return OM;
   const vaseTex = boardTexture(256, 128, (g, W, H) => {
     g.fillStyle = '#f4f1ea'; g.fillRect(0, 0, W, H);
     g.strokeStyle = '#2a4b8c'; g.lineWidth = 4;
     g.beginPath(); g.moveTo(0, 30); g.lineTo(W, 30); g.moveTo(0, 98); g.lineTo(W, 98); g.stroke();
     g.lineWidth = 3; for (let x = 0; x < W; x += 32) { g.beginPath(); g.arc(x + 16, 64, 12, 0, Math.PI * 1.6); g.stroke(); }
   });
-  const vaseM = new THREE.MeshStandardMaterial({ map: vaseTex, roughness: .22, envMapIntensity: .8 });
-  const stemM = new THREE.MeshStandardMaterial({ color: '#3f6b2a', roughness: .7 });
-  const yellow = new THREE.MeshStandardMaterial({ color: '#f2c230', roughness: .6 }), white = new THREE.MeshStandardMaterial({ color: '#f7f2e6', roughness: .6 });
-  const leafM = new THREE.MeshStandardMaterial({ color: '#4c7d32', roughness: .7, side: THREE.DoubleSide });
-  const petalG = new THREE.SphereGeometry(.05, 10, 8), headG = new THREE.IcosahedronGeometry(.055, 1);
-  [-1, 1].forEach(s => {
-    const x = ax + s * .82, rnd = mulberry32(s > 0 ? 7 : 11);
-    const vase = lathe([[0, 0], [.07, 0], [.1, .06], [.11, .14], [.08, .24], [.04, .3], [.05, .34], [0, .34]], vaseM); vase.position.set(x, Y, az); fg.add(vase);
+  OM = {
+    candle: new THREE.MeshStandardMaterial({ color: '#c0161a', roughness: .5 }),
+    wick: new THREE.MeshBasicMaterial({ color: '#222' }),
+    flame: softTex('rgba(255,230,150,1)', 'rgba(255,140,40,0)'),
+    vase: new THREE.MeshStandardMaterial({ map: vaseTex, roughness: .22, envMapIntensity: .8 }),
+    stem: new THREE.MeshStandardMaterial({ color: '#3f6b2a', roughness: .7 }),
+    yellow: new THREE.MeshStandardMaterial({ color: '#f2c230', roughness: .6 }),
+    white: new THREE.MeshStandardMaterial({ color: '#f7f2e6', roughness: .6 }),
+    leaf: new THREE.MeshStandardMaterial({ color: '#4c7d32', roughness: .7, side: THREE.DoubleSide }),
+    orange: new THREE.MeshStandardMaterial({ color: '#f08a1c', roughness: .55 }),
+    apple: new THREE.MeshStandardMaterial({ color: '#c8282a', roughness: .4 }),
+    grape: new THREE.MeshStandardMaterial({ color: '#5b2a6e', roughness: .3 }),
+    tray: new THREE.MeshStandardMaterial({ color: '#3a1d0e', roughness: .5 }),
+    clay: new THREE.MeshStandardMaterial({ color: '#6b3a24', roughness: .45 }),
+    tea: new THREE.MeshStandardMaterial({ color: '#8a5a12', roughness: .1, metalness: .1 }),
+  };
+  return OM;
+}
+/* 在 (x, y=案面高度, z) 建一組供品；s 為縮放，mini=true 時另建小供桌與小香爐 */
+function buildOfferSet(key, x, y, z, s, mini) {
+  const m = offerMats(), R = new THREE.Group(); R.position.set(x, y, z); R.scale.setScalar(s); scene.add(R);
+  const set = { key, R, s, types: {}, flames: [], light: null, censerTip: null, mini };
+  const Y = .04;
+  if (mini) {   // 小供桌：紅漆案面、金邊、矮腳、前垂小桌圍
+    const lac = M.lacquerTable, W = 2.6, D = .8;
+    const top = new THREE.Mesh(new THREE.BoxGeometry(W, .08, D), lac); R.add(top);
+    const edge = new THREE.Mesh(new THREE.BoxGeometry(W + .04, .03, D + .04), M.gold); edge.position.y = -.045; R.add(edge);
+    [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz]) => {
+      const l = new THREE.Mesh(new THREE.BoxGeometry(.12, .6, .12), lac); l.position.set(sx * (W / 2 - .14), -.34, sz * (D / 2 - .1)); R.add(l);
+      const f = new THREE.Mesh(new THREE.BoxGeometry(.18, .06, .18), M.gold); f.position.set(l.position.x, -.64, l.position.z); R.add(f);
+    });
+    const cloth = new THREE.Mesh(new THREE.BoxGeometry(2, .42, .02), new THREE.MeshStandardMaterial({ color: '#a81c18', roughness: .8 }));
+    cloth.position.set(0, -.25, D / 2 + .01); R.add(cloth);
+    const band = new THREE.Mesh(new THREE.BoxGeometry(2.02, .05, .025), M.gold); band.position.set(0, -.08, D / 2 + .012); R.add(band);
+    [top, cloth].forEach(o => { o.userData.action = 'altar:' + key; pickables.push(o); });
+    // 小香爐（有上香時顯示）
+    const cg = new THREE.Group();
+    const pot = new THREE.Mesh(new THREE.CylinderGeometry(.2, .15, .22, 20), M.bronze); pot.position.y = .15; cg.add(pot);
+    const rim = new THREE.Mesh(new THREE.TorusGeometry(.2, .022, 8, 20), M.gold); rim.rotation.x = Math.PI / 2; rim.position.y = .26; cg.add(rim);
+    [-1, 1].forEach(sx => { const ear = new THREE.Mesh(new THREE.TorusGeometry(.05, .014, 6, 12), M.gold); ear.position.set(sx * .21, .26, 0); cg.add(ear); });
+    R.add(cg);
+    set.types.incense = { group: cg, show: on => { cg.visible = on; } };
+    set.censerTip = new THREE.Vector3(0, .22, 0);
+  }
+  // 燭台
+  const cg = new THREE.Group();
+  [-1, 1].forEach(sx => {
+    const cx = sx * 1.12;
+    const stand = lathe([[0, 0], [.11, 0], [.11, .02], [.04, .05], [.03, .18], [.08, .2], [.08, .22], [0, .22]], M.gold); stand.position.set(cx, Y, 0); cg.add(stand);
+    const c = new THREE.Mesh(new THREE.CylinderGeometry(.035, .035, .26, 16), m.candle); c.position.set(cx, Y + .35, 0); cg.add(c);
+    const wick = new THREE.Mesh(new THREE.CylinderGeometry(.004, .004, .03, 4), m.wick); wick.position.set(cx, Y + .495, 0); cg.add(wick);
+    const fl = new THREE.Sprite(new THREE.SpriteMaterial({ map: m.flame, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+    fl.scale.set(.09, .17, 1); fl.position.set(cx, Y + .56, 0); cg.add(fl); set.flames.push(fl);
+  });
+  set.light = new THREE.PointLight('#ffb86b', 0, 4 * s, 1.5); set.light.position.set(0, Y + .7, .3); R.add(set.light);
+  R.add(cg);
+  set.types.candle = { group: cg, show: on => { cg.visible = on; set.light.intensity = on ? 1.6 * s : 0; } };
+  // 鮮花
+  const fg = new THREE.Group(), petalG = new THREE.SphereGeometry(.05, 10, 8), headG = new THREE.IcosahedronGeometry(.055, 1);
+  [-1, 1].forEach(sx => {
+    const vx = sx * .82, rnd = mulberry32(sx > 0 ? 7 : 11);
+    const vase = lathe([[0, 0], [.07, 0], [.1, .06], [.11, .14], [.08, .24], [.04, .3], [.05, .34], [0, .34]], m.vase); vase.position.set(vx, Y, 0); fg.add(vase);
     for (let k = 0; k < 7; k++) {
       const ang = (k / 7) * Math.PI * 2 + rnd(), r = .05 + rnd() * .1, h = .28 + rnd() * .26;
-      const tx = x + Math.cos(ang) * r, tz = az + Math.sin(ang) * r * .7, ty = Y + .34 + h;
-      const stem = new THREE.Mesh(new THREE.CylinderGeometry(.006, .006, h + .05, 4), stemM);
-      stem.position.set((x + tx) / 2, Y + .34 + h / 2, (az + tz) / 2); stem.lookAt(tx, ty, tz); stem.rotateX(Math.PI / 2); fg.add(stem);
-      const head = new THREE.Mesh(k % 3 === 2 ? petalG : headG, k % 3 === 2 ? white : yellow); head.position.set(tx, ty, tz);
-      if (k % 3 === 2) head.scale.set(1, 1.3, 1); fg.add(head);
-      if (k % 2 === 0) { const leaf = new THREE.Mesh(new THREE.PlaneGeometry(.05, .12), leafM); leaf.position.set((x + tx) / 2, Y + .34 + h * .55, (az + tz) / 2); leaf.rotation.set(rnd(), rnd() * 3, rnd()); fg.add(leaf); }
+      const tx = vx + Math.cos(ang) * r, tz = Math.sin(ang) * r * .7, ty = Y + .34 + h;
+      const stem = new THREE.Mesh(new THREE.CylinderGeometry(.006, .006, h + .05, 4), m.stem);
+      stem.position.set((vx + tx) / 2, Y + .34 + h / 2, tz / 2); stem.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3(tx - vx, h, tz).normalize()); fg.add(stem);
+      const lily = k % 3 === 2, head = new THREE.Mesh(lily ? petalG : headG, lily ? m.white : m.yellow); head.position.set(tx, ty, tz);
+      if (lily) head.scale.set(1, 1.3, 1); fg.add(head);
+      if (k % 2 === 0) { const leaf = new THREE.Mesh(new THREE.PlaneGeometry(.05, .12), m.leaf); leaf.position.set((vx + tx) / 2, Y + .34 + h * .55, tz / 2); leaf.rotation.set(rnd(), rnd() * 3, rnd()); fg.add(leaf); }
     }
   });
-  scene.add(fg);
-  offerObj.flower = { group: fg, show: on => { fg.visible = on; } };
-
-  // 素果：高腳果盤＋橘子塔、蘋果、葡萄
-  const frg = new THREE.Group(), fx = ax - .42;
-  const plate = lathe([[0, 0], [.09, 0], [.05, .03], [.03, .08], [.16, .1], [.18, .12], [0, .12]], M.gold); plate.position.set(fx, Y, az); frg.add(plate);
-  const orangeM = new THREE.MeshStandardMaterial({ color: '#f08a1c', roughness: .55 }), appleM = new THREE.MeshStandardMaterial({ color: '#c8282a', roughness: .4 });
-  const grapeM = new THREE.MeshStandardMaterial({ color: '#5b2a6e', roughness: .3 }), leafG = new THREE.MeshStandardMaterial({ color: '#3f7a2a' });
-  const fr = new THREE.SphereGeometry(.055, 16, 12);
-  [[-.06, -.03], [.06, -.03], [0, .06], [0, -.08]].forEach(([dx, dz]) => { const o = new THREE.Mesh(fr, orangeM); o.scale.y = .88; o.position.set(fx + dx, Y + .17, az + dz); frg.add(o); });
-  const topO = new THREE.Mesh(fr, orangeM); topO.scale.y = .88; topO.position.set(fx, Y + .26, az - .01); frg.add(topO);
-  const lf = new THREE.Mesh(new THREE.PlaneGeometry(.05, .03), leafG); lf.position.set(fx + .02, Y + .31, az); lf.rotation.x = -1; frg.add(lf);
-  [[-.13, .02], [.13, .02]].forEach(([dx, dz]) => { const a = new THREE.Mesh(fr, appleM); a.scale.setScalar(.95); a.position.set(fx + dx, Y + .16, az + dz); frg.add(a); });
+  R.add(fg);
+  set.types.flower = { group: fg, show: on => { fg.visible = on; } };
+  // 素果
+  const frg = new THREE.Group(), fx = -.42, fr = new THREE.SphereGeometry(.055, 16, 12);
+  const plate = lathe([[0, 0], [.09, 0], [.05, .03], [.03, .08], [.16, .1], [.18, .12], [0, .12]], M.gold); plate.position.set(fx, Y, 0); frg.add(plate);
+  [[-.06, -.03], [.06, -.03], [0, .06], [0, -.08]].forEach(([dx, dz]) => { const o = new THREE.Mesh(fr, m.orange); o.scale.y = .88; o.position.set(fx + dx, Y + .17, dz); frg.add(o); });
+  const topO = new THREE.Mesh(fr, m.orange); topO.scale.y = .88; topO.position.set(fx, Y + .26, -.01); frg.add(topO);
+  [[-.13, .02], [.13, .02]].forEach(([dx, dz]) => { const a = new THREE.Mesh(fr, m.apple); a.scale.setScalar(.95); a.position.set(fx + dx, Y + .16, dz); frg.add(a); });
   const gg = new THREE.SphereGeometry(.018, 8, 6);
-  for (let i = 0; i < 14; i++) { const gr = new THREE.Mesh(gg, grapeM); const row = Math.floor(i / 4); gr.position.set(fx + .02 + ((i % 4) - 1.5) * .03 * (1 - row * .2), Y + .2 - row * .03, az + .1); frg.add(gr); }
-  scene.add(frg);
-  offerObj.fruit = { group: frg, show: on => { frg.visible = on; } };
-
-  // 奉茶：茶盤＋紫砂壺＋三杯（冒熱氣）
-  const tg = new THREE.Group(), tx = ax + .42;
-  const tray = new THREE.Mesh(new THREE.BoxGeometry(.42, .03, .26), new THREE.MeshStandardMaterial({ color: '#3a1d0e', roughness: .5 })); tray.position.set(tx, Y + .015, az); tg.add(tray);
-  const clay = new THREE.MeshStandardMaterial({ color: '#6b3a24', roughness: .45 });
-  const pot = lathe([[0, 0], [.05, 0], [.07, .03], [.07, .07], [.04, .1], [0, .1]], clay); pot.position.set(tx - .12, Y + .03, az - .04); tg.add(pot);
-  const spout = new THREE.Mesh(new THREE.CylinderGeometry(.008, .014, .07, 8), clay); spout.position.set(tx - .05, Y + .1, az - .04); spout.rotation.z = -.9; tg.add(spout);
-  const knob = new THREE.Mesh(new THREE.SphereGeometry(.014, 8, 6), clay); knob.position.set(tx - .12, Y + .14, az - .04); tg.add(knob);
-  const teaM = new THREE.MeshStandardMaterial({ color: '#8a5a12', roughness: .1, metalness: .1 });
-  const steamPos = [];
+  for (let i = 0; i < 14; i++) { const gr = new THREE.Mesh(gg, m.grape), row = Math.floor(i / 4); gr.position.set(fx + .02 + ((i % 4) - 1.5) * .03 * (1 - row * .2), Y + .2 - row * .03, .1); frg.add(gr); }
+  R.add(frg);
+  set.types.fruit = { group: frg, show: on => { frg.visible = on; } };
+  // 奉茶
+  const tg = new THREE.Group(), tx = .42;
+  const tray = new THREE.Mesh(new THREE.BoxGeometry(.42, .03, .26), m.tray); tray.position.set(tx, Y + .015, 0); tg.add(tray);
+  const tpot = lathe([[0, 0], [.05, 0], [.07, .03], [.07, .07], [.04, .1], [0, .1]], m.clay); tpot.position.set(tx - .12, Y + .03, -.04); tg.add(tpot);
+  const spout = new THREE.Mesh(new THREE.CylinderGeometry(.008, .014, .07, 8), m.clay); spout.position.set(tx - .05, Y + .1, -.04); spout.rotation.z = -.9; tg.add(spout);
+  const knob = new THREE.Mesh(new THREE.SphereGeometry(.014, 8, 6), m.clay); knob.position.set(tx - .12, Y + .14, -.04); tg.add(knob);
+  const steamLocal = [];
   [[.02, .06], [.1, .06], [.17, -.02]].forEach(([dx, dz]) => {
-    const cup = lathe([[0, 0], [.022, 0], [.035, .05], [.032, .05], [0, .008]], porcelain); cup.position.set(tx + dx, Y + .03, az + dz); tg.add(cup);
-    const tea = new THREE.Mesh(new THREE.CircleGeometry(.03, 16), teaM); tea.rotation.x = -Math.PI / 2; tea.position.set(tx + dx, Y + .072, az + dz); tg.add(tea);
-    steamPos.push(V(tx + dx, Y + .09, az + dz));
+    const cup = lathe([[0, 0], [.022, 0], [.035, .05], [.032, .05], [0, .008]], porcelain); cup.position.set(tx + dx, Y + .03, dz); tg.add(cup);
+    const tea = new THREE.Mesh(new THREE.CircleGeometry(.03, 16), m.tea); tea.rotation.x = -Math.PI / 2; tea.position.set(tx + dx, Y + .072, dz); tg.add(tea);
+    steamLocal.push(new THREE.Vector3(tx + dx, Y + .09, dz));
   });
-  scene.add(tg);
+  R.add(tg);
   let steam = [];
-  offerObj.tea = { group: tg, show: on => {
+  set.types.tea = { group: tg, show: on => {
     tg.visible = on;
-    if (on && !steam.length) steam = steamPos.map(p => addSmoke(p, 6, 0, { h: .35, sz: .18, tex: 'steam' }));
+    if (on && !steam.length) { R.updateMatrixWorld(true); steam = steamLocal.map(v => addSmoke(R.localToWorld(v.clone()), 6, 0, { h: .35 * s, sz: .18 * s, tex: 'steam' })); }
     if (!on && steam.length) { steam.forEach(e => e.until = performance.now()); steam = []; }
   } };
-  Object.values(offerObj).forEach(o => o.show(false));
+  Object.values(set.types).forEach(t => t.show(false));
+  if (mini) R.visible = false;
+  OFFER_SETS[key] = set;
+  return set;
 }
-/* 依今日（或保鮮期內）的供奉狀態顯示供品 */
-function offerAgeDays(type) {
+function buildOfferings() { buildOfferSet('main', ALTAR.x, ALTAR.y, ALTAR.z, 1, false); }
+/* 某位祖先的小供桌（第一次供奉時建立） */
+const MINI_S = .48;
+function personSet(p) {
+  if (p === root) return OFFER_SETS.main;
+  return OFFER_SETS[p.id] || buildOfferSet(p.id, p.x, p.y - BOT_OFF - .05, .78, MINI_S, true);
+}
+/* 狀態：od[日期][牌位][供品] = 次數（舊格式 od[日期][供品] 視為歷代祖先） */
+function odOf(dayObj, pid) {
+  if (!dayObj) return {};
+  const vals = Object.values(dayObj);
+  if (vals.length && typeof vals[0] === 'number') return pid === 'all' ? dayObj : {};
+  return dayObj[pid] || {};
+}
+function offerAgeDays(type, pids) {
   const od = RITE.state.od || {};
-  for (let i = 0; i < 8; i++) { const d = twDay(-i).s; if (od[d] && od[d][type]) return i; }
+  for (let i = 0; i < 8; i++) { const d = od[twDay(-i).s]; if (d && pids.some(pid => odOf(d, pid)[type])) return i; }
   return null;
 }
 function refreshOfferings() {
-  Object.entries(offerObj).forEach(([type, o]) => {
-    const age = offerAgeDays(type);
-    o.show(age !== null && age < OFFER[type].keep);
-  });
+  const apply = (set, pids) => {
+    let any = false;
+    Object.entries(set.types).forEach(([type, o]) => {
+      const age = offerAgeDays(type, pids), on = age !== null && age < OFFER[type].keep;
+      o.show(on); any = any || on;
+    });
+    if (set.mini) set.R.visible = any;
+  };
+  if (OFFER_SETS.main) apply(OFFER_SETS.main, ['all', root.id]);
+  const od = RITE.state.od || {}, active = new Set();
+  for (let i = 0; i < 8; i++) { const d = od[twDay(-i).s]; if (!d || typeof Object.values(d)[0] === 'number') continue; Object.keys(d).forEach(k => active.add(k)); }
+  active.forEach(pid => { const p = byId[pid]; if (p && p !== root && !p.alive && !p.empty) apply(personSet(p), [pid]); });
+  Object.values(OFFER_SETS).forEach(set => { if (set.mini && !active.has(set.key)) set.R.visible = false; });
 }
 
 /* ================= 祠堂陳設：匾額、對聯、沿革碑、字輩柱、塔位側殿 =================
@@ -1359,64 +1422,70 @@ function addSmoke(pos, n = 18, life = 0, opt = {}) {
 }
 const stickGeo = new THREE.CylinderGeometry(.008, .008, .5, 6), stickMat = new THREE.MeshStandardMaterial({ color: '#a8321e' });
 const tipMat = new THREE.MeshBasicMaterial({ color: '#ff8a3a' });
-function plantIncense(x, y, z, life) {
+function plantIncense(x, y, z, life, sc = 1) {
   const g = new THREE.Group();
   [-.05, 0, .05].forEach((dx, i) => {
     const s = new THREE.Mesh(stickGeo, stickMat); s.position.set(dx, .25, 0); s.rotation.z = (i - 1) * .1; g.add(s);
     const t = new THREE.Mesh(new THREE.SphereGeometry(.016, 6, 6), tipMat); t.position.set(dx - Math.sin((i - 1) * .1) * .25, .5, 0); g.add(t);
   });
-  g.position.set(x, y, z); scene.add(g);
-  const e = addSmoke(V(x, y + .52, z), 16, life); e.group = g;
+  g.position.set(x, y, z); g.scale.setScalar(sc); scene.add(g);
+  const e = addSmoke(V(x, y + .52 * sc, z), 16, life, { h: 2.6 * Math.max(.5, sc), sz: Math.max(.6, sc) }); e.group = g;
 }
 const lastOffer = {};
-async function makeOffering(type, pid) {
-  const key = type + ':' + pid, now = Date.now(), O = OFFER[type];
-  if (lastOffer[key] && now - lastOffer[key] < 60e3) { toast(`剛剛已${O.verb}，請稍候再奉`); return; }
+async function makeOfferings(types, pid) {
+  const now = Date.now();
+  types = types.filter(t => OFFER[t] && !(lastOffer[t + ':' + pid] && now - lastOffer[t + ':' + pid] < 60e3));
+  if (!types.length) { toast('剛剛已經供奉過，請稍候再奉'); return; }
   const who = await getWho(); if (who === null) return;
-  lastOffer[key] = now;
+  types.forEach(t => lastOffer[t + ':' + pid] = now);
   const p = pid === 'all' ? null : byId[pid];
-  if (type === 'incense') {   // 畫面：牌位前插香、香煙
-    if (p) {
-      const by = p.alive ? p.y : p.y - BOT_OFF + .14;
-      const bowl = new THREE.Mesh(new THREE.CylinderGeometry(.13, .1, .14, 16), M.bronze); bowl.position.set(p.x, by + .07, .42); scene.add(bowl);
-      plantIncense(p.x, by + .1, .42, 120e3);
-      setTimeout(() => scene.remove(bowl), 120e3);
-    } else plantIncense(altarTipBase.x + (Math.random() - .5) * .16, altarTipBase.y, altarTipBase.z, 120e3);
+  const set = p ? personSet(p) : OFFER_SETS.main;
+  const name = p ? p.name : '歷代祖先', st = RITE.state, day = twDay().s;
+  st.od = st.od || {};
+  if (st.od[day] && typeof Object.values(st.od[day])[0] === 'number') st.od[day] = { all: st.od[day] };
+  st.od[day] = st.od[day] || {}; st.od[day][pid] = st.od[day][pid] || {};
+  types.forEach(type => {
+    if (type === 'incense') { st.total = (st.total || 0) + 1; st.days[day] = (st.days[day] || 0) + 1; st.byPid[pid] = (st.byPid[pid] || 0) + 1; }
+    st.od[day][pid][type] = (st.od[day][pid][type] || 0) + 1;
+  });
+  st.recent = [{ pid, name, who: who || '族人', type: types[0], types, at: now }, ...(st.recent || [])].slice(0, 40);
+  refreshOfferings();
+  if (types.includes('incense')) {   // 插香冒煙兩分鐘
+    if (set.censerTip) { set.R.updateMatrixWorld(true); const w = set.R.localToWorld(set.censerTip.clone()); plantIncense(w.x, w.y, w.z, 120e3, set.s); }
+    else plantIncense(altarTipBase.x + (Math.random() - .5) * .16, altarTipBase.y, altarTipBase.z, 120e3);
   }
   if (p && tablets[p.id]) tablets[p.id].offerGlow = performance.now();
-  const name = p ? p.name : '歷代祖先';
-  const rec = { pid, name, who: who || '族人', type, at: Date.now() };
-  const st = RITE.state, day = twDay().s;
-  if (type === 'incense') { st.total = (st.total || 0) + 1; st.days[day] = (st.days[day] || 0) + 1; st.byPid[pid] = (st.byPid[pid] || 0) + 1; }
-  st.od = st.od || {}; st.od[day] = st.od[day] || {}; st.od[day][type] = (st.od[day][type] || 0) + 1;
-  st.recent = [rec, ...(st.recent || [])].slice(0, 40);
   if (RITE.online) {
-    try { const r = await riteFetch('/offer', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(rec) }); if (r && r.state) RITE.state = { ...RITE.state, ...r.state }; }
+    try { const r = await riteFetch('/offer', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pid, name, who: who || '族人', types }) }); if (r && r.state) { RITE.state = { ...RITE.state, ...r.state }; refreshOfferings(); } }
     catch (e) { RITE.online = false; saveLocal(); }
   } else saveLocal();
-  refreshOfferings();
-  if (type === 'incense') toast(`${rec.who} 為 ${name} 上香・今日第 ${RITE.state.days[day] || 1} 炷`);
-  else {
-    toast(`${rec.who} 為 ${name} ${O.verb}・已供於香案`);
-    closeCard(); setGen(1); flyTo(altarView(), 1.3);
-  }
-  if (selected === pid) openCard(byId[pid]);
+  toast(`${who || '族人'} 為 ${name} ${types.map(t => OFFER[t].verb).join('、')}`);
+  closeCard(); setGen(p ? p.gen : 1);
+  flyTo(p && p !== root ? personAltarView(p) : altarView(), 1.2);
 }
-const offerIncense = pid => makeOffering('incense', pid);
+const offerIncense = pid => makeOfferings(['incense'], pid);
 function altarView() {
   const d = Math.max(3.6, fitDist(3.4, 2.2));
   return [V(ALTAR.x + d * .12, ALTAR.y + d * .28, ALTAR.z + d), V(ALTAR.x, ALTAR.y + .3, ALTAR.z)];
 }
+function personAltarView(p) {
+  const y = p.y - BOT_OFF + .3, d = Math.max(4, fitDist(2.4, 3.6));
+  return [V(p.x + d * .1, y + d * .22, .78 + d), V(p.x, y + .5, .5)];
+}
 function openOfferSheet(pid) {
   const el = document.getElementById('offerBox'), p = pid === 'all' ? null : byId[pid];
   el.querySelector('h4').textContent = `供奉・${p ? p.name : '歷代祖先'}`;
-  const od = (RITE.state.od || {})[twDay().s] || {};
-  const desc = { incense: '三炷清香，敬告祖先', tea: '奉上清茶三杯', flower: '菊花、百合，保鮮七日', fruit: '橘、蘋果、葡萄，三日', candle: '紅燭一對，照亮香案' };
+  const day = (RITE.state.od || {})[twDay().s], od = odOf(day, pid);
+  const desc = { incense: '三炷清香，敬告祖先', tea: '清茶三杯', flower: '菊花百合・七日', fruit: '橘蘋果葡萄・三日', candle: '紅燭一對' };
   el.querySelector('.grid').innerHTML = Object.entries(OFFER).map(([k, o]) =>
-    `<button data-k="${k}" class="of-${k}"><b>${o.label}</b><small>${desc[k]}</small>${od[k] ? `<em>今日已奉 ${od[k]} ${o.unit}</em>` : ''}</button>`).join('');
-  el.querySelectorAll('.grid button').forEach(b => b.onclick = () => { el.classList.remove('on'); makeOffering(b.dataset.k, pid); });
+    `<button data-k="${k}" class="of-${k}${k === 'incense' ? ' sel' : ''}"><i></i><b>${o.label}</b><small>${desc[k]}</small>${od[k] ? `<em>今日已奉 ${od[k]}</em>` : ''}</button>`).join('');
+  const go = el.querySelector('.go');
+  const upd = () => { const n = el.querySelectorAll('.grid .sel').length; go.textContent = n ? `敬奉 ${n} 項` : '請選擇供品'; go.disabled = !n; };
+  el.querySelectorAll('.grid button').forEach(b => b.onclick = () => { b.classList.toggle('sel'); upd(); });
+  el.querySelector('.all').onclick = () => { const all = [...el.querySelectorAll('.grid button')], on = all.some(b => !b.classList.contains('sel')); all.forEach(b => b.classList.toggle('sel', on)); upd(); };
+  go.onclick = () => { const ts = [...el.querySelectorAll('.grid .sel')].map(b => b.dataset.k); if (!ts.length) return; el.classList.remove('on'); makeOfferings(ts, pid); };
   el.querySelector('.no').onclick = () => el.classList.remove('on');
-  el.classList.add('on');
+  upd(); el.classList.add('on');
 }
 
 /* ---------- 語音口述 ---------- */
@@ -1520,10 +1589,10 @@ function openRitePanel() {
   const ann = ANNIV.filter(a => a.days <= 60);
   el.querySelector('.body').innerHTML = `<h2>祭 祀</h2>
     <div class="rstat"><div><b>${st.days[day] || 0}</b><small>今日上香</small></div><div><b>${st.total || 0}</b><small>累計上香</small></div><div><b>${Object.values(st.voices || {}).reduce((s, l) => s + l.length, 0)}</b><small>語音口述</small></div></div>
-    <p class="rtoday">今日供奉：${Object.entries(OFFER).filter(([k]) => k !== 'incense').map(([k, o]) => `${o.label} ${((st.od || {})[day] || {})[k] || 0}`).join('・')}</p>
+    <p class="rtoday">今日供奉：${(() => { const d = (st.od || {})[day] || {}, flat = typeof Object.values(d)[0] === 'number' ? [d] : Object.values(d); return Object.entries(OFFER).filter(([k]) => k !== 'incense').map(([k, o]) => `${o.label} ${flat.reduce((s, x) => s + (x[k] || 0), 0)}`).join('・'); })()}</p>
     <button class="rbtn" data-act="all">前往香案供奉</button>
     <h3>近期忌日</h3>${ann.length ? ann.map(a => `<div class="rrow" data-pid="${a.p.id}"><b>${escH(a.p.name)}</b><span>${escH(annivLabel(a.p))}</span><em class="${a.days === 0 ? 'hot' : ''}">${a.days === 0 ? '今日' : nextSolarDate(a.days) + '・' + a.days + ' 天後'}</em></div>`).join('') : '<p>六十天內沒有忌日。忌日請在紀念堂「祖先名冊」填寫。</p>'}
-    <h3>祭祀紀錄</h3>${(st.recent || []).length ? st.recent.slice(0, 20).map(r => `<div class="rrow" data-pid="${r.pid}"><b>${escH(r.who)}</b><span>為 ${escH(r.name)} ${(OFFER[r.type] || OFFER.incense).verb}</span><em>${fmtT(r.at)}</em></div>`).join('') : '<p>還沒有祭祀紀錄。</p>'}
+    <h3>祭祀紀錄</h3>${(st.recent || []).length ? st.recent.slice(0, 20).map(r => `<div class="rrow" data-pid="${r.pid}"><b>${escH(r.who)}</b><span>為 ${escH(r.name)} ${(r.types || [r.type || 'incense']).map(t => (OFFER[t] || OFFER.incense).verb).join('、')}</span><em>${fmtT(r.at)}</em></div>`).join('') : '<p>還沒有祭祀紀錄。</p>'}
     <p class="rnote">${RITE.online ? '紀錄已與家人同步。' : '目前為本機模式：紀錄只存在這台裝置（雲端路由尚未部署）。'}</p>`;
   el.querySelector('.rbtn').onclick = () => { el.classList.remove('on'); setGen(1); flyTo(altarView(), 1.2); openOfferSheet('all'); };
   el.querySelectorAll('.rrow[data-pid]').forEach(r => r.onclick = () => { if (byId[r.dataset.pid]) { el.classList.remove('on'); selectPerson(r.dataset.pid); } });
@@ -1775,6 +1844,7 @@ canvas.addEventListener('pointerup', e => {
   stopTour(); closeCard();
   if (act === 'incense-all') offerIncense('all');
   else if (act === 'altar') { flyTo(altarView(), 1.1); openOfferSheet('all'); }
+  else if (act.startsWith('altar:')) { const p = byId[act.slice(6)]; if (p) { flyTo(personAltarView(p), 1.1); openOfferSheet(p.id); } }
   else if (act === 'history') openHistory();
   else if (act === 'plaque') openPlaque();
   else if (act.startsWith('zibei')) openZibei(+act.split(':')[1] || 0);
@@ -1838,11 +1908,16 @@ function loop() {
   }
 
   if (selected) tablets[selected].front.emissiveIntensity = .18 + .14 * Math.sin(T * 3);
-  if (offerObj.candle && offerObj.candle.group.visible) {
-    candleFlames.forEach((f, i) => { const k = 1 + Math.sin(T * 17 + i * 3) * .08 + Math.sin(T * 7.3 + i) * .06; f.scale.set(.09 * k, .17 * (2 - k), 1); });
-    candleLight.intensity = 1.5 + Math.sin(T * 13) * .15 + Math.sin(T * 5.1) * .1;
+  for (const key in OFFER_SETS) {
+    const set = OFFER_SETS[key];
+    if (!set.R.visible) continue;
+    const cg = set.types.candle.group;
+    if (cg.visible) {
+      set.flames.forEach((f, i) => { const k = 1 + Math.sin(T * 17 + i * 3 + set.s * 9) * .08 + Math.sin(T * 7.3 + i) * .06; f.scale.set(.09 * k, .17 * (2 - k), 1); });
+      set.light.intensity = (1.5 + Math.sin(T * 13 + set.s) * .15 + Math.sin(T * 5.1) * .1) * set.s;
+    }
+    for (const k in set.types) { const g = set.types[k].group; if (g.visible && g.scale.x < .999) g.scale.setScalar(Math.min(1, g.scale.x + dt * 2.2)); else if (!g.visible) g.scale.setScalar(.01); }
   }
-  for (const k in offerObj) { const g = offerObj[k].group; if (g.visible && g.scale.x < .999) g.scale.setScalar(Math.min(1, g.scale.x + dt * 2.2)); else if (!g.visible) g.scale.setScalar(.01); }
   if (steleFront) { steleFront.emissiveIntensity = .05 + .04 * Math.sin(T * 1.3); steleHalo.material.opacity = .42 + .12 * Math.sin(T * 1.3); }
   for (const id in tablets) {
     const t = tablets[id], goal = t.flip * Math.PI;

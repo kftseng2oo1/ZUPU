@@ -10,13 +10,14 @@
  *        }
  *
  * KV 結構（f = 家族代號，預設 longshan）
- *   s:<f>              祭祀狀態 JSON {total, days{日期:上香次數}, byPid{牌位:上香次數}, od{日期:{供品:次數}}, recent[], voices{牌位:[...]}}
+ *   s:<f>              祭祀狀態 JSON {total, days{日期:上香次數}, byPid{牌位:上香次數}, od{日期:{牌位:{供品:次數}}}, recent[], voices{牌位:[...]}}
  *   v:<f>:<voiceId>    錄音原始內容；metadata {m: mime}
  *   k:<f>:<voiceId>    刪除金鑰的 SHA-256
  *
  * API（路徑在 /zupu 之後，皆帶 ?f=家族代號）
  *   GET    /state                                   → {ok, state}
- *   POST   /offer     JSON {pid, name, who, type}   → {ok, state}   type：incense 上香／tea 奉茶／flower 獻花／fruit 供果／candle 點燭
+ *   POST   /offer     JSON {pid, name, who, types[]} → {ok, state}  types 可複選：incense 上香／tea 奉茶／flower 獻花／fruit 供果／candle 點燭
+ *                      （pid = all 為歷代祖先；舊版單一 type 仍可用）
  *   POST   /incense   JSON {pid, name, who}         → 同 /offer（type=incense，相容舊版）
  *   POST   /voice?pid=&who=&title=&dur=   原始音訊   → {ok, voice, key, state}
  *   GET    /voice/:id                               → 音訊
@@ -79,12 +80,16 @@ async function handleZupu(request, env, path, url) {
     let b; try { b = await request.json(); } catch (e) { return zErr('格式錯誤'); }
     const pid = b.pid === 'all' ? 'all' : zPid(b.pid);
     if (!pid) return zErr('缺少 pid');
-    const type = path === '/incense' ? 'incense' : b.type;
-    if (!ZUPU_TYPES.includes(type)) return zErr('不支援的供品');
+    const types = [...new Set(path === '/incense' ? ['incense'] : Array.isArray(b.types) ? b.types : [b.type])].filter(t => ZUPU_TYPES.includes(t));
+    if (!types.length) return zErr('不支援的供品');
     const s = await zLoad(kv, f), day = zToday();
-    if (type === 'incense') { s.total += 1; s.days[day] = (s.days[day] || 0) + 1; s.byPid[pid] = (s.byPid[pid] || 0) + 1; }
-    s.od[day] = s.od[day] || {}; s.od[day][type] = (s.od[day][type] || 0) + 1;
-    s.recent = [{ pid, name: zStr(b.name, 20), who: zStr(b.who, 20) || '族人', type, at: Date.now() }, ...s.recent].slice(0, ZUPU_RECENT);
+    if (s.od[day] && typeof Object.values(s.od[day])[0] === 'number') s.od[day] = { all: s.od[day] };   // 舊格式轉換
+    s.od[day] = s.od[day] || {}; s.od[day][pid] = s.od[day][pid] || {};
+    types.forEach(type => {
+      if (type === 'incense') { s.total += 1; s.days[day] = (s.days[day] || 0) + 1; s.byPid[pid] = (s.byPid[pid] || 0) + 1; }
+      s.od[day][pid][type] = (s.od[day][pid][type] || 0) + 1;
+    });
+    s.recent = [{ pid, name: zStr(b.name, 20), who: zStr(b.who, 20) || '族人', type: types[0], types, at: Date.now() }, ...s.recent].slice(0, ZUPU_RECENT);
     await zSave(kv, f, s);
     return zJson({ ok: true, state: s });
   }
