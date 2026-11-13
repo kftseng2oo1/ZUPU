@@ -278,7 +278,8 @@
     <button class="x" aria-label="結束">×</button>
     <h3></h3>
     <div class="opt">
-      <span><button data-v="voice">語音</button><button data-v="fish">木魚</button></span>
+      <span class="vk"><button data-vk="hsiaochen">曉臻</button><button data-vk="hsiaoyu">曉雨</button><button data-vk="yunjhe">雲哲</button><button data-vk="device">本機</button><button data-vk="off">無聲</button></span>
+      <span><button data-v="fish">木魚</button></span>
       <span><button data-s="0">慢</button><button data-s="1">中</button><button data-s="2">快</button></span>
       <span><button data-r="1">1卷</button><button data-r="3">3卷</button><button data-r="7">7卷</button></span>
     </div>
@@ -1711,9 +1712,53 @@ const SUTRA = {
 };
 // 讀音提示：朗讀引擎容易念錯的字改用同音字（只影響語音，不影響畫面）
 const SUTRA_SAY = [['般若', '波惹'], ['菩提薩埵', '菩提薩朵'], ['揭諦', '解帝'], ['薩婆訶', '薩婆賀'], ['阿耨多羅', '阿諾多羅'], ['三藐', '三秒'], ['罣礙', '掛礙'], ['舍利子', '社利子']];
-const CHANT = { on: false, paused: false, pid: null, seg: [], si: 0, ci: 0, timer: 0, voice: true, fish: true, speed: 1, rounds: 1, round: 1, ac: null, utt: null, gen: 0 };
+const SUTRA_AUDIO_BASE = '/3d-zupu/audio/';
+const CHANT = { on: false, paused: false, pid: null, seg: [], si: 0, ci: 0, timer: 0, voice: false, vk: 'hsiaochen', fish: true, speed: 1, rounds: 1, round: 1, ac: null, utt: null, gen: 0 };
 const CH_SPEED = [['慢', .72, 620], ['中', .9, 470], ['快', 1.1, 360]];   // [名稱, 朗讀速率, 木魚每字毫秒]
 
+/* ---------- 微軟神經語音（曉臻、曉雨、雲哲）：預先錄好的音檔＋逐字時間軸 ---------- */
+const SUTRA_VOICES = [['hsiaochen', '曉臻'], ['hsiaoyu', '曉雨'], ['yunjhe', '雲哲'], ['device', '本機'], ['off', '無聲']];
+const SUTRA_AUDIO = { tl: {}, el: null, key: null, ft: null, ptr: 0 };
+async function loadSutraVoice(key) {
+  if (!SUTRA_AUDIO.tl[key]) {
+    const r = await fetch(SUTRA_AUDIO_BASE + 'xinjing-' + key + '.json');
+    if (!r.ok) throw new Error('no timeline');
+    const tl = await r.json();
+    if (tl.segs.length !== CHANT.seg.length) throw new Error('timeline mismatch');
+    SUTRA_AUDIO.tl[key] = tl;
+  }
+  if (SUTRA_AUDIO.key !== key || !SUTRA_AUDIO.el) {
+    if (SUTRA_AUDIO.el) { SUTRA_AUDIO.el.pause(); SUTRA_AUDIO.el.onended = null; }
+    const a = new Audio(SUTRA_AUDIO_BASE + 'xinjing-' + key + '.mp3');
+    a.preload = 'auto'; a.setAttribute('playsinline', '');
+    a.onended = () => { if (CHANT.on && SUTRA_AUDIO.el === a) { while (SUTRA_AUDIO.ptr < CHANT.total) chantMark(SUTRA_AUDIO.ptr++); chantRoundEnd(); } };
+    SUTRA_AUDIO.el = a; SUTRA_AUDIO.key = key;
+    SUTRA_AUDIO.ft = SUTRA_AUDIO.tl[key].segs.flatMap(s => s.t);
+  }
+  return SUTRA_AUDIO.el;
+}
+const isNeural = k => ['hsiaochen', 'hsiaoyu', 'yunjhe'].includes(k);
+/* 每幀依音檔播放位置推進高亮（在主迴圈呼叫） */
+function chantAudioTick() {
+  const a = SUTRA_AUDIO.el;
+  if (!CHANT.on || CHANT.paused || !isNeural(CHANT.vk) || !a || a.paused) return;
+  const t = a.currentTime, ft = SUTRA_AUDIO.ft;
+  let moved = false;
+  while (SUTRA_AUDIO.ptr < ft.length && ft[SUTRA_AUDIO.ptr] <= t) { chantMark(SUTRA_AUDIO.ptr++); moved = true; }
+  if (moved && CHANT.fish) fishKnock();
+}
+async function startNeural(fromStart) {
+  try {
+    const a = await loadSutraVoice(CHANT.vk);
+    a.playbackRate = [.85, 1, 1.15][CHANT.speed];
+    if (fromStart) { a.currentTime = 0; SUTRA_AUDIO.ptr = 0; }
+    else { const i = Math.min(CHANT.ci, SUTRA_AUDIO.ft.length - 1); SUTRA_AUDIO.ptr = i; a.currentTime = Math.max(0, SUTRA_AUDIO.ft[i] - .15); }
+    await a.play();
+  } catch (e) {
+    toast('音檔尚未就緒，改用本機語音');
+    CHANT.vk = 'device'; CHANT.voice = true; updChantUI(); chantSegment();
+  }
+}
 function fishKnock() {   // 木魚：短促木質敲擊聲
   try {
     const ac = CHANT.ac || (CHANT.ac = new (window.AudioContext || window.webkitAudioContext)());
@@ -1800,7 +1845,8 @@ function chantRoundEnd() {
   if (CHANT.round < CHANT.rounds) {
     CHANT.round++; CHANT.si = 0; CHANT.ci = 0;
     CHANT.spans.forEach(s => s.className = ''); updChantUI();
-    CHANT.timer = setTimeout(chantSegment, 1200);
+    if (isNeural(CHANT.vk)) { SUTRA_AUDIO.ptr = 0; CHANT.timer = setTimeout(() => { const a = SUTRA_AUDIO.el; a.currentTime = 0; a.play(); }, 1200); }
+    else CHANT.timer = setTimeout(chantSegment, 1200);
     return;
   }
   CHANT.on = false; updChantUI();
@@ -1813,13 +1859,15 @@ function updChantUI() {
   el.dataset.st = CHANT.on ? (CHANT.paused ? 'pause' : 'run') : (CHANT.ci >= CHANT.total ? 'done' : 'idle');
   el.querySelector('.go').textContent = CHANT.on ? (CHANT.paused ? '繼續' : '暫停') : (CHANT.ci >= CHANT.total ? '再誦一次' : '開始誦經');
   el.querySelector('.rnd').textContent = CHANT.rounds > 1 ? `第 ${CHANT.round} / ${CHANT.rounds} 卷` : '';
-  el.querySelectorAll('.opt [data-v]').forEach(b => b.classList.toggle('on', b.dataset.v === 'voice' ? CHANT.voice : CHANT.fish));
+  el.querySelectorAll('.opt [data-v]').forEach(b => b.classList.toggle('on', CHANT.fish));
+  el.querySelectorAll('.opt [data-vk]').forEach(b => b.classList.toggle('on', b.dataset.vk === CHANT.vk));
   el.querySelectorAll('.opt [data-s]').forEach(b => b.classList.toggle('on', +b.dataset.s === CHANT.speed));
   el.querySelectorAll('.opt [data-r]').forEach(b => b.classList.toggle('on', +b.dataset.r === CHANT.rounds));
 }
 function stopChant() {
   CHANT.gen++; CHANT.on = false; CHANT.paused = false; clearTimeout(CHANT.timer); CHANT.utt = null;
   try { speechSynthesis.cancel(); } catch (e) {}
+  if (SUTRA_AUDIO.el) SUTRA_AUDIO.el.pause();
   Object.values(tablets).forEach(t => t.chanting = false);
 }
 function openSutra(pid) {
@@ -1834,6 +1882,7 @@ function openSutra(pid) {
   const q = p || root, d = Math.max(9, fitDist(2.6, 7)), tgtY = q.y + 1.9 + .25 - Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * d;
   setGen(q.gen); flyTo([V(q.x + .4, tgtY + .5, d), V(q.x, tgtY, 0)], 1.2);
   if (window.speechSynthesis) speechSynthesis.getVoices();   // 預先載入語音清單
+  if (isNeural(CHANT.vk)) loadSutraVoice(CHANT.vk).catch(() => {});
 }
 function toggleChant() {
   if (!CHANT.on) {
@@ -1842,13 +1891,24 @@ function toggleChant() {
     if (CHANT.fish) { fishKnock(); }   // iOS：在點擊當下啟用音效
     const ids = CHANT.pid === 'all' ? [root.id] : [CHANT.pid];
     ids.forEach(id => tablets[id] && (tablets[id].chanting = true));
-    chantSegment();
+    CHANT.voice = CHANT.vk === 'device';
+    if (isNeural(CHANT.vk)) startNeural(true); else chantSegment();
   } else if (!CHANT.paused) {
     CHANT.paused = true; CHANT.gen++; clearTimeout(CHANT.timer); CHANT.utt = null;
+    if (isNeural(CHANT.vk)) { if (SUTRA_AUDIO.el) SUTRA_AUDIO.el.pause(); updChantUI(); return; }
     try { speechSynthesis.cancel(); } catch (e) {}
     // 暫停時回到本句開頭，繼續時整句重念
     const seg = CHANT.seg[CHANT.si]; if (seg) { for (let k = seg.start; k < seg.end; k++) CHANT.spans[k].className = ''; CHANT.ci = seg.start; }
-  } else { CHANT.paused = false; CHANT.gen++; chantSegment(); }
+  } else {
+    CHANT.paused = false; CHANT.gen++;
+    if (isNeural(CHANT.vk)) { if (SUTRA_AUDIO.el && SUTRA_AUDIO.key === CHANT.vk) SUTRA_AUDIO.el.play(); else startNeural(false); }
+    else {   // 從音檔模式切回逐句模式：找出目前所在的句子，從句首重念
+      CHANT.voice = CHANT.vk === 'device';
+      const si = CHANT.seg.findIndex(sg => CHANT.ci < sg.end);
+      if (si >= 0) { CHANT.si = si; for (let k = CHANT.seg[si].start; k < CHANT.total; k++) CHANT.spans[k].className = ''; CHANT.ci = CHANT.seg[si].start; }
+      chantSegment();
+    }
+  }
   updChantUI();
 }
 async function recordSutra(pid, n) {
@@ -1869,13 +1929,22 @@ async function recordSutra(pid, n) {
   const el = document.getElementById('sutra');
   el.querySelector('.go').onclick = toggleChant;
   el.querySelector('.x').onclick = () => { stopChant(); el.classList.remove('on'); };
-  el.querySelectorAll('.opt [data-v]').forEach(b => b.onclick = () => {
-    if (b.dataset.v === 'voice') { CHANT.voice = !CHANT.voice; if (!CHANT.voice) try { speechSynthesis.cancel(); } catch (e) {} }
-    else CHANT.fish = !CHANT.fish;
-    if (CHANT.on && !CHANT.paused) { toggleChant(); toggleChant(); }   // 重新從本句開始，套用設定
+  el.querySelectorAll('.opt [data-v]').forEach(b => b.onclick = () => { CHANT.fish = !CHANT.fish; updChantUI(); });
+  el.querySelectorAll('.opt [data-vk]').forEach(b => b.onclick = () => {
+    const was = CHANT.on && !CHANT.paused;
+    if (was) toggleChant();   // 先暫停（回到本句開頭）
+    if (SUTRA_AUDIO.el) SUTRA_AUDIO.el.pause();
+    CHANT.vk = b.dataset.vk;
+    if (isNeural(CHANT.vk)) loadSutraVoice(CHANT.vk).catch(() => {});   // 預先載入
+    updChantUI();
+    if (was) toggleChant();   // 以新聲音從本句繼續
+  });
+  el.querySelectorAll('.opt [data-s]').forEach(b => b.onclick = () => {
+    CHANT.speed = +b.dataset.s;
+    if (isNeural(CHANT.vk)) { if (SUTRA_AUDIO.el) SUTRA_AUDIO.el.playbackRate = [.85, 1, 1.15][CHANT.speed]; }
+    else if (CHANT.on && !CHANT.paused) { toggleChant(); toggleChant(); }
     updChantUI();
   });
-  el.querySelectorAll('.opt [data-s]').forEach(b => b.onclick = () => { CHANT.speed = +b.dataset.s; if (CHANT.on && !CHANT.paused) { toggleChant(); toggleChant(); } updChantUI(); });
   el.querySelectorAll('.opt [data-r]').forEach(b => b.onclick = () => { if (!CHANT.on) { CHANT.rounds = +b.dataset.r; CHANT.round = 1; updChantUI(); } });
 })();
 
@@ -2210,6 +2279,7 @@ function loop() {
     }
     for (const k in set.types) { const g = set.types[k].group; if (g.visible && g.scale.x < .999) g.scale.setScalar(Math.min(1, g.scale.x + dt * 2.2)); else if (!g.visible) g.scale.setScalar(.01); }
   }
+  chantAudioTick();
   if (steleFront) { steleFront.emissiveIntensity = .05 + .04 * Math.sin(T * 1.3); steleHalo.material.opacity = .42 + .12 * Math.sin(T * 1.3); }
   for (const id in tablets) {
     const t = tablets[id], goal = t.flip * Math.PI;

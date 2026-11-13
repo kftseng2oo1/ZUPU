@@ -1,5 +1,5 @@
 // 族譜紀念堂 Service Worker
-const CACHE_NAME = 'zupu-v11';
+const CACHE_NAME = 'zupu-v12';
 const ASSETS = [
   './index.html',
   './3d.html',
@@ -37,6 +37,9 @@ self.addEventListener('fetch', e => {
     e.respondWith(fetch(e.request));
     return;
   }
+
+  // 3D 祠堂誦經音檔（/3d-zupu/audio/*.mp3）：Range 請求直接走網路
+  if (/\.mp3$/.test(url.pathname)) return;
 
   // Cache First for everything else
   e.respondWith(
