@@ -2477,7 +2477,10 @@ function renderColumbarium() {
           ${e.ps.st === 'bad' ? `<div style="font-size:11px;color:#b02a2a;margin-top:2px">⚠️ 已登記「${placeRaw(e.ps.p)}」，但此格不存在，畫面上找不到</div>` : ''}
           ${e.ps.st === 'dup' ? `<div style="font-size:11px;color:#b02a2a;margin-top:2px">⚠️ 與「${entryLabel(e.ps.other)}」登記在同一格（${placeRaw(e.ps.p)}），被蓋住了</div>` : ''}
         </div>
-        <button class="col-assign-btn" onclick="openAssignPickTower('${e.key}')">${e.ps.st === 'none' ? '選塔位' : '重新選位'}</button>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <button class="col-assign-btn" onclick="openAssignPickTower('${e.key}')">${e.ps.st === 'none' ? '選塔位' : '重新選位'}</button>
+          ${e.ps.st !== 'none' ? `<button class="col-assign-btn" style="background:#fff;color:#8b5e3c;border:1px solid #c9a87a" onclick="clearBadPlacement('${e.key}')">清除登記</button>` : ''}
+        </div>
       </div>
     `).join('');
 }
@@ -2541,6 +2544,14 @@ function openAssignModal(towerId, floorIdx, slotIdx) {
   document.getElementById('assignOverlay').classList.add('open');
 }
 
+async function clearBadPlacement(key) {
+  const e = placeEntries().find(x => x.key === key);
+  const ok = await showConfirm(`清除「${e ? entryLabel(e) : key}」的塔位登記？（改成尚未存放）`, '🗑️');
+  if (!ok) return;
+  delete appData.placements[key];
+  saveData(); renderColumbarium();
+  showNotif('已清除，列為尚未登記');
+}
 function openAssignPickTower(ancestorId) {
   // Find first empty slot in current tower and assign
   const tower = TOWERS[currentTower];
