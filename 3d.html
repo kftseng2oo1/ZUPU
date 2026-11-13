@@ -589,7 +589,7 @@ measure(root); place(root, -root.w / 2);
 /* ---------- 字型就緒後才畫牌位文字（iOS 必要） ---------- */
 async function waitFonts() {
   const txt = PEOPLE.map(p => p.name + p.tabletText + (p.tag || '') + (p.lines || []).join('') + (p.bio || '') + (p.alias || '')).join('')
-            + '眾靈祠男公女媽廟恭奉庇佑鄉里闡草萊保國家功不泯守貞堅護土德長昭雲線沿魚塭而行正殿轉' + '闔家平安祖先安息身體健康事業順利學業進步消災解厄' + '成龍納骨塔一樓地藏殿南無大願地藏王菩薩香案供奉誦心經瞻仰聖像回掃墓路線進入祭拜於前迴向法界眾生' + '掃墓路線口湖鄉成龍納骨堂眾靈祠男公女媽廟起點終點沿途安奉位新舊塔往南接台旁道路轉雲往東北開車約分鐘全圖導覽停止地圖導航抵達紀念堂尚未登記此處溼地村牛挑灣溪烏麻園豐樺水產行縣' + '依族譜資料整理可於紀念堂補寫生平祖先名冊' + '祠堂全景香案燭火清香奉茶供果餅乾鮮花來台祖神位三省堂匾額家族沿革碑攝影離開自動掃描停止繼續拍攝下載' + SUTRA.title + SUTRA.open + SUTRA.body + SUTRA.close + '念經超渡誦心卷語音木魚慢中快開始暫停繼續再一次圓滿功德迴向偈為' + HALL.plaque + HALL.plaqueSub + HALL.couplet.join('') + HALL.zibei + '龍山字輩大宗曾氏沿革輕觸展讀塔位側殿樓號口湖鄉公所靈骨塔蚵寮新舊' + historyText().split('\n').filter(s => /^[一二三四五六七八九十]+、/.test(s)).join('') + '第一二三四五六七八九十世配偶︵︶無—年生仙逝之本支在世農曆卒生平待補於紀念堂祖先名冊填寫字號0123456789.';
+            + '眾志成城寶塔莊嚴為報本靈魂奉厝禪堂肅穆慎追終' + '眾靈祠男公女媽廟恭奉庇佑鄉里闡草萊保國家功不泯守貞堅護土德長昭雲線沿魚塭而行正殿轉' + '闔家平安祖先安息身體健康事業順利學業進步消災解厄' + '成龍納骨塔一樓地藏殿南無大願地藏王菩薩香案供奉誦心經瞻仰聖像回掃墓路線進入祭拜於前迴向法界眾生' + '掃墓路線口湖鄉成龍納骨堂眾靈祠男公女媽廟起點終點沿途安奉位新舊塔往南接台旁道路轉雲往東北開車約分鐘全圖導覽停止地圖導航抵達紀念堂尚未登記此處溼地村牛挑灣溪烏麻園豐樺水產行縣' + '依族譜資料整理可於紀念堂補寫生平祖先名冊' + '祠堂全景香案燭火清香奉茶供果餅乾鮮花來台祖神位三省堂匾額家族沿革碑攝影離開自動掃描停止繼續拍攝下載' + SUTRA.title + SUTRA.open + SUTRA.body + SUTRA.close + '念經超渡誦心卷語音木魚慢中快開始暫停繼續再一次圓滿功德迴向偈為' + HALL.plaque + HALL.plaqueSub + HALL.couplet.join('') + HALL.zibei + '龍山字輩大宗曾氏沿革輕觸展讀塔位側殿樓號口湖鄉公所靈骨塔蚵寮新舊' + historyText().split('\n').filter(s => /^[一二三四五六七八九十]+、/.test(s)).join('') + '第一二三四五六七八九十世配偶︵︶無—年生仙逝之本支在世農曆卒生平待補於紀念堂祖先名冊填寫字號0123456789.';
   try {
     await Promise.race([
       Promise.all([
@@ -2797,7 +2797,7 @@ function buildZhonglingHall() {
   [-1, 1].forEach(sx => {
     const side = new THREE.Mesh(new THREE.BoxGeometry(1.7, 2.4, .3), carveM); side.position.set(sx * 2.55, 2.4, -2.75); D.add(side);
     const pil = new THREE.Mesh(new THREE.BoxGeometry(.22, 3.4, .3), redL); pil.position.set(sx * 3.55, 2.2, -2.6); D.add(pil);
-    const cp = new THREE.Mesh(new THREE.PlaneGeometry(.42, 3.1), new THREE.MeshStandardMaterial({ map: zlCouplet(sx > 0 ? '男闡草萊保國保家功不泯' : '女守貞堅護鄉護土德長昭'), roughness: .6 })); cp.position.set(sx * 3.95, 2.3, -2.95); D.add(cp);
+    const cp = new THREE.Mesh(new THREE.PlaneGeometry(.42, 3.1), new THREE.MeshStandardMaterial({ map: zlCouplet(sx > 0 ? '眾志成城寶塔莊嚴為報本' : '靈魂奉厝禪堂肅穆慎追終'), roughness: .6 })); cp.position.set(sx * 3.95, 2.3, -2.95); D.add(cp);
     const inner = new THREE.Mesh(new THREE.PlaneGeometry(.22, 2.1), new THREE.MeshStandardMaterial({ map: zlCouplet('　　　　　'), roughness: .6 })); inner.position.set(sx * 1.6, 2.5, -2.58); D.add(inner);
   });
   // 龕緣小燈（紅綠藍紫）
