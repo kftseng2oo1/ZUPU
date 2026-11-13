@@ -201,6 +201,30 @@
   .zb em{display:block;font-style:normal;font-size:10px;color:#3d2b1a;margin-top:2px;line-height:1.3}
   .zb.on{background:#8b1a1a;border-color:#8b1a1a}.zb.on b,.zb.on small,.zb.on em{color:#f6d98a}
 
+  /* 攝影模式 */
+  body.photo #bar,body.photo #title,body.photo #genTag,body.photo #seal,body.photo #riteBanner,body.photo #card{display:none!important}
+  #photo{display:none;position:fixed;inset:0;z-index:15;pointer-events:none}
+  body.photo #photo{display:block}
+  #photo .vf{position:absolute;inset:calc(var(--st) + 56px) 18px calc(var(--sb) + 118px)}
+  #photo .vf i{position:absolute;width:26px;height:26px;border:2px solid rgba(255,236,190,.85)}
+  #photo .vf .tl{left:0;top:0;border-right:0;border-bottom:0}#photo .vf .tr{right:0;top:0;border-left:0;border-bottom:0}
+  #photo .vf .bl{left:0;bottom:0;border-right:0;border-top:0}#photo .vf .br{right:0;bottom:0;border-left:0;border-top:0}
+  #photo .vf .cross{position:absolute;left:50%;top:50%;width:18px;height:18px;margin:-9px 0 0 -9px;border:1px solid rgba(255,236,190,.5);border-radius:50%}
+  #photo .top{position:absolute;left:0;right:0;top:calc(var(--st) + 14px);display:flex;justify-content:center;gap:10px;align-items:baseline}
+  #photo .lbl{color:#fff3d0;font-size:17px;font-weight:900;letter-spacing:.2em;text-shadow:0 1px 6px rgba(0,0,0,.8)}
+  #photo .cnt{color:#e2c88a;font-size:12px;text-shadow:0 1px 4px rgba(0,0,0,.8)}
+  #photo .ctl{position:absolute;left:0;right:0;bottom:calc(var(--sb) + 22px);display:flex;justify-content:center;align-items:center;gap:12px;pointer-events:auto}
+  #photo .ctl button{font-family:var(--font);color:#f6d98a;background:rgba(30,16,4,.72);border:1px solid rgba(212,168,67,.8);border-radius:22px;height:42px;padding:0 13px;font-size:14px;font-weight:700}
+  #photo .ctl .prev,#photo .ctl .next{width:42px;padding:0;font-size:15px}
+  #photo .ctl .scan.on{background:#8b1a1a}
+  #photo .ctl .shoot{width:72px;height:72px;border-radius:50%;padding:0;background:rgba(255,255,255,.18);border:3px solid #fff;display:flex;align-items:center;justify-content:center}
+  #photo .ctl .shoot i{display:block;width:56px;height:56px;border-radius:50%;background:#fff;transition:transform .1s}
+  #photo .ctl .shoot:active i{transform:scale(.88)}
+  #photo .tip{position:absolute;left:0;right:0;bottom:calc(var(--sb) + 100px);text-align:center;font-size:11px;color:rgba(255,240,210,.8);text-shadow:0 1px 3px rgba(0,0,0,.9)}
+  #flash{position:fixed;inset:0;z-index:31;background:#fff;opacity:0;pointer-events:none}
+  #flash.go{animation:flash .45s ease-out}
+  @keyframes flash{0%{opacity:.9}100%{opacity:0}}
+
   /* 海報輸出 */
   #poster{position:fixed;inset:0;z-index:30;background:rgba(20,10,2,.92);display:none;flex-direction:column;
     align-items:center;justify-content:center;padding:20px}
@@ -296,10 +320,24 @@
   <button class="close">收起</button>
 </div>
 
+<div id="photo">
+  <div class="vf"><i class="tl"></i><i class="tr"></i><i class="bl"></i><i class="br"></i><b class="cross"></b></div>
+  <div class="top"><span class="lbl"></span><span class="cnt"></span></div>
+  <div class="ctl">
+    <button class="out">離開</button>
+    <button class="prev">◀</button>
+    <button class="shoot" aria-label="快門"><i></i></button>
+    <button class="next">▶</button>
+    <button class="scan">自動掃描</button>
+  </div>
+  <p class="tip">可用手指拖曳、縮放自行取景，再按快門</p>
+</div>
+<div id="flash"></div>
+
 <div id="poster">
   <img alt="族譜海報">
   <p>長按圖片即可儲存</p>
-  <div class="btns"><a download="曾氏族譜.png">下載</a><button>關閉</button></div>
+  <div class="btns"><a download="曾氏族譜.jpg">下載</a><button>繼續拍攝</button></div>
 </div>
 
 <script>
@@ -428,7 +466,7 @@ measure(root); place(root, -root.w / 2);
 /* ---------- 字型就緒後才畫牌位文字（iOS 必要） ---------- */
 async function waitFonts() {
   const txt = PEOPLE.map(p => p.name + p.tabletText + (p.tag || '') + (p.lines || []).join('') + (p.bio || '') + (p.alias || '')).join('')
-            + SUTRA.title + SUTRA.open + SUTRA.body + SUTRA.close + '念經超渡誦心卷語音木魚慢中快開始暫停繼續再一次圓滿功德迴向偈為' + HALL.plaque + HALL.plaqueSub + HALL.couplet.join('') + HALL.zibei + '龍山字輩大宗曾氏沿革輕觸展讀塔位側殿樓號口湖鄉公所靈骨塔蚵寮新舊' + historyText().split('\n').filter(s => /^[一二三四五六七八九十]+、/.test(s)).join('') + '第一二三四五六七八九十世配偶︵︶無—年生仙逝之本支在世農曆卒生平待補於紀念堂祖先名冊填寫字號0123456789.';
+            + '祠堂全景香案燭火清香奉茶供果餅乾鮮花來台祖神位三省堂匾額家族沿革碑攝影離開自動掃描停止繼續拍攝下載' + SUTRA.title + SUTRA.open + SUTRA.body + SUTRA.close + '念經超渡誦心卷語音木魚慢中快開始暫停繼續再一次圓滿功德迴向偈為' + HALL.plaque + HALL.plaqueSub + HALL.couplet.join('') + HALL.zibei + '龍山字輩大宗曾氏沿革輕觸展讀塔位側殿樓號口湖鄉公所靈骨塔蚵寮新舊' + historyText().split('\n').filter(s => /^[一二三四五六七八九十]+、/.test(s)).join('') + '第一二三四五六七八九十世配偶︵︶無—年生仙逝之本支在世農曆卒生平待補於紀念堂祖先名冊填寫字號0123456789.';
   try {
     await Promise.race([
       Promise.all([
@@ -2101,7 +2139,7 @@ function buildBar() {
   if (towerHall) mk('塔位', () => { stopTour(); closeCard(); setGen(0); flyTo(towerView(null), 1.6); });
   mk('沿革', () => { stopTour(); closeCard(); openHistory(); });
   mk('字輩', () => { stopTour(); closeCard(); openZibei(0); });
-  mk('存圖', exportPoster);
+  mk('攝影', enterPhoto);
   mk('紀念堂', () => { location.href = './index.html'; });
 }
 
@@ -2180,11 +2218,11 @@ function selectPerson(id) {
 /* 點擊判斷（與拖曳區分） */
 const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
 let down = null;
-canvas.addEventListener('pointerdown', e => { down = { x: e.clientX, y: e.clientY, t: performance.now() }; if (touring) stopTour(); if (flight) { flight.res(); flight = null; } });
+canvas.addEventListener('pointerdown', e => { down = { x: e.clientX, y: e.clientY, t: performance.now() }; if (PHOTO.on && PHOTO.scan) photoStopScan(); if (touring) stopTour(); if (flight) { flight.res(); flight = null; } });
 canvas.addEventListener('pointerup', e => {
   if (!down) return;
   const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y), dt = performance.now() - down.t; down = null;
-  if (moved > 8 || dt > 450) return;
+  if (moved > 8 || dt > 450 || PHOTO.on) return;
   const r = canvas.getBoundingClientRect();
   ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
   ray.setFromCamera(ndc, camera);
@@ -2210,7 +2248,7 @@ const posterEl = document.getElementById('poster');
   r.querySelector('.ok').onclick = recUpload; r.querySelector('.no').onclick = closeRecorder;
 })();
 document.querySelector('#scrollReader .close').onclick = () => document.getElementById('scrollReader').classList.remove('on');
-posterEl.querySelector('button').onclick = () => posterEl.classList.remove('on');
+posterEl.querySelector('button').onclick = () => { posterEl.classList.remove('on'); if (PHOTO.on && PHOTO.resume) photoScan(); };
 function exportPoster() {
   renderer.render(scene, camera);
   const src = renderer.domElement, s = src.width / innerWidth;
@@ -2232,6 +2270,126 @@ function exportPoster() {
   posterEl.querySelector('a').href = url;
   posterEl.classList.add('on');
 }
+
+/* ================= 攝影：鏡頭特寫、掃描祭祀景象、按快門存圖 ================= */
+const PHOTO = { on: false, shots: [], i: 0, scan: false, scanId: 0 };
+function photoShots() {
+  const shots = [];
+  const ov = overviewView(); shots.push({ label: '祠堂全景', pos: ov[0], tgt: ov[1] });
+  // 一組供桌的特寫（依實際擺上的供品）
+  const altarShots = (set, who) => {
+    const R = set.R, s = set.s, P = (x, y, z) => new THREE.Vector3(x, y, z).multiplyScalar(s).add(R.position);
+    const vis = k => set.types[k] && set.types[k].group.visible;
+    const pre = who ? who + '・' : '';
+    shots.push({ label: pre + '香案', pos: P(.35, 1.15, 3.2), tgt: P(0, .5, 0) });
+    if (vis('candle')) shots.push({ label: pre + '燭火', pos: P(-.72, .7, .85), tgt: P(-1.12, .52, 0) });
+    if (!set.mini || vis('incense')) shots.push({ label: pre + '清香', pos: P(.28, .95, 1.25), tgt: P(0, .85, 0) });
+    if (vis('tea')) shots.push({ label: pre + '奉茶', pos: P(.1, .58, 1.6), tgt: P(.1, .1, .27) });
+    if (vis('fruit')) {
+      shots.push({ label: pre + '供果', pos: P(-.32, .6, .92), tgt: P(-.47, .2, -.04) });
+      shots.push({ label: pre + '餅乾', pos: P(.72, .7, .62), tgt: P(.47, .12, -.04) });
+    }
+    if (vis('flower')) shots.push({ label: pre + '鮮花', pos: P(.55, .72, .95), tgt: P(.82, .62, 0) });
+  };
+  if (OFFER_SETS.main) altarShots(OFFER_SETS.main, '');
+  shots.push({ label: '來台祖神位', pos: V(root.x + .25, root.y + .55, 3.4), tgt: V(root.x, root.y + .45, 0) });
+  if (plaquePos) shots.push({ label: '三省堂匾額', pos: V(plaquePos.x + .3, plaquePos.y - .25, 4.2), tgt: plaquePos.clone() });
+  Object.values(OFFER_SETS).forEach(set => {
+    if (!set.mini || !set.R.visible) return;
+    const p = byId[set.key];
+    shots.push({ label: p.name + '神位', pos: V(p.x + .2, p.y + .45, 3.4), tgt: V(p.x, p.y + .35, 0) });
+    altarShots(set, p.name);
+  });
+  if (stelePos) shots.push({ label: '家族沿革碑', pos: V(stelePos.x + .45, stelePos.y + .35, 5.4), tgt: V(stelePos.x, stelePos.y + .3, stelePos.z) });
+  return shots;
+}
+function photoGo(i, dur = 1.6) {
+  PHOTO.i = (i + PHOTO.shots.length) % PHOTO.shots.length;
+  const sh = PHOTO.shots[PHOTO.i];
+  document.querySelector('#photo .lbl').textContent = sh.label;
+  document.querySelector('#photo .cnt').textContent = `${PHOTO.i + 1} / ${PHOTO.shots.length}`;
+  return flyTo([sh.pos.clone(), sh.tgt.clone()], dur);
+}
+async function photoScan() {
+  const my = ++PHOTO.scanId; PHOTO.scan = true; updPhotoUI();
+  while (PHOTO.on && PHOTO.scan && my === PHOTO.scanId) {
+    await photoGo(PHOTO.i + 1, 2.6);
+    if (!PHOTO.scan || my !== PHOTO.scanId) break;
+    await sleep(1400);
+  }
+}
+function photoStopScan() { PHOTO.scan = false; PHOTO.scanId++; updPhotoUI(); }
+function updPhotoUI() { const b = document.querySelector('#photo .scan'); if (b) { b.classList.toggle('on', PHOTO.scan); b.textContent = PHOTO.scan ? '停止掃描' : '自動掃描'; } }
+function enterPhoto() {
+  stopTour(); closeCard();
+  PHOTO.on = true; PHOTO.shots = photoShots(); PHOTO.i = 0;
+  document.body.classList.add('photo');
+  controls.minDistance = .25;
+  photoGo(PHOTO.shots.length > 1 ? 1 : 0, 1.4);   // 先到香案特寫
+  photoScan();
+}
+function exitPhoto() {
+  photoStopScan(); PHOTO.on = false;
+  document.body.classList.remove('photo');
+  controls.minDistance = 3;
+  setGen(0); flyTo(overviewView(), 1.4);
+}
+function shutterSound() {
+  try {
+    const ac = CHANT.ac || (CHANT.ac = new (window.AudioContext || window.webkitAudioContext)());
+    const t = ac.currentTime, n = ac.sampleRate * .08, buf = ac.createBuffer(1, n, ac.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 3);
+    const src = ac.createBufferSource(), g = ac.createGain(); src.buffer = buf; g.gain.value = .35;
+    src.connect(g); g.connect(ac.destination); src.start(t);
+  } catch (e) {}
+}
+function capturePhoto() {
+  const wasScan = PHOTO.scan; photoStopScan(); PHOTO.resume = wasScan;
+  shutterSound();
+  const fl = document.getElementById('flash'); fl.classList.remove('go'); void fl.offsetWidth; fl.classList.add('go');
+  // 以較高解析度重繪一張
+  const pr0 = renderer.getPixelRatio(), pr = Math.min(3, Math.max(2, pr0 * 1.5));
+  renderer.setPixelRatio(pr); renderer.setSize(innerWidth, innerHeight, false); renderer.render(scene, camera);
+  const src = renderer.domElement, W = src.width, H = src.height, s = W / innerWidth;
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const g = c.getContext('2d');
+  g.drawImage(src, 0, 0);
+  renderer.setPixelRatio(pr0); renderer.setSize(innerWidth, innerHeight, false);
+  // 暈影（特寫感）
+  const vg = g.createRadialGradient(W / 2, H * .45, Math.min(W, H) * .35, W / 2, H * .5, Math.max(W, H) * .75);
+  vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(20,10,2,.55)');
+  g.fillStyle = vg; g.fillRect(0, 0, W, H);
+  // 底部題字
+  const bh = 74 * s, bg = g.createLinearGradient(0, H - bh * 1.6, 0, H);
+  bg.addColorStop(0, 'rgba(20,10,2,0)'); bg.addColorStop(1, 'rgba(20,10,2,.82)');
+  g.fillStyle = bg; g.fillRect(0, H - bh * 1.6, W, bh * 1.6);
+  const d = new Date(Date.now() + 8 * 3600e3), lm = lunarMD(new Date(d.toISOString().slice(0, 10) + 'T12:00:00Z'));
+  const dateTxt = `${d.getUTCFullYear()}.${d.getUTCMonth() + 1}.${d.getUTCDate()}` + (lm ? `・農曆${lm.leap ? '閏' : ''}${CN_MON[lm.m]}月${cnDay(lm.d)}` : '');
+  g.textBaseline = 'alphabetic'; g.textAlign = 'left';
+  g.fillStyle = '#f6d98a'; g.font = `900 ${20 * s}px ${FONT}`;
+  g.fillText(`龍山派 曾氏族譜・${PHOTO.shots[PHOTO.i] ? PHOTO.shots[PHOTO.i].label : ''}`, 20 * s, H - 36 * s);
+  g.fillStyle = '#d9c08a'; g.font = `400 ${12 * s}px ${FONT}`; g.fillText(dateTxt, 20 * s, H - 16 * s);
+  // 朱印
+  const w = 50 * s, x = W - w - 18 * s, y = H - w - 16 * s;
+  g.save(); g.translate(x + w / 2, y + w / 2); g.rotate(-.08);
+  g.fillStyle = '#a82020'; g.fillRect(-w / 2, -w / 2, w, w);
+  g.fillStyle = '#f8e7d0'; g.font = `900 ${17 * s}px ${FONT}`; g.textAlign = 'center'; g.textBaseline = 'middle';
+  [['曾', '氏'], ['龍', '山']].forEach((col, ci) => col.forEach((ch, ri) => g.fillText(ch, (ci ? -1 : 1) * 11 * s, (ri ? 1 : -1) * 11 * s)));
+  g.restore();
+  const url = c.toDataURL('image/jpeg', .92);
+  const name = `曾氏族譜-${(PHOTO.shots[PHOTO.i] || {}).label || '祠堂'}-${d.toISOString().slice(0, 10)}.jpg`;
+  posterEl.querySelector('img').src = url;
+  const a = posterEl.querySelector('a'); a.href = url; a.download = name;
+  setTimeout(() => posterEl.classList.add('on'), 250);
+}
+(() => {
+  const el = document.getElementById('photo');
+  el.querySelector('.prev').onclick = () => { photoStopScan(); photoGo(PHOTO.i - 1, 1.2); };
+  el.querySelector('.next').onclick = () => { photoStopScan(); photoGo(PHOTO.i + 1, 1.2); };
+  el.querySelector('.shoot').onclick = capturePhoto;
+  el.querySelector('.scan').onclick = () => PHOTO.scan ? photoStopScan() : photoScan();
+  el.querySelector('.out').onclick = exitPhoto;
+})();
 
 /* ---------- 尺寸 ---------- */
 function resize() {
