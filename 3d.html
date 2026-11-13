@@ -211,6 +211,37 @@
   #routeBox .row .play{background:#8b1a1a;color:#f6d98a}
   #routeBox .row .gmap{background:#2a6cd6;color:#fff;border-color:#2a6cd6}
 
+  /* 祈福之旅 */
+  #veil{position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;z-index:30;transition:opacity .6s}
+  #veil.on{opacity:1}
+  #pilCap{position:fixed;left:50%;bottom:calc(var(--sb) + 28px);transform:translateX(-50%);z-index:13;display:none;align-items:center;gap:10px;background:rgba(30,16,6,.82);border:1px solid var(--gold);border-radius:24px;padding:8px 8px 8px 16px;color:#f6d98a;font-weight:900;font-size:calc(15px * var(--fs));letter-spacing:.06em;white-space:nowrap}
+  #pilCap.on{display:flex;animation:fadeIn .3s}
+  #pilCap .skip{border:0;border-radius:16px;background:#f6d98a;color:#4a0e0e;font-family:var(--font);font-weight:900;font-size:calc(13px * var(--fs));padding:5px 12px}
+  body.dizang #bar,body.pil #bar{display:none}
+  #charBox,#pilBox{position:fixed;left:0;right:0;bottom:0;z-index:14;display:none;padding:0 8px}
+  #charBox.on,#pilBox.on{display:block;animation:fadeIn .35s}
+  #charBox .sheet,#pilBox .sheet{position:relative;background:linear-gradient(170deg,#faf3e0,#ede0b8);border:2px solid var(--gold);border-bottom:0;border-radius:6px 6px 0 0;box-shadow:0 -6px 24px rgba(0,0,0,.35);padding:12px 14px calc(var(--sb) + 14px);max-height:72vh;overflow:auto}
+  #charBox h3,#pilBox h3{color:var(--red);font-size:calc(18px * var(--fs));font-weight:900;letter-spacing:.12em;text-align:center}
+  #charBox .sub,#pilBox .sub{text-align:center;color:#8a5a16;font-size:calc(12.5px * var(--fs));margin:3px 0 10px;letter-spacing:.05em}
+  #charBox .x,#pilBox .x{position:absolute;top:4px;right:8px;border:0;background:none;color:#7a5a2a;font-size:26px;padding:4px 8px}
+  #charBox .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  #charBox .grid button{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px 8px;border:1px solid var(--gold);border-radius:4px;background:#fffaf0;font-family:var(--font);font-weight:900;font-size:calc(15px * var(--fs));color:#4a0e0e}
+  #charBox .grid button.on{background:#f6e2a8;box-shadow:inset 0 0 0 2px #8b1a1a}
+  #charBox .grid i{position:relative;display:block;width:44px;height:64px;transform:scale(var(--s));transform-origin:bottom}
+  #charBox .grid i::before{content:'';position:absolute;left:12px;top:0;width:20px;height:21px;border-radius:50%;background:#eac3a0;box-shadow:inset 0 7px 0 0 var(--h)}
+  #charBox .grid i::after{content:'';position:absolute;left:8px;top:21px;width:28px;height:24px;border-radius:9px 9px 3px 3px;background:var(--t)}
+  #charBox .grid em{position:absolute;left:12px;top:44px;width:20px;height:20px;background:var(--b);border-radius:2px}
+  #pilBox .chips{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-bottom:10px}
+  #pilBox .chips button{border:1px solid var(--gold);border-radius:16px;background:#fffaf0;color:#5a0d0d;font-family:var(--font);font-weight:900;font-size:calc(14px * var(--fs));padding:6px 13px}
+  #pilBox .chips button.on{background:#8b1a1a;color:#f6d98a}
+  #pilBox textarea{width:100%;height:calc(54px * var(--fs));border:1px solid #c9b07a;border-radius:3px;padding:7px 9px;font-family:var(--font);font-size:calc(14px * var(--fs));background:#fffdf6;resize:none}
+  #pilBox .go{width:100%;margin-top:8px;min-height:calc(46px * var(--fs));border:1px solid var(--gold);border-radius:3px;background:linear-gradient(#a52222,#7a1414);color:#f6d98a;font-family:var(--font);font-weight:900;font-size:calc(16px * var(--fs));letter-spacing:.2em}
+  #pilBox h5{margin:12px 0 4px;color:#8a5a16;font-size:calc(12.5px * var(--fs));letter-spacing:.2em}
+  #pilBox .hist{list-style:none;font-size:calc(13px * var(--fs));color:#3a2a1a}
+  #pilBox .hist li{padding:4px 0;border-bottom:1px dashed #d8c69a}
+  #pilBox .hist li i{float:right;font-style:normal;color:#9a8a6a;font-size:.9em}
+  #pilBox .hist .none{color:#9a8a6a}
+  #dzBox .row.r2{margin-bottom:8px}
   /* 地藏殿 */
   body.dizang #title,body.dizang #genTag,body.dizang #seal,body.dizang #riteBanner,body.dizang #card{display:none!important}
   #dzBox{position:fixed;left:0;right:0;bottom:0;z-index:12;display:none;padding:0 8px}
@@ -221,11 +252,14 @@
   #dzBox .x{position:absolute;top:4px;right:8px;border:0;background:none;color:#7a5a2a;font-size:26px;padding:4px 8px}
   #dzBox .row{display:flex;gap:8px;margin-bottom:8px}
   #dzBox .row button,#dzBox .bk{flex:1;min-height:calc(44px * var(--fs));font-family:var(--font);font-size:calc(15px * var(--fs));font-weight:900;border-radius:3px;border:1px solid var(--gold);letter-spacing:.08em}
+  #dzBox .wsh{background:linear-gradient(#c9952e,#9a6a12);color:#fff8e0}
   #dzBox .ofr{background:#8b1a1a;color:#f6d98a}
   #dzBox .chn{background:#2a1a08;color:#f6d98a}
   #dzBox .see{background:#fbf4e2;color:#5a0d0d}
   #dzBox .bk{width:100%;background:#fff8ec;color:#5a0d0d;border-style:dashed}
-  #routeBox .dz{margin-top:6px;font-family:var(--font);font-size:calc(13px * var(--fs));font-weight:900;padding:5px 10px;border:1px solid #8b1a1a;border-radius:3px;background:#8b1a1a;color:#f6d98a}
+  #routeBox .dzs{display:flex;gap:6px;margin-top:6px}
+  #routeBox .dz.drv{background:linear-gradient(#c9952e,#9a6a12);border-color:#9a6a12;color:#fff8e0}
+  #routeBox .dz{font-family:var(--font);font-size:calc(13px * var(--fs));font-weight:900;padding:5px 10px;border:1px solid #8b1a1a;border-radius:3px;background:#8b1a1a;color:#f6d98a}
 
   /* 卷軸展讀 */
   #scrollReader{position:fixed;inset:0;z-index:25;background:rgba(20,10,2,.88);display:none;flex-direction:column;align-items:center;justify-content:center;padding:calc(var(--st) + 16px) 14px calc(var(--sb) + 16px)}
@@ -369,12 +403,34 @@
   </div>
 </div>
 
+<div id="veil"></div>
+<div id="pilCap"><span></span><button class="skip">略過 ›</button></div>
+<div id="charBox">
+  <div class="sheet">
+    <button class="x" aria-label="關閉">×</button>
+    <h3>選擇角色・前往地藏殿祈福</h3>
+    <p class="sub">從台61線下交流道，開車到成龍納骨塔，停車後入殿上香</p>
+    <div class="grid"></div>
+  </div>
+</div>
+<div id="pilBox">
+  <div class="sheet">
+    <button class="x" aria-label="關閉">×</button>
+    <h3>祈福</h3>
+    <p class="sub">南無大願地藏王菩薩・可複選</p>
+    <div class="chips"></div>
+    <textarea maxlength="60" placeholder="心願（選填）：例 祈求阿嬤手術順利"></textarea>
+    <button class="go">誠心祈福</button>
+    <h5>近期祈福</h5><ul class="hist"></ul>
+  </div>
+</div>
 <div id="dzBox">
   <div class="sheet">
     <button class="x" aria-label="離開">×</button>
     <h3>成龍納骨塔・一樓地藏殿</h3>
     <p class="sub">南無大願地藏王菩薩</p>
-    <div class="row"><button class="ofr">香案供奉</button><button class="chn">誦《心經》</button><button class="see">瞻仰聖像</button></div>
+    <div class="row"><button class="wsh">祈福</button><button class="ofr">香案供奉</button></div>
+    <div class="row r2"><button class="chn">誦《心經》</button><button class="see">瞻仰聖像</button></div>
     <button class="bk">回掃墓路線</button>
   </div>
 </div>
@@ -533,7 +589,7 @@ measure(root); place(root, -root.w / 2);
 /* ---------- 字型就緒後才畫牌位文字（iOS 必要） ---------- */
 async function waitFonts() {
   const txt = PEOPLE.map(p => p.name + p.tabletText + (p.tag || '') + (p.lines || []).join('') + (p.bio || '') + (p.alias || '')).join('')
-            + '成龍納骨塔一樓地藏殿南無大願地藏王菩薩香案供奉誦心經瞻仰聖像回掃墓路線進入祭拜於前迴向法界眾生' + '掃墓路線口湖鄉成龍納骨堂眾靈祠男公女媽廟起點終點沿途安奉位新舊塔往南接台旁道路轉雲往東北開車約分鐘全圖導覽停止地圖導航抵達紀念堂尚未登記此處溼地村牛挑灣溪烏麻園豐樺水產行縣' + '依族譜資料整理可於紀念堂補寫生平祖先名冊' + '祠堂全景香案燭火清香奉茶供果餅乾鮮花來台祖神位三省堂匾額家族沿革碑攝影離開自動掃描停止繼續拍攝下載' + SUTRA.title + SUTRA.open + SUTRA.body + SUTRA.close + '念經超渡誦心卷語音木魚慢中快開始暫停繼續再一次圓滿功德迴向偈為' + HALL.plaque + HALL.plaqueSub + HALL.couplet.join('') + HALL.zibei + '龍山字輩大宗曾氏沿革輕觸展讀塔位側殿樓號口湖鄉公所靈骨塔蚵寮新舊' + historyText().split('\n').filter(s => /^[一二三四五六七八九十]+、/.test(s)).join('') + '第一二三四五六七八九十世配偶︵︶無—年生仙逝之本支在世農曆卒生平待補於紀念堂祖先名冊填寫字號0123456789.';
+            + '闔家平安祖先安息身體健康事業順利學業進步消災解厄' + '成龍納骨塔一樓地藏殿南無大願地藏王菩薩香案供奉誦心經瞻仰聖像回掃墓路線進入祭拜於前迴向法界眾生' + '掃墓路線口湖鄉成龍納骨堂眾靈祠男公女媽廟起點終點沿途安奉位新舊塔往南接台旁道路轉雲往東北開車約分鐘全圖導覽停止地圖導航抵達紀念堂尚未登記此處溼地村牛挑灣溪烏麻園豐樺水產行縣' + '依族譜資料整理可於紀念堂補寫生平祖先名冊' + '祠堂全景香案燭火清香奉茶供果餅乾鮮花來台祖神位三省堂匾額家族沿革碑攝影離開自動掃描停止繼續拍攝下載' + SUTRA.title + SUTRA.open + SUTRA.body + SUTRA.close + '念經超渡誦心卷語音木魚慢中快開始暫停繼續再一次圓滿功德迴向偈為' + HALL.plaque + HALL.plaqueSub + HALL.couplet.join('') + HALL.zibei + '龍山字輩大宗曾氏沿革輕觸展讀塔位側殿樓號口湖鄉公所靈骨塔蚵寮新舊' + historyText().split('\n').filter(s => /^[一二三四五六七八九十]+、/.test(s)).join('') + '第一二三四五六七八九十世配偶︵︶無—年生仙逝之本支在世農曆卒生平待補於紀念堂祖先名冊填寫字號0123456789.';
   try {
     await Promise.race([
       Promise.all([
@@ -2399,10 +2455,10 @@ function openRoute() {
   el.querySelector('.steps').innerHTML = ROUTE.stops.map((st, i) => {
     const ppl = ROUTE.occ(st.keys);
     const list = st.keys.length ? (ppl.length ? ppl.map(p => `<span>${escH(p.name)}<small>${st.keys.length > 1 ? (placementOf(p).tower === 'B_new' ? '新塔' : '舊塔') + '・' : ''}${slot(p)}</small></span>`).join('') : '<em>紀念堂尚未登記此處塔位</em>') : '';
-    return `<li data-i="${i}"><b>${i === 0 ? '起' : i === 2 ? '終' : '經'}</b><div><h4>${escH(st.name)}</h4><p>${escH(st.sub)}</p>${list ? `<div class="ppl">${list}</div>` : ''}${i === 0 ? '<button class="dz">進入一樓・地藏殿祭拜</button>' : ''}</div></li>`;
+    return `<li data-i="${i}"><b>${i === 0 ? '起' : i === 2 ? '終' : '經'}</b><div><h4>${escH(st.name)}</h4><p>${escH(st.sub)}</p>${list ? `<div class="ppl">${list}</div>` : ''}${i === 0 ? '<div class="dzs"><button class="dz drv">開車前往祈福</button><button class="dz">直接入殿</button></div>' : ''}</div></li>`;
   }).join('');
   el.querySelectorAll('.steps li').forEach(li => li.onclick = () => { ROUTE.anim = null; flyTo(routeStopView(ROUTE.stops[+li.dataset.i]), 1.4); });
-  const dzb = el.querySelector('.steps .dz'); if (dzb) dzb.onclick = e => { e.stopPropagation(); openDizang(); };
+  el.querySelectorAll('.steps .dz').forEach(b => b.onclick = e => { e.stopPropagation(); if (b.classList.contains('drv')) openCharPick(); else openDizang(); });
   el.classList.add('on');
   setGen(0); flyTo(routeOverview(), 2);
 }
@@ -2458,7 +2514,7 @@ function tickRoute(now, dt) {
 
 /* ================= 成龍納骨塔一樓・地藏殿 =================
    依現場照片：藍天彩繪背板（日光、金色蓮花拱）、地藏王菩薩（金袍紅袈裟、五佛冠、錫杖、明珠）、
-   藍色諦聽、回紋石座、木作雕花頂框、兩側燈座、右側牌位牆；殿前香案可供奉、誦經。 */
+   金獅（按繡球）、回紋石座、木作雕花頂框、兩側燈座、右側牌位牆；殿前香案可供奉、誦經。 */
 const SPECIAL_NAMES = { dizang: '地藏王菩薩' };
 const DZ = { built: false, g: null, set: null, censerTip: null };
 function dzMural() {
@@ -2595,15 +2651,37 @@ function buildDizang() {
   const top = new THREE.Mesh(new THREE.TorusGeometry(.11, .015, 8, 24), gold); top.position.set(.43, 2.12, .3); S.add(top);
   for (let i = 0; i < 6; i++) { const r = new THREE.Mesh(new THREE.TorusGeometry(.03, .007, 6, 12), gold); r.position.set(.43 + Math.cos(i) * .1, 2.12 + Math.sin(i) * .1, .3); r.rotation.y = Math.PI / 2; S.add(r); }   // 錫杖六環
   const spike = new THREE.Mesh(new THREE.ConeGeometry(.025, .12, 8), gold); spike.position.set(.43, 2.28, .3); S.add(spike);
-  // 諦聽（藍色神獸，伏於左側）
-  const blue = rtMat('#2c3f9e', .4), T = new THREE.Group(); T.position.set(-.95, 0, .05); S.add(T);
-  const tb = new THREE.Mesh(new THREE.SphereGeometry(.5, 20, 14), blue); tb.scale.set(1, .5, .6); tb.position.set(.1, .26, -.1); T.add(tb);
-  const th = new THREE.Mesh(new THREE.SphereGeometry(.2, 20, 14), blue); th.position.set(-.32, .62, .12); T.add(th);
-  const snout = new THREE.Mesh(new THREE.BoxGeometry(.18, .12, .16), blue); snout.position.set(-.4, .56, .24); T.add(snout);
-  const mouth = new THREE.Mesh(new THREE.BoxGeometry(.16, .035, .1), redS); mouth.position.set(-.4, .5, .3); T.add(mouth);
-  const horn = new THREE.Mesh(new THREE.ConeGeometry(.04, .22, 8), blue); horn.position.set(-.3, .84, .08); horn.rotation.z = .3; T.add(horn);
-  [-1, 1].forEach(s => { const ear = new THREE.Mesh(new THREE.ConeGeometry(.05, .14, 6), blue); ear.position.set(-.24, .74, .12 + s * .13); ear.rotation.set(s * .6, 0, .9); T.add(ear); const eye = new THREE.Mesh(new THREE.SphereGeometry(.025, 8, 6), rtMat('#f2e2a0', .3)); eye.position.set(-.47, .66, .12 + s * .07); T.add(eye); });
-  [[-.35, .3], [-.15, .32]].forEach(([x, z]) => { const leg = new THREE.Mesh(new THREE.BoxGeometry(.1, .3, .1), blue); leg.position.set(x, .15, z); T.add(leg); });
+  // 金獅（坐於左側，前爪按繡球）
+  const lionM = new THREE.MeshStandardMaterial({ color: '#d9a43c', metalness: .62, roughness: .3, envMapIntensity: 1.1 });
+  const maneM = new THREE.MeshStandardMaterial({ color: '#c28a26', metalness: .6, roughness: .38 });
+  const L = new THREE.Group(); L.position.set(-1.0, 0, .05); L.rotation.y = .35; S.add(L);
+  const haunch = new THREE.Mesh(new THREE.SphereGeometry(.3, 20, 14), lionM); haunch.scale.set(1.15, .9, 1.25); haunch.position.set(0, .26, -.15); L.add(haunch);
+  const chest = new THREE.Mesh(new THREE.SphereGeometry(.24, 20, 14), lionM); chest.scale.set(1, 1.35, .95); chest.position.set(0, .56, .08); L.add(chest);
+  [-1, 1].forEach(s => {
+    const leg = new THREE.Mesh(new THREE.CylinderGeometry(.065, .075, .48, 10), lionM); leg.position.set(s * .13, .26, .24); leg.rotation.x = -.12; L.add(leg);
+    const paw = new THREE.Mesh(new THREE.SphereGeometry(.085, 12, 10), lionM); paw.scale.set(1, .7, 1.3); paw.position.set(s * .13, .05, .32); L.add(paw);
+    const thigh = new THREE.Mesh(new THREE.SphereGeometry(.17, 14, 10), lionM); thigh.scale.set(.7, 1, 1.2); thigh.position.set(s * .26, .2, -.12); L.add(thigh);
+  });
+  const ball = new THREE.Mesh(new THREE.SphereGeometry(.1, 16, 12), new THREE.MeshStandardMaterial({ color: '#c8282a', metalness: .3, roughness: .4 })); ball.position.set(.24, .1, .36); L.add(ball);   // 繡球
+  const ballBand = new THREE.Mesh(new THREE.TorusGeometry(.1, .012, 6, 20), gold); ballBand.position.copy(ball.position); ballBand.rotation.y = .6; L.add(ballBand);
+  const headL = new THREE.Mesh(new THREE.SphereGeometry(.19, 20, 16), lionM); headL.scale.set(1.05, 1, .95); headL.position.set(0, .92, .16); L.add(headL);
+  for (let r = 0; r < 2; r++) {   // 鬃毛捲：兩圈
+    const n = r ? 14 : 18, rad = r ? .16 : .23;
+    for (let i = 0; i < n; i++) {
+      const a = i / n * Math.PI * 2, c = new THREE.Mesh(new THREE.SphereGeometry(r ? .06 : .072, 10, 8), maneM);
+      c.position.set(Math.cos(a) * rad, .92 + Math.sin(a) * rad * 1.05, .06 - r * .08); L.add(c);
+    }
+  }
+  const muz = new THREE.Mesh(new THREE.SphereGeometry(.1, 14, 10), lionM); muz.scale.set(1.25, .8, .9); muz.position.set(0, .85, .32); L.add(muz);
+  const nose = new THREE.Mesh(new THREE.SphereGeometry(.035, 10, 8), rtMat('#5a3410', .4)); nose.position.set(0, .89, .41); L.add(nose);
+  const jaw = new THREE.Mesh(new THREE.BoxGeometry(.14, .03, .08), redS); jaw.position.set(0, .79, .35); L.add(jaw);
+  [-1, 1].forEach(s => {
+    const eyeL = new THREE.Mesh(new THREE.SphereGeometry(.032, 10, 8), rtMat('#1a1208', .2)); eyeL.position.set(s * .075, .99, .31); L.add(eyeL);
+    const brow = new THREE.Mesh(new THREE.TorusGeometry(.04, .012, 6, 10, Math.PI), maneM); brow.position.set(s * .075, 1.01, .32); L.add(brow);
+    const ear = new THREE.Mesh(new THREE.SphereGeometry(.05, 8, 6), lionM); ear.position.set(s * .16, 1.1, .1); L.add(ear);
+  });
+  const tail = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([new THREE.Vector3(0, .25, -.5), new THREE.Vector3(.12, .4, -.62), new THREE.Vector3(.05, .6, -.58)]), 12, .025, 6), lionM); L.add(tail);
+  const tuft = new THREE.Mesh(new THREE.SphereGeometry(.07, 10, 8), maneM); tuft.position.set(.05, .63, -.56); L.add(tuft);
   // 右側牌位牆
   const tw = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 3.3), new THREE.MeshStandardMaterial({ map: dzTabletWall(), roughness: .6 })); tw.position.set(5.6, 2.55, -2.9); D.add(tw);
   // 香案（木桌）＋常設香爐
@@ -2647,6 +2725,10 @@ function openDizang() {
   setGen(0); flyTo(dzView('enter'), 2.2);
 }
 function closeDizang(back) {
+  pilCancel(); pilCap('', false); document.getElementById('pilBox').classList.remove('on');
+  if (PIL.ch) { PIL.ch.parent.remove(PIL.ch); PIL.ch = null; }
+  if (PIL.mini) { PIL.mini.parent.remove(PIL.mini); PIL.mini = null; }
+  if (PIL.car) PIL.car.visible = false; if (ROUTE.marker) ROUTE.marker.visible = true;
   document.body.classList.remove('dizang'); document.getElementById('dzBox').classList.remove('on');
   if (back) { openRoute(); return; }
   controls.minDistance = 3; controls.minPolarAngle = Math.PI * 0.22; flyTo(overviewView(), 1.6);
@@ -2655,9 +2737,229 @@ function closeDizang(back) {
   const el = document.getElementById('dzBox');
   el.querySelector('.ofr').onclick = () => { flyTo(dzView('altar'), 1.2); openOfferSheet('dizang'); };
   el.querySelector('.chn').onclick = () => openSutra('dizang');
+  el.querySelector('.wsh').onclick = () => { el.classList.remove('on'); flyTo(WISH_VIEW(), 1.2); openWish(); };
   el.querySelector('.see').onclick = () => flyTo(dzView('statue'), 1.4);
   el.querySelector('.bk').onclick = () => closeDizang(true);
   el.querySelector('.x').onclick = () => closeDizang(false);
+})();
+
+/* ================= 祈福之旅：選角色 → 台61下交流道 → 停車 → 入殿上香三拜 → 祈福 ================= */
+const CHARS = {
+  agong: { name: '阿公', top: '#55657a', bot: '#3a3a3a', hair: '#d9d9d9', s: 1, cap: true },
+  ama:   { name: '阿嬤', top: '#8a3a5a', bot: '#4a3a40', hair: '#cfcfcf', s: .96, skirt: true, bun: true },
+  baba:  { name: '爸爸', top: '#2f4f7f', bot: '#2a2a2a', hair: '#1a1a1a', s: 1.04 },
+  mama:  { name: '媽媽', top: '#c8706a', bot: '#5a4a5a', hair: '#2a1a10', s: .98, skirt: true, long: true },
+  sunzi: { name: '孫子', top: '#e09a30', bot: '#3a5a9a', hair: '#1a1a1a', s: .72 },
+  sunnv: { name: '孫女', top: '#e07aa0', bot: '#f2f2f2', hair: '#2a1a10', s: .7, skirt: true, pony: true },
+};
+const WISH_VIEW = () => [dzW(2.3, 3.7, 7.4), dzW(-.2, .35, -.6)];   // 面板在下：人物與菩薩落在上半
+const WISHES = ['闔家平安', '祖先安息', '身體健康', '事業順利', '學業進步', '消災解厄'];
+const PIL = { id: 0, anims: [], cam: false, ch: null, mini: null, car: null, fx: [], key: null };
+function makeChar(key) {
+  const c = CHARS[key], g = new THREE.Group(), m = col => rtMat(col, .7), skinM = rtMat('#eac3a0', .6);
+  const hip = new THREE.Group(); hip.position.y = .82; g.add(hip);
+  const legs = [-1, 1].map(s => {
+    const p = new THREE.Group(); p.position.set(s * .085, 0, 0); hip.add(p);
+    const l = new THREE.Mesh(new THREE.CylinderGeometry(.065, .055, .78, 10), m(c.bot)); l.position.y = -.39; p.add(l);
+    const shoe = new THREE.Mesh(new THREE.BoxGeometry(.1, .06, .2), m('#2a2420')); shoe.position.set(0, -.79, .04); p.add(shoe);
+    return p;
+  });
+  const up = new THREE.Group(); hip.add(up);
+  const torso = lathe([[0, 0], [.17, 0], [.2, .2], [.2, .48], [.13, .6], [0, .6]], m(c.top), 18); up.add(torso);
+  if (c.skirt) { const sk = lathe([[0, 0], [.17, 0], [.27, -.42], [0, -.42]], m(c.bot), 18); hip.add(sk); legs.forEach(p => p.children[0].material = skinM); }
+  const head = new THREE.Group(); head.position.y = .76; up.add(head);
+  const hd = new THREE.Mesh(new THREE.SphereGeometry(.13, 18, 14), skinM); hd.scale.y = 1.1; head.add(hd);
+  const hairM = m(c.hair);
+  const cap = new THREE.Mesh(new THREE.SphereGeometry(.137, 18, 10, 0, Math.PI * 2, 0, Math.PI * (c.cap ? .3 : .52)), hairM); cap.rotation.x = -.25; cap.position.z = -.01; head.add(cap);
+  if (c.bun) { const b = new THREE.Mesh(new THREE.SphereGeometry(.065, 12, 10), hairM); b.position.set(0, .06, -.13); head.add(b); }
+  if (c.long) { const lh = new THREE.Mesh(new THREE.CylinderGeometry(.13, .15, .3, 14, 1, true, Math.PI * .7, Math.PI * 1.6), hairM); lh.position.y = -.1; lh.material = hairM.clone(); lh.material.side = THREE.DoubleSide; head.add(lh); }
+  if (c.pony) { const pn = new THREE.Mesh(new THREE.ConeGeometry(.05, .24, 10), hairM); pn.position.set(0, -.02, -.16); pn.rotation.x = -2.6; head.add(pn); }
+  [-1, 1].forEach(s => { const e = new THREE.Mesh(new THREE.SphereGeometry(.014, 6, 6), rtMat('#1a1410', .3)); e.position.set(s * .045, .02, .118); head.add(e); });
+  const arms = [-1, 1].map(s => {
+    const p = new THREE.Group(); p.position.set(s * .22, .55, 0); up.add(p);
+    const a = new THREE.Mesh(new THREE.CylinderGeometry(.05, .045, .55, 8), m(c.top)); a.position.y = -.27; p.add(a);
+    const h = new THREE.Mesh(new THREE.SphereGeometry(.05, 10, 8), skinM); h.position.y = -.56; p.add(h);
+    return p;
+  });
+  const sticks = new THREE.Group(); sticks.visible = false;   // 手持三炷香
+  [-.03, 0, .03].forEach(dx => { const st = new THREE.Mesh(new THREE.CylinderGeometry(.006, .006, .42, 5), rtMat('#a8321e')); st.position.set(dx, .2, 0); sticks.add(st); const tip = new THREE.Mesh(new THREE.SphereGeometry(.012, 6, 5), new THREE.MeshBasicMaterial({ color: '#ff8a2a' })); tip.position.set(dx, .41, 0); sticks.add(tip); });
+  sticks.position.set(-.22, -.62, 0); arms[1].add(sticks);
+  g.scale.setScalar(c.s);
+  g.userData = { legs, arms, up, sticks, key, walkT: 0 };
+  return g;
+}
+function poseChar(ch, { walk = 0, bow = 0, pray = 0 } = {}) {
+  const u = ch.userData;
+  const sw = Math.sin(u.walkT * 7) * .5 * walk;
+  u.legs[0].rotation.x = sw; u.legs[1].rotation.x = -sw;
+  u.arms.forEach((a, i) => {
+    const s = i ? 1 : -1;
+    a.rotation.x = (i ? sw : -sw) * .7 * (1 - pray) - 1.15 * pray;
+    a.rotation.z = -s * .42 * pray;
+  });
+  u.up.rotation.x = bow * .6;
+}
+function pAnim(dur, fn) {
+  const id = PIL.id;
+  return new Promise(res => PIL.anims.push({ t0: performance.now(), dur, fn, res, id }));
+}
+function tickPilgrim(now, dt) {
+  for (let i = PIL.anims.length - 1; i >= 0; i--) {
+    const a = PIL.anims[i], k = Math.min(1, (now - a.t0) / a.dur);
+    a.fn(k, dt);
+    if (k >= 1) { PIL.anims.splice(i, 1); a.res(); }
+  }
+  for (let i = PIL.fx.length - 1; i >= 0; i--) {
+    const f = PIL.fx[i], k = (now - f.t0) / f.dur;
+    if (k >= 1) { f.o.parent && f.o.parent.remove(f.o); PIL.fx.splice(i, 1); continue; }
+    f.o.position.y = f.y0 + k * f.rise; if (f.o.material) f.o.material.opacity = Math.min(1, k * 4) * (1 - k) * f.op;
+  }
+}
+function pilCancel() { PIL.id++; const a = PIL.anims; PIL.anims = []; a.forEach(x => x.res()); PIL.cam = false; controls.enabled = true; }
+function wishSprite(text) {
+  const c = boardTexture(512, 160, (x, w, h) => {
+    x.clearRect(0, 0, w, h); x.font = `900 92px ${FONT}`; x.lineJoin = 'round'; x.shadowColor = 'rgba(255,170,40,.9)'; x.shadowBlur = 26; x.strokeStyle = '#6a0c0c'; x.lineWidth = 14; x.strokeText(text, w / 2, h / 2 + 6); x.shadowBlur = 0; const gr = x.createLinearGradient(0, 30, 0, 130); gr.addColorStop(0, '#fff3c0'); gr.addColorStop(1, '#e8b030'); x.fillStyle = gr; x.fillText(text, w / 2, h / 2 + 6);
+  });
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: c, transparent: true, depthWrite: false, opacity: 0 })); sp.scale.set(1.9, .6, 1); return sp;
+}
+function blessFx(text) {
+  const now = performance.now(), base = DZ.censerTip.clone();
+  const ws = wishSprite(text); ws.position.copy(base).add(new THREE.Vector3(0, .3, .2)); scene.add(ws);
+  PIL.fx.push({ o: ws, t0: now, dur: 5200, y0: ws.position.y, rise: 1.4, op: 1 });
+  const tex = softTex('rgba(255,230,150,1)', 'rgba(255,200,80,0)');
+  for (let i = 0; i < 36; i++) {
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0 }));
+    sp.scale.setScalar(.06 + Math.random() * .08); sp.position.copy(base).add(new THREE.Vector3((Math.random() - .5) * 1.4, Math.random() * .4, (Math.random() - .5) * .8)); scene.add(sp);
+    PIL.fx.push({ o: sp, t0: now + Math.random() * 1500, dur: 2600 + Math.random() * 2000, y0: sp.position.y, rise: 1.2 + Math.random() * 1.2, op: .9 });
+  }
+  addSmoke(base, 12, 90e3, { sz: .5, op: .3, h: 2.2 });
+}
+function pilCap(text, show = true) {
+  const el = document.getElementById('pilCap'); el.classList.toggle('on', show); document.body.classList.toggle('pil', show); if (text) el.querySelector('span').textContent = text;
+}
+function openCharPick() {
+  const el = document.getElementById('charBox');
+  let cur = ''; try { cur = localStorage.getItem('zupu_char') || ''; } catch (e) {}
+  el.querySelector('.grid').innerHTML = Object.entries(CHARS).map(([k, c]) => `<button data-k="${k}" class="${k === cur ? 'on' : ''}"><i style="--t:${c.top};--b:${c.bot};--h:${c.hair};--s:${c.s}"><em></em></i>${c.name}</button>`).join('');
+  el.querySelectorAll('.grid button').forEach(b => b.onclick = () => { el.classList.remove('on'); try { localStorage.setItem('zupu_char', b.dataset.k); } catch (e) {} startPilgrim(b.dataset.k); });
+  el.classList.add('on'); document.getElementById('routeBox').classList.remove('on');
+}
+// 行車路線（截圖像素座標＋高度）：台61高架 → 匝道下橋 → 沿地方道路 → 納骨塔前停車
+const PIL_DRIVE = [[960, 1925, .2], [850, 1825, .2], [700, 1690, .2], [560, 1606, .2], [470, 1552, .19], [445, 1500, .13], [432, 1440, .06], [428, 1395, .05], [432, 1300, .05], [440, 1235, .05], [380, 1222, .05], [305, 1218, .05]];
+async function startPilgrim(key) {
+  pilCancel(); const id = PIL.id; PIL.key = key;
+  stopTour(); closeCard(); buildRoute(); buildDizang();
+  document.getElementById('routeBox').classList.remove('on'); document.getElementById('dzBox').classList.remove('on'); document.getElementById('pilBox').classList.remove('on');
+  document.body.classList.add('route'); document.body.classList.remove('dizang');
+  controls.enabled = false; controls.minDistance = .5; controls.minPolarAngle = .05;
+  ROUTE.anim = null; ROUTE.marker.visible = false;
+  const G = ROUTE.g, wp = v => v.clone().add(G.position);
+  // 沙盤上的車與小人
+  if (!PIL.car) {
+    const car = new THREE.Group();
+    const body = new THREE.Mesh(new THREE.BoxGeometry(.16, .07, .28), rtMat('#e8e4da', .3, { metalness: .4 })); body.position.y = .055; car.add(body);
+    const cab = new THREE.Mesh(new THREE.BoxGeometry(.14, .06, .14), rtMat('#26323e', .2)); cab.position.set(0, .115, -.02); car.add(cab);
+    [-1, 1].forEach(s => [-1, 1].forEach(t => { const w = new THREE.Mesh(new THREE.CylinderGeometry(.03, .03, .03, 10), rtMat('#111')); w.rotation.z = Math.PI / 2; w.position.set(s * .08, .03, t * .09); car.add(w); }));
+    const hl = new THREE.Mesh(new THREE.BoxGeometry(.12, .02, .01), new THREE.MeshBasicMaterial({ color: '#fff6c0' })); hl.position.set(0, .06, .141); car.add(hl);
+    car.scale.setScalar(1.5); G.add(car); PIL.car = car;
+  }
+  if (PIL.mini) { PIL.mini.parent.remove(PIL.mini); PIL.mini = null; }
+  const curve = new THREE.CatmullRomCurve3(PIL_DRIVE.map(([x, y, h]) => rtV(x, y, h)), false, 'centripetal', .4);
+  const car = PIL.car; car.visible = true; car.position.copy(curve.getPointAt(0)); car.lookAt(wp(curve.getPointAt(.01)));
+  await flyTo([wp(rtV(1080, 2050, 2.6)), wp(curve.getPointAt(.02))], 1.6); if (id !== PIL.id) return;
+  pilCap(`${CHARS[key].name}開車上路・台61線往口湖方向`);
+  PIL.cam = true; let last = performance.now();
+  await pAnim(12500, k => {
+    const now = performance.now(), rdt = Math.min(.5, (now - last) / 1000), al = 1 - Math.exp(-rdt * 3.2); last = now;
+    const e = rtEase(k), p = curve.getPointAt(e), ah = curve.getPointAt(Math.min(1, e + .012));
+    if (k > .3 && k < .32) pilCap('下交流道・匝道下橋');
+    if (k > .55 && k < .57) pilCap('沿地方道路往北・成龍納骨塔就在前方');
+    car.position.copy(p); if (e < .995) car.lookAt(wp(ah));
+    const w = wp(p), dir = ah.clone().sub(p).setY(0).normalize();
+    camera.position.lerp(w.clone().addScaledVector(dir, -2.4).add(new THREE.Vector3(.4, 1.9, 0)), al);
+    controls.target.lerp(w.clone().addScaledVector(dir, .8), al); camera.lookAt(controls.target);
+  });
+  if (id !== PIL.id) return;
+  pilCap('抵達成龍納骨塔・停車');
+  // 下車走向一樓入口
+  const mini = makeChar(key); mini.scale.multiplyScalar(.13); G.add(mini); PIL.mini = mini;
+  const p0 = car.position.clone().add(new THREE.Vector3(-.12, -.05, .12)).setY(.012), door = rtV(222, 1212, .012);
+  mini.position.copy(p0); mini.rotation.y = Math.atan2(door.x - p0.x, door.z - p0.z);
+  PIL.cam = false;
+  await flyTo([wp(rtV(420, 1420, 2.4)), wp(rtV(250, 1200, .1))], 1.4); if (id !== PIL.id) return;
+  pilCap('步行進入一樓・地藏殿');
+  await pAnim(2400, (k, dt) => { mini.position.lerpVectors(p0, door, k); mini.userData.walkT += dt; poseChar(mini, { walk: 1 }); });
+  if (id !== PIL.id) return;
+  await pilInterior(id, true);
+}
+async function pilInterior(id, walkIn) {
+  const veil = document.getElementById('veil');
+  if (walkIn) { veil.classList.add('on'); await sleep(650); if (id !== PIL.id) return; }
+  document.body.classList.remove('route'); document.body.classList.add('dizang');
+  if (PIL.mini) PIL.mini.visible = false;
+  if (PIL.ch) PIL.ch.parent.remove(PIL.ch);
+  const ch = makeChar(PIL.key); DZ.g.add(ch); PIL.ch = ch; ch.rotation.y = Math.PI;
+  const A = new THREE.Vector3(.0, 0, 8.2), B = new THREE.Vector3(.0, 0, 1.55);
+  ch.position.copy(walkIn ? A : B);
+  PIL.cam = true; controls.enabled = false;
+  const chase = () => { const w = DZ.origin.clone().add(ch.position); camera.position.copy(w).add(new THREE.Vector3(.9, 2.5, 3.4)); controls.target.copy(w).add(new THREE.Vector3(-.15, 1.15, -3)); camera.lookAt(controls.target); };
+  if (walkIn) {
+    chase(); veil.classList.remove('on');
+    pilCap(`${CHARS[PIL.key].name}走向地藏王菩薩`);
+    await pAnim(5200, (k, dt) => { ch.position.lerpVectors(A, B, k); ch.userData.walkT += dt; poseChar(ch, { walk: k < .96 ? 1 : 0 }); chase(); });
+    if (id !== PIL.id) return;
+  }
+  poseChar(ch, {}); PIL.cam = false;
+  await flyTo([dzW(2.6, 2.1, 4.9), dzW(-.35, 1.25, .1)], 1.4); if (id !== PIL.id) return;
+  pilCap('點香・上香三拜');
+  ch.userData.sticks.visible = true;
+  await pAnim(700, k => poseChar(ch, { pray: k }));
+  for (let n = 0; n < 3 && id === PIL.id; n++) {
+    pilCap(`上香・${'一二三'[n]}拜`);
+    await pAnim(1500, k => poseChar(ch, { pray: 1, bow: Math.sin(k * Math.PI) }));
+  }
+  if (id !== PIL.id) return;
+  ch.userData.sticks.visible = false; addSmoke(DZ.censerTip, 10, 90e3, { sz: .45, op: .28, h: 2 });
+  await pAnim(600, k => poseChar(ch, { pray: 1 - k }));
+  pilCap('', false); controls.enabled = true;
+  openWish();
+}
+function openWish() {
+  const el = document.getElementById('pilBox');
+  el.querySelector('.chips').innerHTML = WISHES.map((w, i) => `<button class="${i === 0 ? 'on' : ''}">${w}</button>`).join('');
+  el.querySelectorAll('.chips button').forEach(b => b.onclick = () => { b.classList.toggle('on'); });
+  let list = []; try { list = JSON.parse(localStorage.getItem('zupu_wishes') || '[]'); } catch (e) {}
+  el.querySelector('.hist').innerHTML = list.slice(-3).reverse().map(w => `<li><b>${escH(w.who)}</b>・${escH(w.wish)}${w.text ? `：${escH(w.text)}` : ''}<i>${new Date(w.at).toLocaleDateString('zh-TW')}</i></li>`).join('') || '<li class="none">尚無祈福紀錄</li>';
+  el.querySelector('textarea').value = '';
+  el.classList.add('on'); flyTo(WISH_VIEW(), 1.2);
+}
+async function doWish() {
+  const el = document.getElementById('pilBox');
+  const ws = [...el.querySelectorAll('.chips button.on')].map(b => b.textContent);
+  if (!ws.length) { toast('請至少選一項祈福'); return; }
+  const text = el.querySelector('textarea').value.trim().slice(0, 60);
+  const who = await getWho(); if (who === null) return;
+  el.classList.remove('on');
+  const rec = { who: who || CHARS[PIL.key || 'baba'].name, char: PIL.key, wish: ws.join('、'), text, at: Date.now() };
+  try { const l = JSON.parse(localStorage.getItem('zupu_wishes') || '[]'); l.push(rec); localStorage.setItem('zupu_wishes', JSON.stringify(l.slice(-50))); } catch (e) {}
+  flyTo([dzW(.4, 2.6, 5.2), dzW(0, 2, -1.2)], 1.4);
+  if (PIL.ch) { const ch = PIL.ch; pAnim(900, k => poseChar(ch, { pray: Math.sin(k * Math.PI) })); }
+  ws.forEach((w, i) => setTimeout(() => blessFx(w), i * 900));
+  if (text) setTimeout(() => toast(`心願：${text}`), ws.length * 900);
+  setTimeout(() => { toast(`祈福圓滿・南無大願地藏王菩薩`); document.getElementById('dzBox').classList.add('on'); }, ws.length * 900 + 3800);
+}
+(() => {
+  const cb = document.getElementById('charBox');
+  cb.querySelector('.x').onclick = () => { cb.classList.remove('on'); if (document.body.classList.contains('route')) document.getElementById('routeBox').classList.add('on'); };
+  const pb = document.getElementById('pilBox');
+  pb.querySelector('.go').onclick = doWish;
+  pb.querySelector('.x').onclick = () => { pb.classList.remove('on'); document.getElementById('dzBox').classList.add('on'); };
+  document.querySelector('#pilCap .skip').onclick = () => {
+    if (!PIL.key) return;
+    pilCancel(); const id = PIL.id; pilCap('', false);
+    if (PIL.car) PIL.car.position.copy(rtV(305, 1218, .05));
+    pilInterior(id, false);
+  };
 })();
 
 /* 沿革展讀 */
@@ -2893,7 +3195,7 @@ function selectPerson(id) {
 /* 點擊判斷（與拖曳區分） */
 const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
 let down = null;
-canvas.addEventListener('pointerdown', e => { down = { x: e.clientX, y: e.clientY, t: performance.now() }; if (PHOTO.on && PHOTO.scan) photoStopScan(); if (touring) stopTour(); if (ROUTE.anim) { ROUTE.anim = null; const b = document.querySelector('#routeBox .play'); if (b) b.textContent = '▶ 路線導覽'; document.getElementById('routeBox').classList.remove('mini'); } if (flight) { flight.res(); flight = null; } });
+canvas.addEventListener('pointerdown', e => { down = { x: e.clientX, y: e.clientY, t: performance.now() }; if (PHOTO.on && PHOTO.scan) photoStopScan(); if (touring) stopTour(); if (ROUTE.anim) { ROUTE.anim = null; const b = document.querySelector('#routeBox .play'); if (b) b.textContent = '▶ 路線導覽'; document.getElementById('routeBox').classList.remove('mini'); } if (flight && !document.getElementById('pilCap').classList.contains('on')) { flight.res(); flight = null; } });
 canvas.addEventListener('pointerup', e => {
   if (!down) return;
   const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y), dt = performance.now() - down.t; down = null;
@@ -3115,7 +3417,7 @@ function loop() {
     controls.target.lerpVectors(flight.t0, flight.t1, e);
     camera.lookAt(controls.target);
     if (k >= 1) { const r = flight.res; flight = null; controls.update(); r(); }
-  } else if (!ROUTE.anim) {   // 路線導覽時由追蹤鏡頭控制
+  } else if (!ROUTE.anim && !PIL.cam) {   // 路線導覽／祈福行車時由追蹤鏡頭控制
     controls.target.clamp(tMin, tMax);
     controls.update();
   }
@@ -3142,7 +3444,7 @@ function loop() {
     for (const k in set.types) { const g = set.types[k].group; if (g.visible && g.scale.x < .999) g.scale.setScalar(Math.min(1, g.scale.x + dt * 2.2)); else if (!g.visible) g.scale.setScalar(.01); }
   }
   chantAudioTick();
-  tickRoute(now, dt);
+  tickRoute(now, dt); tickPilgrim(now, dt);
   tickEmbers(T, dt);
   if (steleFront) { steleFront.emissiveIntensity = .05 + .04 * Math.sin(T * 1.3); steleHalo.material.opacity = .42 + .12 * Math.sin(T * 1.3); }
   for (const id in tablets) {
