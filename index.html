@@ -101,6 +101,11 @@
   nav button:hover { background: var(--surface2); color: var(--text); }
   nav button.active { background: var(--accent-light); color: var(--accent); font-weight: 500; }
   nav button svg { width: 16px; height: 16px; flex-shrink: 0; }
+  @media (max-width: 640px) {
+    nav { overflow-x: auto; justify-content: flex-start; min-width: 0; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+    nav::-webkit-scrollbar { display: none; }
+    nav button { white-space: nowrap; flex-shrink: 0; padding: 8px 10px; }
+  }
 
   /* ── Layout ── */
   main { flex: 1; padding: 24px; max-width: 1200px; width: 100%; margin: 0 auto; }
@@ -1140,6 +1145,10 @@
     <button data-view="tree" onclick="switchView('tree',this)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6M12 22v-6M4 12H2M22 12h-2M6.34 6.34 4.93 4.93M19.07 19.07l-1.41-1.41M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/><circle cx="12" cy="12" r="4"/></svg>
       族譜樹狀
+    </button>
+    <button onclick="location.href='./3d.html'" title="3D 立體世系祠堂">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 3 7l9 5 9-5-9-5z"/><path d="M3 7v10l9 5 9-5V7"/><path d="M12 12v10"/></svg>
+      立體祠堂
     </button>
     <button data-view="reminders" onclick="switchView('reminders',this)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
