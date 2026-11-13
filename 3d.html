@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#2a1a08">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>龍山派 曾氏族譜 · 立體世系祠堂</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1a0f00; --gold:#b8860b; --gold-l:#e2bd62; --red:#8b1a1a; --paper:#ece0c4;
+    --font:'Noto Serif TC','Songti TC','PMingLiU',serif;
+    --sb:env(safe-area-inset-bottom,0px); --st:env(safe-area-inset-top,0px);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden;background:var(--paper);font-family:var(--font);color:var(--ink);
+    -webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+  canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+
+  /* 標題 */
+  #title{position:fixed;top:calc(var(--st) + 14px);left:16px;pointer-events:none;z-index:5}
+  #title h1{font-size:20px;font-weight:900;color:var(--red);letter-spacing:.25em}
+  #title p{font-size:11px;color:#7a5a2a;letter-spacing:.3em;margin-top:2px}
+  #genTag{position:fixed;top:calc(var(--st) + 14px);right:16px;z-index:5;pointer-events:none;
+    writing-mode:vertical-rl;font-weight:900;font-size:18px;letter-spacing:.3em;color:var(--gold);
+    background:rgba(42,26,8,.82);padding:10px 6px;border:1px solid var(--gold);border-radius:3px;opacity:0;transition:opacity .4s}
+  #genTag.on{opacity:1}
+
+  /* 印章 */
+  #seal{position:fixed;right:14px;bottom:calc(var(--sb) + 76px);z-index:5;pointer-events:none;
+    width:58px;height:58px;border:3px solid #a82020;border-radius:4px;color:#a82020;
+    display:flex;align-items:center;justify-content:center;transform:rotate(-6deg);
+    font-weight:900;font-size:13px;line-height:1.15;text-align:center;background:rgba(236,224,196,.55)}
+
+  /* 底部工具列 */
+  #bar{position:fixed;left:0;right:0;bottom:0;z-index:6;padding:10px 10px calc(var(--sb) + 10px);
+    background:linear-gradient(to top,rgba(42,26,8,.92),rgba(42,26,8,.75));border-top:1px solid var(--gold);
+    display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  #bar::-webkit-scrollbar{display:none}
+  #bar button{flex:0 0 auto;min-width:38px;height:40px;padding:0 10px;border:1px solid #8b6020;border-radius:3px;
+    background:#3d2006;color:var(--gold-l);font-family:var(--font);font-size:15px;font-weight:700;cursor:pointer}
+  #bar button.on{background:var(--gold);color:#2a1505;border-color:var(--gold-l)}
+  #bar .sep{flex:0 0 1px;background:#8b6020;margin:4px 2px}
+
+  /* 資料卡 */
+  #card{position:fixed;left:50%;bottom:calc(var(--sb) + 74px);z-index:7;width:min(92vw,360px);
+    transform:translate(-50%,20px);opacity:0;pointer-events:none;transition:all .35s ease;
+    background:linear-gradient(170deg,#faf3e0,#ede0b8);border:2px solid var(--gold);border-radius:4px;
+    box-shadow:0 0 0 4px rgba(61,32,6,.85),0 10px 30px rgba(0,0,0,.45);padding:16px 18px 14px}
+  #card.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+  #card .hd{display:flex;align-items:baseline;gap:10px;border-bottom:1px solid #c9a045;padding-bottom:8px;margin-bottom:8px}
+  #card .nm{font-size:26px;font-weight:900;color:var(--red);letter-spacing:.12em}
+  #card .gn{font-size:13px;color:#7a5a2a;letter-spacing:.2em}
+  #card .tg{font-size:12px;color:#faf3e0;background:var(--red);padding:2px 8px;border-radius:2px;margin-left:auto}
+  #card dl{display:grid;grid-template-columns:4.2em 1fr;row-gap:6px;font-size:15px}
+  #card dt{color:#7a5a2a}
+  #card dd{color:var(--ink);font-weight:700}
+  #card .x{position:absolute;top:6px;right:8px;border:0;background:none;font-size:22px;color:#7a5a2a;cursor:pointer;padding:4px}
+
+  /* 開場卷軸 */
+  #intro{position:fixed;inset:0;z-index:20;background:radial-gradient(ellipse at center,#3d2006,#1a0d03);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .9s}
+  #intro.hide{opacity:0;pointer-events:none}
+  .scroll{display:flex;flex-direction:column;align-items:center}
+  .rod{width:min(62vw,250px);height:16px;border-radius:8px;
+    background:linear-gradient(to bottom,#7a4a1a,#c99a3a 40%,#5a3010);box-shadow:0 3px 8px rgba(0,0,0,.6);position:relative}
+  .rod::before,.rod::after{content:'';position:absolute;top:-3px;width:14px;height:22px;border-radius:4px;background:#d4a843}
+  .rod::before{left:-10px}.rod::after{right:-10px}
+  .paper{width:min(56vw,224px);height:0;overflow:hidden;animation:unroll 1.8s .3s cubic-bezier(.6,.05,.3,1) forwards;
+    background:linear-gradient(170deg,#faf3e0,#ede0b8);border-left:2px solid var(--gold);border-right:2px solid var(--gold);
+    display:flex;align-items:center;justify-content:center;position:relative}
+  @keyframes unroll{to{height:min(60vh,440px)}}
+  .paper .ttl{writing-mode:vertical-rl;font-size:clamp(28px,8vw,40px);font-weight:900;color:var(--red);letter-spacing:.35em;line-height:1.6}
+  .paper .sub{position:absolute;bottom:18px;left:18px;writing-mode:vertical-rl;font-size:12px;color:#7a5a2a;letter-spacing:.3em}
+  .paper .stamp{position:absolute;bottom:20px;right:16px;width:40px;height:40px;border:2px solid #a82020;color:#a82020;
+    font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.1}
+  #intro .hint{margin-top:22px;color:#c9a045;font-size:13px;letter-spacing:.4em;opacity:.8}
+  #intro .err{margin-top:14px;color:#ffb0a0;font-size:13px;max-width:80vw;text-align:center;display:none}
+
+  /* 海報輸出 */
+  #poster{position:fixed;inset:0;z-index:30;background:rgba(20,10,2,.92);display:none;flex-direction:column;
+    align-items:center;justify-content:center;padding:20px}
+  #poster.on{display:flex}
+  #poster img{max-width:92vw;max-height:72vh;border:2px solid var(--gold);-webkit-touch-callout:default}
+  #poster p{color:var(--gold-l);margin:12px 0;font-size:14px;letter-spacing:.2em}
+  #poster .btns{display:flex;gap:10px}
+  #poster a,#poster button{font-family:var(--font);font-size:15px;padding:8px 18px;border:1px solid var(--gold);
+    background:#3d2006;color:var(--gold-l);border-radius:3px;text-decoration:none}
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="title"><h1>龍山派 曾氏族譜</h1><p>立體世系祠堂</p></div>
+<div id="genTag"></div>
+<div id="seal">曾氏<br>龍山<br>族譜</div>
+
+<div id="card">
+  <button class="x" aria-label="關閉">×</button>
+  <div class="hd"><span class="nm"></span><span class="gn"></span><span class="tg"></span></div>
+  <dl></dl>
+</div>
+
+<div id="bar"></div>
+
+<div id="intro">
+  <div class="scroll">
+    <div class="rod"></div>
+    <div class="paper">
+      <div class="ttl">龍山派<br>曾氏族譜</div>
+      <div class="sub">世系圖</div>
+      <div class="stamp">曾氏<br>龍山</div>
+    </div>
+    <div class="rod"></div>
+  </div>
+  <div class="hint">輕觸略過</div>
+  <div class="err" id="err">3D 元件載入失敗，請確認網路連線後重新整理。</div>
+</div>
+
+<div id="poster">
+  <img alt="族譜海報">
+  <p>長按圖片即可儲存</p>
+  <div class="btns"><a download="曾氏族譜.png">下載</a><button>關閉</button></div>
+</div>
+
+<script>
+  // three.js 若因網路失敗沒有啟動，提示使用者
+  setTimeout(()=>{ if(!window.__zupuReady) document.getElementById('err').style.display='block'; }, 12000);
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+/* ================= 族譜資料 =================
+   新增成員只要在這裡加一筆：
+   主脈：{id, name, gen, parent, tag?, lines?}
+   配偶：{id, name, spouseOf, lines?, empty?}
+*/
+const PEOPLE = [
+  { id:'p1',  name:'曾虎',     gen:1, tag:'來台祖' },
+  { id:'p2',  name:'曾奎德',   gen:2, parent:'p1' },
+  { id:'p3',  name:'曾武六',   gen:3, parent:'p2' },
+  { id:'p4',  name:'曾呈獅',   gen:4, parent:'p3' },
+  { id:'s4',  name:'吳香',     spouseOf:'p4' },
+  { id:'p5',  name:'曾水陀',   gen:5, parent:'p4', lines:['1874 年生','仙逝'] },
+  { id:'s5',  name:'許羿（藝）', spouseOf:'p5', lines:['1878.08.03','— 1916.05.26'] },
+  { id:'p6a', name:'曾瑞麟',   gen:6, parent:'p5', lines:['1900 年生','仙逝'] },
+  { id:'s6a', name:'曾楊玉枝', spouseOf:'p6a', lines:['1904.08.11','— 1983.04.08'] },
+  { id:'p6b', name:'曾實',     gen:6, parent:'p5' },
+  { id:'s6b', name:'無配偶',   spouseOf:'p6b', empty:true },
+  { id:'p7',  name:'曾人定',   gen:7, parent:'p6a', lines:['1934 年生','仙逝'] },
+  { id:'s7',  name:'曾張月嬌', spouseOf:'p7', lines:['1934.01.10','— 2021.11.18'] },
+];
+
+const CN = ['','一','二','三','四','五','六','七','八','九','十','十一','十二'];
+const FONT = '"Noto Serif TC","Songti TC","PMingLiU",serif';
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+/* ---------- 同步紀念堂（index.html）新增的祖先 ----------
+   同網域下讀取 localStorage 'ancestorApp_v28'，
+   以「去掉曾字」比對姓名；不在上面清單中的已故祖先自動加入主脈。 */
+(function mergeFromMemorial() {
+  let data;
+  try { data = JSON.parse(localStorage.getItem('ancestorApp_v28') || 'null'); } catch (e) { return; }
+  if (!data || !Array.isArray(data.ancestors)) return;
+  const norm = s => (s || '').replace(/^曾/, '').trim();
+  const find = n => PEOPLE.find(p => !p.spouseOf && norm(p.name) === norm(n));
+  const pending = data.ancestors.filter(a => a && a.name && !a.isAlive && a.gen);
+  pending.sort((a, b) => a.gen - b.gen).forEach(a => {
+    const hit = find(a.name) || (a.alias && find(a.alias));
+    if (hit) {
+      if (!hit.lines && (a.birth || a.death)) hit.lines = [a.birth || '', a.death ? '— ' + a.death : ''].filter(Boolean);
+      return;
+    }
+    const parent = a.parent && find(a.parent);
+    if (!parent || parent.gen !== a.gen - 1) return;
+    const name = a.name.startsWith('曾') ? a.name : '曾' + a.name;
+    PEOPLE.push({ id: 'm_' + a.id, name, gen: a.gen, parent: parent.id,
+      lines: (a.birth || a.death) ? [a.birth || '', a.death ? '— ' + a.death : ''].filter(Boolean) : undefined });
+  });
+})();
+
+/* ---------- 關係整理 ---------- */
+const byId = Object.fromEntries(PEOPLE.map(p => [p.id, p]));
+PEOPLE.forEach(p => {
+  if (p.spouseOf) { const m = byId[p.spouseOf]; p.gen = m.gen; p.role = 'spouse'; m.spouse = p; }
+  else p.role = 'main';
+});
+const mains = PEOPLE.filter(p => p.role === 'main');
+mains.forEach(p => p.children = mains.filter(c => c.parent === p.id));
+const root = mains.find(p => !p.parent);
+const MAX_GEN = Math.max(...PEOPLE.map(p => p.gen));
+
+/* ---------- 自動佈局 ---------- */
+const TW = 1.1, CG = 0.45, SIB = 1.3, GEN_H = 4.4;
+const unitW = p => p.spouse ? TW * 2 + CG : TW;
+function measure(p) {
+  const cw = p.children.reduce((s, c) => s + measure(c), 0) + Math.max(0, p.children.length - 1) * SIB;
+  p.cw = cw; p.w = Math.max(unitW(p), cw); return p.w;
+}
+function place(p, left) {
+  p.cx = left + p.w / 2;
+  let x = p.cx - p.cw / 2;
+  p.children.forEach(c => { place(c, x); x += c.w + SIB; });
+  const off = p.spouse ? (TW + CG) / 2 : 0;
+  p.x = p.cx - off; p.y = -(p.gen - 1) * GEN_H;
+  if (p.spouse) { p.spouse.x = p.cx + off; p.spouse.y = p.y; }
+}
+measure(root); place(root, -root.w / 2);
+
+/* ---------- 字型就緒後才畫牌位文字（iOS 必要） ---------- */
+async function waitFonts() {
+  const txt = PEOPLE.map(p => p.name + (p.tag || '') + (p.lines || []).join('')).join('')
+            + '第一二三四五六七八九十世配偶︵︶無—年生仙逝之本支0123456789.';
+  try {
+    await Promise.race([
+      Promise.all([
+        document.fonts.load(`900 64px "Noto Serif TC"`, txt),
+        document.fonts.load(`700 32px "Noto Serif TC"`, txt),
+      ]),
+      sleep(4500)
+    ]);
+  } catch (e) {}
+}
+
+/* ================= 場景 ================= */
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight, false);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+const PAPER = new THREE.Color('#ece0c4');
+const scene = new THREE.Scene();
+scene.background = PAPER;
+scene.fog = new THREE.Fog(PAPER, 45, 150);
+
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 400);
+camera.position.set(0, 3, 12);
+
+scene.add(new THREE.HemisphereLight('#fff3dc', '#4a3020', 1.1));
+const sun = new THREE.DirectionalLight('#ffe2b0', 1.6);
+sun.position.set(6, 10, 12); scene.add(sun);
+
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true; controls.dampingFactor = 0.08;
+controls.screenSpacePanning = true;
+controls.minDistance = 3; controls.maxDistance = 70;
+controls.minPolarAngle = Math.PI * 0.22; controls.maxPolarAngle = Math.PI * 0.78;
+controls.minAzimuthAngle = -Math.PI / 3; controls.maxAzimuthAngle = Math.PI / 3;
+
+/* ---------- 共用材質 ---------- */
+const M = {
+  woodDark: new THREE.MeshStandardMaterial({ color: '#2b160c', roughness: .55, envMapIntensity: .5 }),
+  gold:     new THREE.MeshStandardMaterial({ color: '#c99a3a', metalness: .75, roughness: .3, envMapIntensity: 1.2 }),
+  bronze:   new THREE.MeshStandardMaterial({ color: '#6b4a2a', metalness: .6, roughness: .45 }),
+  lacquerTable: new THREE.MeshStandardMaterial({ color: '#4a0e0e', roughness: .35, envMapIntensity: .6 }),
+};
+
+/* ---------- 牌位正面文字貼圖 ---------- */
+const TEX_W = 320, TEX_H = 768;
+const vert = s => s.replace(/（/g, '︵').replace(/）/g, '︶');
+function makeTabletTexture(p) {
+  const c = document.createElement('canvas'); c.width = TEX_W; c.height = TEX_H;
+  const g = c.getContext('2d');
+  const base = p.empty ? ['#4a3a30', '#2e241e'] : p.role === 'spouse' ? ['#7e3022', '#561a12'] : ['#701414', '#3e0808'];
+  let grd = g.createLinearGradient(0, 0, TEX_W, TEX_H);
+  grd.addColorStop(0, base[0]); grd.addColorStop(1, base[1]);
+  g.fillStyle = grd; g.fillRect(0, 0, TEX_W, TEX_H);
+  // 漆面光澤
+  const sh = g.createLinearGradient(0, 0, TEX_W, 0);
+  sh.addColorStop(0, 'rgba(255,255,255,0)'); sh.addColorStop(.32, 'rgba(255,225,180,.10)'); sh.addColorStop(.55, 'rgba(255,255,255,0)');
+  g.fillStyle = sh; g.fillRect(0, 0, TEX_W, TEX_H);
+  // 金框
+  g.strokeStyle = '#d4a843'; g.lineWidth = 9; g.strokeRect(14, 14, TEX_W - 28, TEX_H - 28);
+  g.lineWidth = 2; g.strokeRect(32, 32, TEX_W - 64, TEX_H - 64);
+  g.fillStyle = '#d4a843';
+  [[32, 32], [TEX_W - 32, 32], [32, TEX_H - 32], [TEX_W - 32, TEX_H - 32]].forEach(([x, y]) => {
+    g.save(); g.translate(x, y); g.rotate(Math.PI / 4); g.fillRect(-7, -7, 14, 14); g.restore();
+  });
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  // 世代 / 配偶
+  g.fillStyle = '#e8c66a'; g.font = `700 34px ${FONT}`;
+  g.fillText(p.role === 'main' ? `第 ${CN[p.gen]} 世` : '配 偶', TEX_W / 2, 82);
+  g.fillRect(74, 116, TEX_W - 148, 2);
+  // 姓名直書
+  const chars = [...vert(p.name)];
+  const top = 150, bottom = p.lines ? 585 : 680;
+  const size = Math.min(112, (bottom - top) / chars.length * 0.92);
+  const step = Math.min(size * 1.12, (bottom - top) / chars.length);
+  const y0 = (top + bottom) / 2 - step * (chars.length - 1) / 2;
+  const ng = g.createLinearGradient(0, top, 0, bottom);
+  ng.addColorStop(0, '#fbe7a6'); ng.addColorStop(.5, '#e0b24e'); ng.addColorStop(1, '#f6d98a');
+  g.font = `900 ${size}px ${FONT}`;
+  g.shadowColor = 'rgba(0,0,0,.55)'; g.shadowBlur = 6; g.shadowOffsetY = 3;
+  g.fillStyle = p.empty ? 'rgba(220,200,160,.55)' : ng;
+  chars.forEach((ch, i) => g.fillText(ch, TEX_W / 2, y0 + i * step));
+  g.shadowColor = 'transparent';
+  // 標記（例：來台祖）直書於右欄
+  if (p.tag) {
+    const tc = [...p.tag], fs = 26;
+    const bx = TEX_W - 66, by = 150, bh = tc.length * (fs + 6) + 14;
+    g.fillStyle = '#d4a843'; g.fillRect(bx, by, 36, bh);
+    g.fillStyle = '#5a0d0d'; g.font = `900 ${fs}px ${FONT}`;
+    tc.forEach((ch, i) => g.fillText(ch, bx + 18, by + 7 + fs / 2 + i * (fs + 6)));
+  }
+  // 生卒
+  if (p.lines) {
+    g.fillStyle = '#e8c66a'; g.fillRect(74, 612, TEX_W - 148, 1.5);
+    g.font = `700 25px ${FONT}`;
+    p.lines.forEach((l, i) => g.fillText(l, TEX_W / 2, 648 + i * 36));
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  return t;
+}
+
+/* ---------- 牌位模型 ---------- */
+const BODY_H = 2.64;
+const archShape = new THREE.Shape();
+archShape.moveTo(0.62, 0); archShape.absarc(0, 0, 0.62, 0, Math.PI, false); archShape.lineTo(0.62, 0);
+const archGeo = new THREE.ExtrudeGeometry(archShape, { depth: .2, bevelEnabled: true, bevelThickness: .02, bevelSize: .02, bevelSegments: 2, curveSegments: 28 });
+archGeo.translate(0, 0, -.1);
+const archInnerShape = new THREE.Shape();
+archInnerShape.moveTo(0.46, 0); archInnerShape.absarc(0, 0, 0.46, 0, Math.PI, false); archInnerShape.lineTo(0.46, 0);
+const archInnerGeo = new THREE.ShapeGeometry(archInnerShape, 24);
+const bodyGeo = new THREE.BoxGeometry(TW, BODY_H, .16);
+const ped1 = new THREE.BoxGeometry(1.45, .22, .5), ped2 = new THREE.BoxGeometry(1.25, .14, .4);
+const finialGeo = new THREE.SphereGeometry(.075, 16, 12);
+
+const pickables = [];
+const tablets = {};
+function buildTablet(p) {
+  const grp = new THREE.Group();
+  const side = new THREE.MeshStandardMaterial({ color: p.empty ? '#3a2e26' : p.role === 'spouse' ? '#5e1c14' : '#4e0c0c', roughness: .35, envMapIntensity: .6 });
+  const front = new THREE.MeshStandardMaterial({ map: makeTabletTexture(p), roughness: .4, envMapIntensity: .5,
+    emissive: new THREE.Color('#ffb84a'), emissiveIntensity: 0 });
+  front.emissiveMap = front.map;
+  const mats = [side, side, side, side, front, side];
+  if (p.empty) mats.forEach(m => { m.transparent = true; m.opacity = .38; m.depthWrite = false; });
+  const body = new THREE.Mesh(bodyGeo, mats);
+  body.userData.pid = p.id; pickables.push(body); grp.add(body);
+
+  const goldM = p.empty ? M.gold.clone() : M.gold;
+  const woodM = p.empty ? M.woodDark.clone() : M.woodDark;
+  if (p.empty) [goldM, woodM].forEach(m => { m.transparent = true; m.opacity = .35; m.depthWrite = false; });
+  const arch = new THREE.Mesh(archGeo, goldM); arch.position.y = BODY_H / 2; arch.scale.y = .6; grp.add(arch);
+  const inner = new THREE.Mesh(archInnerGeo, side); inner.position.set(0, BODY_H / 2 + .02, .125); inner.scale.y = .55; grp.add(inner);
+  const fin = new THREE.Mesh(finialGeo, goldM); fin.position.y = BODY_H / 2 + .62 * .6 + .06; grp.add(fin);
+  const b1 = new THREE.Mesh(ped1, woodM); b1.position.y = -BODY_H / 2 - .18; grp.add(b1);
+  const b2 = new THREE.Mesh(ped2, goldM); b2.position.y = -BODY_H / 2 - .02; grp.add(b2);
+
+  grp.position.set(p.x, p.y, 0);
+  scene.add(grp);
+  tablets[p.id] = { grp, front };
+}
+
+/* ---------- 金色世系連線 ---------- */
+const rodGeo = new THREE.CylinderGeometry(1, 1, 1, 10);
+const knotGeo = new THREE.OctahedronGeometry(.11);
+function rod(a, b, r = .035) {
+  const d = new THREE.Vector3().subVectors(b, a), len = d.length();
+  const m = new THREE.Mesh(rodGeo, M.gold);
+  m.scale.set(r, len, r);
+  m.position.copy(a).addScaledVector(d, .5);
+  m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize());
+  scene.add(m);
+}
+function knot(v, s = 1) { const k = new THREE.Mesh(knotGeo, M.gold); k.position.copy(v); k.scale.setScalar(s); scene.add(k); }
+const V = (x, y, z = 0) => new THREE.Vector3(x, y, z);
+const TOP_OFF = BODY_H / 2 + .62 * .6 + .14, BOT_OFF = BODY_H / 2 + .3;
+function buildLines() {
+  mains.forEach(p => {
+    if (p.spouse) {   // 夫妻連結
+      const y = p.y - .55;
+      rod(V(p.x + TW / 2, y, -.02), V(p.spouse.x - TW / 2, y, -.02), .028);
+      knot(V(p.cx, y, -.02), .9);
+    }
+    if (!p.children.length) return;
+    const sy = p.y - BOT_OFF, ty = p.y - GEN_H + TOP_OFF, my = (sy + ty) / 2;
+    rod(V(p.cx, p.spouse ? p.y - .55 : sy), V(p.cx, my));
+    const xs = p.children.map(c => c.x);
+    const minX = Math.min(p.cx, ...xs), maxX = Math.max(p.cx, ...xs);
+    if (maxX - minX > .01) rod(V(minX, my), V(maxX, my));
+    knot(V(p.cx, my), 1.1);
+    p.children.forEach(c => { rod(V(c.x, my), V(c.x, ty)); if (Math.abs(c.x - p.cx) > .01) knot(V(c.x, my)); });
+  });
+}
+
+/* ---------- 供桌、香爐、香煙 ---------- */
+function softTex(inner, outer) {
+  const c = document.createElement('canvas'); c.width = c.height = 64;
+  const g = c.getContext('2d'), r = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  r.addColorStop(0, inner); r.addColorStop(1, outer);
+  g.fillStyle = r; g.fillRect(0, 0, 64, 64);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+const smoke = [];
+let altarTip = V(0, 0, 0);
+function buildAltar() {
+  const ax = root.x, ay = root.y - BOT_OFF - .05, az = 1.0;
+  const top = new THREE.Mesh(new THREE.BoxGeometry(1.8, .1, .8), M.lacquerTable); top.position.set(ax, ay, az); scene.add(top);
+  const legG = new THREE.BoxGeometry(.08, .6, .08);
+  [[-.82, -.33], [.82, -.33], [-.82, .33], [.82, .33]].forEach(([dx, dz]) => {
+    const l = new THREE.Mesh(legG, M.lacquerTable); l.position.set(ax + dx, ay - .35, az + dz); scene.add(l);
+  });
+  const pot = new THREE.Mesh(new THREE.CylinderGeometry(.24, .18, .26, 24), M.bronze); pot.position.set(ax, ay + .18, az); scene.add(pot);
+  const rim = new THREE.Mesh(new THREE.TorusGeometry(.24, .025, 8, 24), M.gold); rim.rotation.x = Math.PI / 2; rim.position.set(ax, ay + .31, az); scene.add(rim);
+  const stickG = new THREE.CylinderGeometry(.008, .008, .5, 6), stickM = new THREE.MeshStandardMaterial({ color: '#a8321e' });
+  const tipM = new THREE.MeshBasicMaterial({ color: '#ff8a3a' });
+  [-.06, 0, .06].forEach((dx, i) => {
+    const s = new THREE.Mesh(stickG, stickM); s.position.set(ax + dx, ay + .5, az); s.rotation.z = (i - 1) * .12; scene.add(s);
+    const tip = new THREE.Mesh(new THREE.SphereGeometry(.014, 6, 6), tipM);
+    tip.position.set(ax + dx - Math.sin((i - 1) * .12) * .25, ay + .75, az); scene.add(tip);
+  });
+  altarTip = V(ax, ay + .77, az);
+  const sm = softTex('rgba(150,145,138,.55)', 'rgba(150,145,138,0)');
+  for (let i = 0; i < 26; i++) {
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: sm, transparent: true, depthWrite: false, opacity: 0 }));
+    sp.userData.t = i / 26; scene.add(sp); smoke.push(sp);
+  }
+}
+
+/* ---------- 水墨遠山 ---------- */
+function mulberry32(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function ridge(n, rough, seed) {
+  const rnd = mulberry32(seed), a = new Array(n).fill(0);
+  a[0] = rnd(); a[n - 1] = rnd();
+  let step = n - 1, amp = 1;
+  while (step > 1) { const h = step / 2; for (let i = h; i < n; i += step) a[i] = (a[i - h] + a[i + h]) / 2 + (rnd() - .5) * amp; amp *= rough; step = h; }
+  const mn = Math.min(...a), mx = Math.max(...a); return a.map(v => (v - mn) / (mx - mn));
+}
+function mountainTexture(seed, alpha) {
+  const W = 1024, H = 1024, c = document.createElement('canvas'); c.width = W; c.height = H;
+  const g = c.getContext('2d');
+  [.22, .5, .8].forEach((f, k) => {
+    const pts = ridge(257, .55, seed * 13 + k * 7), base = f * H, hgt = 150 + k * 20, fade = 170;
+    g.beginPath(); g.moveTo(0, base + fade);
+    pts.forEach((v, i) => g.lineTo(i / (pts.length - 1) * W, base - v * hgt));
+    g.lineTo(W, base + fade); g.closePath();
+    const gr = g.createLinearGradient(0, base - hgt, 0, base + fade);
+    gr.addColorStop(0, `rgba(38,34,30,${alpha})`); gr.addColorStop(.45, `rgba(60,54,46,${alpha * .6})`); gr.addColorStop(1, 'rgba(60,54,46,0)');
+    g.fillStyle = gr; g.fill();
+  });
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+function buildBackdrop(cy) {
+  [[-28, .42, 3], [-48, .3, 9], [-75, .2, 21]].forEach(([z, a, seed]) => {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(220, 220 * .55),
+      new THREE.MeshBasicMaterial({ map: mountainTexture(seed, a), transparent: true, depthWrite: false, fog: false }));
+    m.position.set(0, cy, z); scene.add(m);
+  });
+  const sunM = new THREE.Mesh(new THREE.CircleGeometry(5.5, 48),
+    new THREE.MeshBasicMaterial({ color: '#c8553d', transparent: true, opacity: .35, depthWrite: false, fog: false }));
+  sunM.position.set(-34, cy + 24, -85); scene.add(sunM);
+}
+
+/* ---------- 金粉 ---------- */
+let dust;
+function buildDust(b) {
+  const N = 520, pos = new Float32Array(N * 3), sp = new Float32Array(N);
+  for (let i = 0; i < N; i++) {
+    pos[i * 3] = THREE.MathUtils.lerp(b.minX - 6, b.maxX + 6, Math.random());
+    pos[i * 3 + 1] = THREE.MathUtils.lerp(b.minY - 4, b.maxY + 4, Math.random());
+    pos[i * 3 + 2] = THREE.MathUtils.lerp(-7, 6, Math.random());
+    sp[i] = .15 + Math.random() * .35;
+  }
+  const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  dust = new THREE.Points(geo, new THREE.PointsMaterial({ size: .09, map: softTex('rgba(255,215,110,1)', 'rgba(210,150,40,0)'),
+    transparent: true, depthWrite: false, color: '#e6b84a' }));
+  dust.userData = { sp, b }; scene.add(dust);
+}
+
+/* ================= 鏡頭 ================= */
+let bounds;
+function computeBounds() {
+  const xs = PEOPLE.map(p => p.x), ys = PEOPLE.map(p => p.y);
+  bounds = { minX: Math.min(...xs) - TW, maxX: Math.max(...xs) + TW, minY: Math.min(...ys) - BOT_OFF - .4, maxY: Math.max(...ys) + TOP_OFF + .2 };
+}
+function fitDist(w, h) {
+  const t = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+  return Math.max(h / 2 / t, w / 2 / (t * camera.aspect));
+}
+function overviewView() {
+  const cx = (bounds.minX + bounds.maxX) / 2, cy = (bounds.minY + bounds.maxY) / 2;
+  const d = fitDist((bounds.maxX - bounds.minX) * 1.15, (bounds.maxY - bounds.minY) * 1.12);
+  return [V(cx + d * .22, cy + d * .06, d), V(cx, cy, 0)];
+}
+function genView(g) {
+  const ps = PEOPLE.filter(p => p.gen === g), xs = ps.map(p => p.x);
+  const cx = (Math.min(...xs) + Math.max(...xs)) / 2, y = ps[0].y;
+  const d = Math.max(5.5, fitDist(Math.max(...xs) - Math.min(...xs) + TW + 1.4, GEN_H * .95));
+  return [V(cx + d * .14, y + .5, d), V(cx, y + .1, 0)];
+}
+
+let flight = null;
+const ease = k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+function flyTo([pos, tgt], dur = 1.2) {
+  if (flight) flight.res();
+  return new Promise(res => {
+    flight = { p0: camera.position.clone(), t0: controls.target.clone(), p1: pos, t1: tgt, start: performance.now(), dur: dur * 1000, res };
+  });
+}
+
+let tourId = 0, touring = false;
+async function tour() {
+  const my = ++tourId; touring = true;
+  await flyTo(genView(1), 1.4);
+  for (let g = 1; g <= MAX_GEN; g++) {
+    if (my !== tourId) return;
+    setGen(g);
+    if (g > 1) await flyTo(genView(g), 1.1);
+    if (my !== tourId) return;
+    await sleep(650);
+  }
+  if (my !== tourId) return;
+  touring = false; setGen(0);
+  await flyTo(overviewView(), 1.8);
+}
+function stopTour() { if (touring) { tourId++; touring = false; } }
+
+/* ================= UI ================= */
+const genTag = document.getElementById('genTag');
+const bar = document.getElementById('bar');
+const genBtns = [];
+function setGen(g) {
+  genBtns.forEach((b, i) => b.classList.toggle('on', i + 1 === g));
+  if (g) { genTag.textContent = `第${CN[g]}世`; genTag.classList.add('on'); } else genTag.classList.remove('on');
+}
+function buildBar() {
+  for (let g = 1; g <= MAX_GEN; g++) {
+    const b = document.createElement('button'); b.textContent = CN[g];
+    b.onclick = () => { stopTour(); closeCard(); setGen(g); flyTo(genView(g)); };
+    bar.appendChild(b); genBtns.push(b);
+  }
+  bar.insertAdjacentHTML('beforeend', '<span class="sep"></span>');
+  const mk = (t, f) => { const b = document.createElement('button'); b.textContent = t; b.onclick = f; bar.appendChild(b); };
+  mk('全覽', () => { stopTour(); closeCard(); setGen(0); flyTo(overviewView(), 1.4); });
+  mk('導覽', () => { closeCard(); tour(); });
+  mk('存圖', exportPoster);
+  mk('紀念堂', () => { location.href = './index.html'; });
+}
+
+const card = document.getElementById('card');
+let selected = null;
+function openCard(p) {
+  const main = p.role === 'main' ? p : byId[p.spouseOf];
+  card.querySelector('.nm').textContent = p.name;
+  card.querySelector('.gn').textContent = `第${CN[p.gen]}世` + (p.role === 'spouse' ? '・配偶' : '');
+  const tg = card.querySelector('.tg'); tg.textContent = p.tag || ''; tg.style.display = p.tag ? '' : 'none';
+  const rows = [];
+  if (p.empty) rows.push(['說明', `${main.name} 未有配偶記錄`]);
+  else {
+    rows.push(['身分', p.role === 'main' ? (p.tag ? `${p.tag}・主脈` : '主脈') : `${main.name} 之配偶`]);
+    rows.push(['生卒', p.lines ? p.lines.join(' ').replace('— ', '～') : '—']);
+    if (p.role === 'main' && p.spouse && !p.spouse.empty) rows.push(['配偶', p.spouse.name]);
+    if (main.parent) rows.push(['父系', byId[main.parent].name]);
+    if (main.children.length) rows.push(['子嗣', main.children.map(c => c.name).join('、')]);
+  }
+  card.querySelector('dl').innerHTML = rows.map(([a, b]) => `<dt>${a}</dt><dd>${b}</dd>`).join('');
+  card.classList.add('on');
+}
+function closeCard() {
+  card.classList.remove('on');
+  if (selected) { tablets[selected].front.emissiveIntensity = 0; selected = null; }
+}
+card.querySelector('.x').onclick = closeCard;
+
+function selectPerson(id) {
+  stopTour(); closeCard();
+  const p = byId[id]; selected = id; setGen(p.gen);
+  openCard(p);
+  // 卡片在下方，鏡頭目標略往下讓牌位在畫面上半
+  const d = Math.max(6.5, fitDist(TW * 3.2, 7.4));
+  flyTo([V(p.x + d * .12, p.y - .6, d), V(p.x, p.y - 1.5, 0)], 1.0);
+}
+
+/* 點擊判斷（與拖曳區分） */
+const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+let down = null;
+canvas.addEventListener('pointerdown', e => { down = { x: e.clientX, y: e.clientY, t: performance.now() }; if (touring) stopTour(); if (flight) { flight.res(); flight = null; } });
+canvas.addEventListener('pointerup', e => {
+  if (!down) return;
+  const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y), dt = performance.now() - down.t; down = null;
+  if (moved > 8 || dt > 450) return;
+  const r = canvas.getBoundingClientRect();
+  ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+  ray.setFromCamera(ndc, camera);
+  const hit = ray.intersectObjects(pickables, false)[0];
+  if (hit) selectPerson(hit.object.userData.pid); else closeCard();
+});
+
+/* ---------- 海報輸出（含標題與印章） ---------- */
+const posterEl = document.getElementById('poster');
+posterEl.querySelector('button').onclick = () => posterEl.classList.remove('on');
+function exportPoster() {
+  renderer.render(scene, camera);
+  const src = renderer.domElement, s = src.width / innerWidth;
+  const c = document.createElement('canvas'); c.width = src.width; c.height = src.height;
+  const g = c.getContext('2d');
+  g.drawImage(src, 0, 0);
+  g.fillStyle = '#8b1a1a'; g.font = `900 ${22 * s}px ${FONT}`; g.textBaseline = 'top';
+  g.fillText('龍山派 曾氏族譜', 18 * s, 18 * s);
+  g.fillStyle = '#7a5a2a'; g.font = `400 ${11 * s}px ${FONT}`;
+  g.fillText('立 體 世 系 祠 堂', 18 * s, 48 * s);
+  const w = 64 * s, x = c.width - w - 20 * s, y = c.height - w - 20 * s;
+  g.save(); g.translate(x + w / 2, y + w / 2); g.rotate(-.1);
+  g.strokeStyle = '#a82020'; g.lineWidth = 3 * s; g.strokeRect(-w / 2, -w / 2, w, w);
+  g.fillStyle = '#a82020'; g.font = `900 ${14 * s}px ${FONT}`; g.textAlign = 'center'; g.textBaseline = 'middle';
+  ['曾氏', '龍山', '族譜'].forEach((t, i) => g.fillText(t, 0, (i - 1) * 17 * s));
+  g.restore();
+  const url = c.toDataURL('image/png');
+  posterEl.querySelector('img').src = url;
+  posterEl.querySelector('a').href = url;
+  posterEl.classList.add('on');
+}
+
+/* ---------- 尺寸 ---------- */
+function resize() {
+  const w = innerWidth, h = innerHeight;
+  renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+}
+addEventListener('resize', resize);
+if (window.visualViewport) visualViewport.addEventListener('resize', resize);
+
+/* ================= 動畫迴圈 ================= */
+const clock = new THREE.Clock();
+const tMin = new THREE.Vector3(), tMax = new THREE.Vector3();
+function loop() {
+  const dt = Math.min(clock.getDelta(), .05), now = performance.now(), T = now / 1000;
+
+  if (flight) {
+    const k = Math.min(1, (now - flight.start) / flight.dur), e = ease(k);
+    camera.position.lerpVectors(flight.p0, flight.p1, e);
+    controls.target.lerpVectors(flight.t0, flight.t1, e);
+    camera.lookAt(controls.target);
+    if (k >= 1) { const r = flight.res; flight = null; controls.update(); r(); }
+  } else {
+    controls.target.clamp(tMin, tMax);
+    controls.update();
+  }
+
+  if (selected) tablets[selected].front.emissiveIntensity = .18 + .14 * Math.sin(T * 3);
+
+  if (dust) {
+    const a = dust.geometry.attributes.position, { sp, b } = dust.userData;
+    for (let i = 0; i < sp.length; i++) {
+      let y = a.getY(i) + sp[i] * dt;
+      if (y > b.maxY + 4) y = b.minY - 4;
+      a.setY(i, y); a.setX(i, a.getX(i) + Math.sin(T * .6 + i) * .002);
+    }
+    a.needsUpdate = true;
+  }
+  smoke.forEach(sp => {
+    const t = (sp.userData.t + T * .12) % 1;
+    sp.position.set(altarTip.x + Math.sin(t * 9 + sp.userData.t * 20) * .15 * t, altarTip.y + t * 2.6, altarTip.z - t * .3);
+    sp.scale.setScalar(.15 + t * .9);
+    sp.material.opacity = Math.sin(t * Math.PI) * .55;
+  });
+
+  renderer.render(scene, camera);
+}
+
+/* ================= 啟動 ================= */
+async function start() {
+  const introT0 = performance.now();
+  await waitFonts();
+  PEOPLE.forEach(buildTablet);
+  buildLines();
+  buildAltar();
+  computeBounds();
+  buildBackdrop((bounds.minY + bounds.maxY) / 2);
+  buildDust(bounds);
+  buildBar();
+  tMin.set(bounds.minX - 4, bounds.minY - 4, -3); tMax.set(bounds.maxX + 4, bounds.maxY + 4, 3);
+
+  const [p0, t0] = genView(1);
+  camera.position.copy(p0).add(V(0, 4, 6)); controls.target.copy(t0); camera.lookAt(t0);
+  renderer.setAnimationLoop(loop);
+  window.__zupuReady = true;
+
+  const intro = document.getElementById('intro');
+  let skipped = false;
+  intro.addEventListener('pointerdown', () => {
+    if (skipped) return; skipped = true; intro.classList.add('hide');
+    stopTour(); flyTo(overviewView(), 1.2);
+  });
+  await sleep(Math.max(0, 2600 - (performance.now() - introT0)));
+  if (skipped) return;
+  intro.classList.add('hide'); skipped = true;
+  tour();
+}
+start();
+</script>
+</body>
+</html>
