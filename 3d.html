@@ -124,6 +124,7 @@
   #offerBox .grid button.sel i::after{content:'';position:absolute;left:5px;top:1px;width:5px;height:10px;border:solid #8b1a1a;border-width:0 2.5px 2.5px 0;transform:rotate(45deg)}
   #offerBox .row .go{flex:2;background:#8b1a1a;border-color:#8b1a1a;color:#f6d98a;letter-spacing:.15em}
   #offerBox .row .go:disabled{opacity:.45}
+  #offerBox .chant{width:100%;margin-top:10px;height:44px;font-family:var(--font);font-size:15px;font-weight:900;letter-spacing:.15em;border:1px solid #6b4a1a;border-radius:3px;background:linear-gradient(90deg,#2a1a08,#4a2e10,#2a1a08);color:#f6d98a}
   #offerBox .row .all{background:#fbf4e2;color:#5a0d0d}
   #recBox .tm{text-align:center;font-size:20px;font-weight:900;color:#5a0d0d;margin:6px 0 10px;letter-spacing:.1em}
   #recBox audio{width:100%;margin-bottom:10px;display:none}
@@ -142,6 +143,7 @@
   #card .vplay.on{background:var(--gold);color:#3d2006}
   #card .vdel{font-family:var(--font);font-size:12px;border:0;background:none;color:#8b1a1a;text-decoration:underline}
   #card .inc{flex:1;height:38px;border:1px solid #8b1a1a;border-radius:3px;background:#8b1a1a;color:#f6d98a;font-family:var(--font);font-size:15px;font-weight:900;letter-spacing:.2em}
+  #card .chn{flex:1;height:38px;border:1px solid #6b4a1a;border-radius:3px;background:#2a1a08;color:#f6d98a;font-family:var(--font);font-size:14px;font-weight:900;letter-spacing:.1em}
   #card .ofr{flex:1;height:38px;border:1px solid #8b1a1a;border-radius:3px;background:#fbefd8;color:#8b1a1a;font-family:var(--font);font-size:15px;font-weight:900;letter-spacing:.2em}
   #card .rec{flex:1;height:38px;border:1px solid var(--gold);border-radius:3px;background:#f3e3b8;color:#5a0d0d;font-family:var(--font);font-size:15px;font-weight:700;letter-spacing:.1em}
   .rstat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0 12px}
@@ -151,8 +153,35 @@
   .rrow{display:flex;align-items:baseline;gap:8px;padding:8px 2px;border-bottom:1px dashed #d9c48a;font-size:15px;cursor:pointer}
   .rrow b{color:#2a1a08;white-space:nowrap}.rrow span{flex:1;color:#5a3a10;font-size:14px}.rrow em{font-style:normal;font-size:12px;color:#7a5a2a;white-space:nowrap}
   .rrow em.hot{color:#fff;background:#8b1a1a;padding:1px 6px;border-radius:2px}
+  .rbtn.rchant{margin-top:8px;background:linear-gradient(90deg,#2a1a08,#4a2e10,#2a1a08);border-color:#6b4a1a}
   .rtoday{font-size:14px!important;text-align:center;color:#5a3a10!important;margin:0 0 10px!important}
   .rnote{font-size:12px!important;color:#7a5a2a!important;margin-top:12px}
+
+  /* 念經 */
+  #sutra{position:fixed;left:0;right:0;bottom:0;top:34vh;z-index:28;display:none;padding:0 8px calc(var(--sb) + 8px)}
+  #sutra.on{display:block;animation:fadeIn .35s}
+  #sutra .sheet{position:relative;height:100%;display:flex;flex-direction:column;background:linear-gradient(170deg,#1c1208,#0e0904);border:1px solid var(--gold);border-bottom:0;border-radius:6px 6px 0 0;box-shadow:0 -8px 30px rgba(0,0,0,.55);padding:14px 14px 10px}
+  #sutra h3{color:var(--gold-l);font-size:17px;font-weight:900;letter-spacing:.12em;text-align:center;margin:0 26px 10px}
+  #sutra .x{position:absolute;top:6px;right:8px;border:0;background:none;color:#c9a045;font-size:26px;padding:4px 8px}
+  #sutra .opt{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+  #sutra .opt span{display:flex;border:1px solid #6b4a1a;border-radius:3px;overflow:hidden}
+  #sutra .opt button{font-family:var(--font);font-size:13px;padding:5px 9px;border:0;background:#2a1a08;color:#c9a045}
+  #sutra .opt button.on{background:var(--gold);color:#2a1505;font-weight:900}
+  #sutra .prog{height:3px;background:#3d2b14;border-radius:2px;margin-bottom:8px;overflow:hidden}
+  #sutra .prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,#b8862b,#f6d98a);transition:width .3s}
+  #sutra .txt{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:4px 4px 30vh;font-size:24px;line-height:2.05;letter-spacing:.14em;color:#7d6a4a;text-align:justify}
+  #sutra .blk{margin-bottom:12px}
+  #sutra .blk.ttl{text-align:center;font-size:26px;font-weight:900}
+  #sutra h6{font-size:13px;color:#a8874a;letter-spacing:.4em;margin-bottom:2px;font-weight:700}
+  #sutra .txt span{transition:color .2s,text-shadow .2s}
+  #sutra .txt span.done{color:#e8c66a}
+  #sutra .txt span.now{color:#fff3c8;text-shadow:0 0 10px #ffb84a,0 0 22px #ff9a2a;font-weight:900}
+  #sutra .txt span.p{color:#5a4a32}
+  #sutra .foot{display:flex;align-items:center;gap:10px;padding-top:8px;border-top:1px solid #3d2b14}
+  #sutra .rnd{font-size:13px;color:#c9a045;white-space:nowrap}
+  #sutra .done-msg{flex:1;font-size:13px;color:#f6d98a}
+  #sutra .go{font-family:var(--font);font-size:16px;font-weight:900;letter-spacing:.15em;height:42px;padding:0 22px;border:1px solid var(--gold);border-radius:3px;background:#8b1a1a;color:#f6d98a}
+  #sutra[data-st="run"] .go{background:#3d2006}
 
   /* 卷軸展讀 */
   #scrollReader{position:fixed;inset:0;z-index:25;background:rgba(20,10,2,.88);display:none;flex-direction:column;align-items:center;justify-content:center;padding:calc(var(--st) + 16px) 14px calc(var(--sb) + 16px)}
@@ -203,7 +232,7 @@
   <p class="bio"></p>
   <div class="voices"></div>
   <div class="btns"><button class="inc">上 香</button><button class="ofr">供 奉</button><button class="rec">錄音口述</button></div>
-  <div class="btns"><button class="flip">翻面看生平</button><button class="tw">看塔位</button></div>
+  <div class="btns"><button class="chn">念經超渡</button><button class="flip">翻面看生平</button><button class="tw">看塔位</button></div>
 </div>
 
 <div id="bar"></div>
@@ -230,6 +259,7 @@
   <p class="hint">可複選，一次敬奉</p>
   <div class="grid"></div>
   <div class="row"><button class="no">取消</button><button class="all">全選</button><button class="go">敬奉</button></div>
+  <button class="chant">念經超渡・誦《心經》</button>
 </div></div>
 <div id="recBox" class="dlg" data-st="idle"><div class="in">
   <h4></h4>
@@ -242,6 +272,21 @@
     <button class="redo">重錄</button><button class="ok">上傳保存</button>
   </div>
 </div></div>
+
+<div id="sutra" data-st="idle">
+  <div class="sheet">
+    <button class="x" aria-label="結束">×</button>
+    <h3></h3>
+    <div class="opt">
+      <span><button data-v="voice">語音</button><button data-v="fish">木魚</button></span>
+      <span><button data-s="0">慢</button><button data-s="1">中</button><button data-s="2">快</button></span>
+      <span><button data-r="1">1卷</button><button data-r="3">3卷</button><button data-r="7">7卷</button></span>
+    </div>
+    <div class="prog"><i></i></div>
+    <div class="txt"></div>
+    <div class="foot"><span class="rnd"></span><span class="done-msg"></span><button class="go">開始誦經</button></div>
+  </div>
+</div>
 
 <div id="scrollReader">
   <div class="rodr"></div>
@@ -382,7 +427,7 @@ measure(root); place(root, -root.w / 2);
 /* ---------- 字型就緒後才畫牌位文字（iOS 必要） ---------- */
 async function waitFonts() {
   const txt = PEOPLE.map(p => p.name + p.tabletText + (p.tag || '') + (p.lines || []).join('') + (p.bio || '') + (p.alias || '')).join('')
-            + HALL.plaque + HALL.plaqueSub + HALL.couplet.join('') + HALL.zibei + '龍山字輩大宗曾氏沿革輕觸展讀塔位側殿樓號口湖鄉公所靈骨塔蚵寮新舊' + historyText().split('\n').filter(s => /^[一二三四五六七八九十]+、/.test(s)).join('') + '第一二三四五六七八九十世配偶︵︶無—年生仙逝之本支在世農曆卒生平待補於紀念堂祖先名冊填寫字號0123456789.';
+            + SUTRA.title + SUTRA.open + SUTRA.body + SUTRA.close + '念經超渡誦心卷語音木魚慢中快開始暫停繼續再一次圓滿功德迴向偈為' + HALL.plaque + HALL.plaqueSub + HALL.couplet.join('') + HALL.zibei + '龍山字輩大宗曾氏沿革輕觸展讀塔位側殿樓號口湖鄉公所靈骨塔蚵寮新舊' + historyText().split('\n').filter(s => /^[一二三四五六七八九十]+、/.test(s)).join('') + '第一二三四五六七八九十世配偶︵︶無—年生仙逝之本支在世農曆卒生平待補於紀念堂祖先名冊填寫字號0123456789.';
   try {
     await Promise.race([
       Promise.all([
@@ -768,6 +813,7 @@ const OFFER = {
   flower:  { label: '獻花', verb: '獻花', unit: '束', keep: 7 },
   fruit:   { label: '供果', verb: '供果', unit: '盤', keep: 3 },
   candle:  { label: '點燭', verb: '點燭', unit: '對', keep: 1 },
+  sutra:   { label: '誦經', verb: '誦心經', unit: '卷', keep: 0, special: true },
 };
 const OFFER_SETS = {};   // key（'main' 或牌位 id）→ set
 const porcelain = new THREE.MeshStandardMaterial({ color: '#f4f1ea', roughness: .25, metalness: .05, envMapIntensity: .8 });
@@ -798,6 +844,26 @@ function offerMats() {
     tea: new THREE.MeshStandardMaterial({ color: '#8a5a12', roughness: .1, metalness: .1 }),
   };
   return OM;
+}
+/* 小包裝餅乾：每種一個包裝（頂面印品名、兩端鋸齒封口） */
+let PACKS = null;
+function packMats() {
+  if (PACKS) return PACKS;
+  const kinds = [['蘇打餅', '#c4161c', '#ffd25a'], ['夾心酥', '#d9a520', '#7a1010'], ['鳳梨酥', '#1f6b3a', '#ffe9a8'], ['綠豆椪', '#2c4f9e', '#fff3c4'], ['牛奶餅', '#f2efe6', '#b01818'], ['喜餅', '#b8862b', '#fff8e0']];
+  PACKS = kinds.map(([name, bg, fg]) => {
+    const top = boardTexture(256, 180, (g, W, H) => {
+      const gr = g.createLinearGradient(0, 0, W, H); gr.addColorStop(0, bg); gr.addColorStop(.5, '#ffffff22'); gr.addColorStop(.52, bg); gr.addColorStop(1, bg);
+      g.fillStyle = bg; g.fillRect(0, 0, W, H); g.fillStyle = gr; g.globalAlpha = .35; g.fillRect(0, 0, W, H); g.globalAlpha = 1;
+      g.fillStyle = 'rgba(0,0,0,.18)';   // 鋸齒封口
+      for (let y = 0; y < H; y += 12) { g.fillRect(0, y, 16, 6); g.fillRect(W - 16, y + 6, 16, 6); }
+      g.fillStyle = fg; g.beginPath(); g.ellipse(W / 2, H / 2, 82, 52, 0, 0, Math.PI * 2); g.fill();
+      g.fillStyle = bg; g.font = `900 ${name.length > 2 ? 44 : 56}px ${FONT}`; g.fillText(name, W / 2, H / 2 + 2);
+    });
+    const side = new THREE.MeshStandardMaterial({ color: bg, roughness: .35, metalness: .25 });
+    const face = new THREE.MeshStandardMaterial({ map: top, roughness: .35, metalness: .15 });
+    return [side, side, face, side, side, side];
+  });
+  return PACKS;
 }
 /* 在 (x, y=案面高度, z) 建一組供品；s 為縮放，mini=true 時另建小供桌與小香爐 */
 function buildOfferSet(key, x, y, z, s, mini) {
@@ -879,17 +945,20 @@ function buildOfferSet(key, x, y, z, s, mini) {
   [0, 1.4].forEach(r => { const lf = new THREE.Mesh(lfG, m.leaf); lf.position.set(fx + .015, PY + .2, fz); lf.rotation.set(-1, r, 0); frg.add(lf); });
   const gg = new THREE.SphereGeometry(.017, 8, 6);   // 葡萄垂在盤緣
   for (let i = 0; i < 16; i++) { const row = Math.floor(i / 4), gr = new THREE.Mesh(gg, m.grape); gr.position.set(fx + .1 + ((i % 4) - 1.5) * .028 * (1 - row * .18), PY + .02 - row * .028, fz + .15); frg.add(gr); }
-  // 餅乾盤：白瓷盤、圓餅乾圍一圈、中間疊一落、方蘇打餅
+  // 餅乾盤：白瓷金邊盤上，一包一包的小包裝餅乾堆成五層（共 22 包）
   const bx = .47, bz = -.04;
   const dish = lathe([[0, 0], [.1, 0], [.19, .02], [.21, .035], [.2, .04], [0, .02]], porcelain); dish.position.set(bx, Y, bz); frg.add(dish);
   const goldRim = new THREE.Mesh(new THREE.TorusGeometry(.205, .006, 6, 32), M.gold); goldRim.rotation.x = Math.PI / 2; goldRim.position.set(bx, Y + .037, bz); frg.add(goldRim);
-  const ckG = new THREE.CylinderGeometry(.045, .045, .014, 20), ck = new THREE.MeshStandardMaterial({ color: '#d8a456', roughness: .8 }), ck2 = new THREE.MeshStandardMaterial({ color: '#b5773a', roughness: .8 });
-  const sqG = new THREE.BoxGeometry(.07, .012, .07), sq = new THREE.MeshStandardMaterial({ color: '#e8c27e', roughness: .85 });
-  for (let i = 0; i < 8; i++) {
-    const a = i / 8 * Math.PI * 2, c = new THREE.Mesh(i % 2 ? sqG : ckG, i % 2 ? sq : (i % 4 ? ck2 : ck));
-    c.position.set(bx + Math.cos(a) * .12, Y + .04 + (i % 2) * .006, bz + Math.sin(a) * .12); c.rotation.set(Math.cos(a) * .25, a, Math.sin(a) * -.25); frg.add(c);
-  }
-  for (let k = 0; k < 4; k++) { const c = new THREE.Mesh(ckG, k % 2 ? ck2 : ck); c.position.set(bx, Y + .04 + k * .016, bz); c.rotation.y = k; frg.add(c); }
+  const packs = packMats(), PW = .112, PH = .032, PD = .078, pg = new THREE.BoxGeometry(PW, PH, PD);
+  let n = 0;
+  [[3, 3], [2, 3], [2, 2], [1, 2], [1, 1]].forEach(([ki, kj], lv) => {   // 五層共 22 包
+    for (let i = 0; i < ki; i++) for (let j = 0; j < kj; j++) {
+      const pk = new THREE.Mesh(pg, packs[(n++ * 5 + lv) % packs.length]);
+      pk.position.set(bx + (i - (ki - 1) / 2) * (PW + .004), Y + .04 + PH / 2 + lv * (PH + .002), bz + (j - (kj - 1) / 2) * (PD + .01));
+      pk.rotation.y = (lv % 2 ? .12 : -.06) + ((i + j) % 2 ? .05 : -.04);
+      frg.add(pk);
+    }
+  });
   R.add(frg);
   set.types.fruit = { group: frg, show: on => { frg.visible = on; } };
   // 奉茶：三杯排在香爐正前方，紫砂壺在杯旁
@@ -1506,7 +1575,7 @@ function openOfferSheet(pid) {
   el.querySelector('h4').textContent = `供奉・${p ? p.name : '歷代祖先'}`;
   const day = (RITE.state.od || {})[twDay().s], od = odOf(day, pid);
   const desc = { incense: '三炷清香，敬告祖先', tea: '清茶三杯', flower: '菊花百合・七日', fruit: '水果、餅乾・三日', candle: '紅燭一對' };
-  el.querySelector('.grid').innerHTML = Object.entries(OFFER).map(([k, o]) =>
+  el.querySelector('.grid').innerHTML = Object.entries(OFFER).filter(([k, o]) => !o.special).map(([k, o]) =>
     `<button data-k="${k}" class="of-${k}${k === 'incense' ? ' sel' : ''}"><i></i><b>${o.label}</b><small>${desc[k]}</small>${od[k] ? `<em>今日已奉 ${od[k]}</em>` : ''}</button>`).join('');
   const go = el.querySelector('.go');
   const upd = () => { const n = el.querySelectorAll('.grid .sel').length; go.textContent = n ? `敬奉 ${n} 項` : '請選擇供品'; go.disabled = !n; };
@@ -1514,6 +1583,7 @@ function openOfferSheet(pid) {
   el.querySelector('.all').onclick = () => { const all = [...el.querySelectorAll('.grid button')], on = all.some(b => !b.classList.contains('sel')); all.forEach(b => b.classList.toggle('sel', on)); upd(); };
   go.onclick = () => { const ts = [...el.querySelectorAll('.grid .sel')].map(b => b.dataset.k); if (!ts.length) return; el.classList.remove('on'); makeOfferings(ts, pid); };
   el.querySelector('.no').onclick = () => el.classList.remove('on');
+  el.querySelector('.chant').onclick = () => { el.classList.remove('on'); openSutra(pid); };
   upd(); el.classList.add('on');
 }
 
@@ -1620,13 +1690,194 @@ function openRitePanel() {
     <div class="rstat"><div><b>${st.days[day] || 0}</b><small>今日上香</small></div><div><b>${st.total || 0}</b><small>累計上香</small></div><div><b>${Object.values(st.voices || {}).reduce((s, l) => s + l.length, 0)}</b><small>語音口述</small></div></div>
     <p class="rtoday">今日供奉：${(() => { const d = (st.od || {})[day] || {}, flat = typeof Object.values(d)[0] === 'number' ? [d] : Object.values(d); return Object.entries(OFFER).filter(([k]) => k !== 'incense').map(([k, o]) => `${o.label} ${flat.reduce((s, x) => s + (x[k] || 0), 0)}`).join('・'); })()}</p>
     <button class="rbtn" data-act="all">前往香案供奉</button>
+    <button class="rbtn rchant">念經超渡・誦《心經》</button>
     <h3>近期忌日</h3>${ann.length ? ann.map(a => `<div class="rrow" data-pid="${a.p.id}"><b>${escH(a.p.name)}</b><span>${escH(annivLabel(a.p))}</span><em class="${a.days === 0 ? 'hot' : ''}">${a.days === 0 ? '今日' : nextSolarDate(a.days) + '・' + a.days + ' 天後'}</em></div>`).join('') : '<p>六十天內沒有忌日。忌日請在紀念堂「祖先名冊」填寫。</p>'}
-    <h3>祭祀紀錄</h3>${(st.recent || []).length ? st.recent.slice(0, 20).map(r => `<div class="rrow" data-pid="${r.pid}"><b>${escH(r.who)}</b><span>為 ${escH(r.name)} ${(r.types || [r.type || 'incense']).map(t => (OFFER[t] || OFFER.incense).verb).join('、')}</span><em>${fmtT(r.at)}</em></div>`).join('') : '<p>還沒有祭祀紀錄。</p>'}
+    <h3>祭祀紀錄</h3>${(st.recent || []).length ? st.recent.slice(0, 20).map(r => `<div class="rrow" data-pid="${r.pid}"><b>${escH(r.who)}</b><span>為 ${escH(r.name)} ${(r.types || [r.type || 'incense']).map(t => (OFFER[t] || OFFER.incense).verb + (t === 'sutra' && r.n ? ` ${r.n} 卷` : '')).join('、')}</span><em>${fmtT(r.at)}</em></div>`).join('') : '<p>還沒有祭祀紀錄。</p>'}
     <p class="rnote">${RITE.online ? '紀錄已與家人同步。' : '目前為本機模式：紀錄只存在這台裝置（雲端路由尚未部署）。'}</p>`;
+  el.querySelector('.rchant').onclick = () => { el.classList.remove('on'); openSutra('all'); };
   el.querySelector('.rbtn').onclick = () => { el.classList.remove('on'); setGen(1); flyTo(altarView(), 1.2); openOfferSheet('all'); };
   el.querySelectorAll('.rrow[data-pid]').forEach(r => r.onclick = () => { if (byId[r.dataset.pid]) { el.classList.remove('on'); selectPerson(r.dataset.pid); } });
   el.classList.add('on'); el.querySelector('.body').scrollTop = 0;
 }
+
+/* ================= 念經超渡：《心經》逐字誦念 =================
+   語音用瀏覽器內建朗讀（speechSynthesis，優先台灣中文）；木魚用 WebAudio 合成。
+   中文朗讀多半不回報逐字位置，因此以「句」為單位朗讀，句內依語速平均推進高亮，句末再對齊。 */
+const SUTRA = {
+  title: '摩訶般若波羅蜜多心經',
+  open: '無上甚深微妙法，百千萬劫難遭遇，我今見聞得受持，願解如來真實義。',
+  body: '觀自在菩薩，行深般若波羅蜜多時，照見五蘊皆空，度一切苦厄。舍利子，色不異空，空不異色，色即是空，空即是色，受想行識，亦復如是。舍利子，是諸法空相，不生不滅，不垢不淨，不增不減。是故空中無色，無受想行識，無眼耳鼻舌身意，無色聲香味觸法，無眼界，乃至無意識界。無無明，亦無無明盡，乃至無老死，亦無老死盡。無苦集滅道，無智亦無得。以無所得故，菩提薩埵，依般若波羅蜜多故，心無罣礙。無罣礙故，無有恐怖，遠離顛倒夢想，究竟涅槃。三世諸佛，依般若波羅蜜多故，得阿耨多羅三藐三菩提。故知般若波羅蜜多，是大神咒，是大明咒，是無上咒，是無等等咒，能除一切苦，真實不虛。故說般若波羅蜜多咒，即說咒曰：揭諦揭諦，波羅揭諦，波羅僧揭諦，菩提薩婆訶。',
+  close: '願以此功德，普及於一切，我等與眾生，皆共成佛道。',
+};
+// 讀音提示：朗讀引擎容易念錯的字改用同音字（只影響語音，不影響畫面）
+const SUTRA_SAY = [['般若', '波惹'], ['菩提薩埵', '菩提薩朵'], ['揭諦', '解帝'], ['薩婆訶', '薩婆賀'], ['阿耨多羅', '阿諾多羅'], ['三藐', '三秒'], ['罣礙', '掛礙'], ['舍利子', '社利子']];
+const CHANT = { on: false, paused: false, pid: null, seg: [], si: 0, ci: 0, timer: 0, voice: true, fish: true, speed: 1, rounds: 1, round: 1, ac: null, utt: null, gen: 0 };
+const CH_SPEED = [['慢', .72, 620], ['中', .9, 470], ['快', 1.1, 360]];   // [名稱, 朗讀速率, 木魚每字毫秒]
+
+function fishKnock() {   // 木魚：短促木質敲擊聲
+  try {
+    const ac = CHANT.ac || (CHANT.ac = new (window.AudioContext || window.webkitAudioContext)());
+    const t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain(), f = ac.createBiquadFilter();
+    o.type = 'sine'; o.frequency.setValueAtTime(820, t); o.frequency.exponentialRampToValueAtTime(420, t + .09);
+    f.type = 'bandpass'; f.frequency.value = 700; f.Q.value = 3;
+    g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.55, t + .004); g.gain.exponentialRampToValueAtTime(.0001, t + .16);
+    o.connect(f); f.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + .18);
+  } catch (e) {}
+}
+function zhVoice() {
+  const vs = (window.speechSynthesis && speechSynthesis.getVoices()) || [];
+  return vs.find(v => /zh[-_]TW/i.test(v.lang)) || vs.find(v => /zh[-_]HK/i.test(v.lang)) || vs.find(v => /^zh/i.test(v.lang)) || null;
+}
+/* 分段：開經偈、經題、經文（逐句）、迴向偈；每段記錄起訖字位 */
+function buildSutraDom() {
+  const el = document.getElementById('sutra'), box = el.querySelector('.txt');
+  const parts = [['開經偈', SUTRA.open], ['', SUTRA.title], ['', SUTRA.body], ['迴向偈', SUTRA.close]];
+  CHANT.seg = []; box.innerHTML = '';
+  let gi = 0;
+  parts.forEach(([label, text], pi) => {
+    const blk = document.createElement('div'); blk.className = 'blk' + (pi === 1 ? ' ttl' : '');
+    if (label) blk.insertAdjacentHTML('beforeend', `<h6>${label}</h6>`);
+    const re = /[^，。：、；]+[，。：、；]?/g; let m;
+    while ((m = re.exec(text))) {
+      const phrase = m[0], chars = [...phrase], start = gi;
+      chars.forEach(c => {
+        const sp = document.createElement('span'); sp.textContent = c;
+        if (/[，。：、；]/.test(c)) sp.className = 'p'; else { sp.dataset.i = gi++; }
+        blk.appendChild(sp);
+      });
+      const clean = phrase.replace(/[，。：、；]/g, '');
+      if (clean) CHANT.seg.push({ text: clean, start, end: gi });
+    }
+    box.appendChild(blk);
+  });
+  CHANT.total = gi;
+  CHANT.spans = [...box.querySelectorAll('span[data-i]')];
+}
+function chantMark(i) {
+  const sp = CHANT.spans;
+  if (CHANT.ci > 0 && sp[CHANT.ci - 1]) sp[CHANT.ci - 1].classList.replace('now', 'done');
+  for (let k = CHANT.ci; k < i && k < sp.length; k++) sp[k].className = 'done';
+  if (sp[i]) {
+    sp[i].className = 'now';
+    const box = document.querySelector('#sutra .txt'), r = sp[i].getBoundingClientRect(), b = box.getBoundingClientRect();
+    if (r.top < b.top + 40 || r.bottom > b.bottom - 60) box.scrollTo({ top: box.scrollTop + r.top - b.top - b.height * .38, behavior: 'smooth' });
+  }
+  CHANT.ci = i;
+  const pr = document.querySelector('#sutra .prog i');
+  if (pr) pr.style.width = (100 * i / CHANT.total) + '%';
+}
+function chantSay(text) {
+  let t = text; SUTRA_SAY.forEach(([a, b]) => { t = t.split(a).join(b); }); return t;
+}
+function chantSegment() {
+  const my = CHANT.gen;
+  if (!CHANT.on || CHANT.paused) return;
+  if (CHANT.si >= CHANT.seg.length) return chantRoundEnd();
+  const seg = CHANT.seg[CHANT.si], sp = CH_SPEED[CHANT.speed], perChar = sp[2];
+  let i = seg.start;
+  const stepChar = () => {
+    if (my !== CHANT.gen || !CHANT.on || CHANT.paused) return;
+    if (i < seg.end) { chantMark(i); if (CHANT.fish) fishKnock(); i++; CHANT.timer = setTimeout(stepChar, perChar); }
+    else if (!CHANT.utt) { CHANT.si++; CHANT.timer = setTimeout(chantSegment, perChar * .6); }   // 無語音：句末小停頓
+    else { const u = CHANT.utt; CHANT.timer = setTimeout(() => { if (CHANT.utt === u && u.onend) u.onend(); }, 2500 + perChar * 2); }   // 語音卡住時的保險
+  };
+  if (CHANT.voice && window.speechSynthesis && zhVoice()) {
+    const u = new SpeechSynthesisUtterance(chantSay(seg.text));
+    const v = zhVoice(); if (v) u.voice = v; u.lang = (v && v.lang) || 'zh-TW'; u.rate = sp[1]; u.pitch = .9;
+    CHANT.utt = u;
+    u.onend = u.onerror = () => {
+      if (my !== CHANT.gen || CHANT.utt !== u) return;
+      clearTimeout(CHANT.timer); CHANT.utt = null;
+      for (; i < seg.end; i++) chantMark(i);   // 句末對齊
+      CHANT.si++; CHANT.timer = setTimeout(chantSegment, 160);
+    };
+    speechSynthesis.speak(u);
+  } else CHANT.utt = null;
+  stepChar();
+}
+function chantRoundEnd() {
+  chantMark(CHANT.total);
+  if (CHANT.round < CHANT.rounds) {
+    CHANT.round++; CHANT.si = 0; CHANT.ci = 0;
+    CHANT.spans.forEach(s => s.className = ''); updChantUI();
+    CHANT.timer = setTimeout(chantSegment, 1200);
+    return;
+  }
+  CHANT.on = false; updChantUI();
+  const p = CHANT.pid === 'all' ? null : byId[CHANT.pid];
+  recordSutra(CHANT.pid, CHANT.rounds);
+  document.querySelector('#sutra .done-msg').textContent = `《心經》${CHANT.rounds} 卷圓滿・功德迴向 ${p ? p.name : '歷代祖先'}`;
+}
+function updChantUI() {
+  const el = document.getElementById('sutra');
+  el.dataset.st = CHANT.on ? (CHANT.paused ? 'pause' : 'run') : (CHANT.ci >= CHANT.total ? 'done' : 'idle');
+  el.querySelector('.go').textContent = CHANT.on ? (CHANT.paused ? '繼續' : '暫停') : (CHANT.ci >= CHANT.total ? '再誦一次' : '開始誦經');
+  el.querySelector('.rnd').textContent = CHANT.rounds > 1 ? `第 ${CHANT.round} / ${CHANT.rounds} 卷` : '';
+  el.querySelectorAll('.opt [data-v]').forEach(b => b.classList.toggle('on', b.dataset.v === 'voice' ? CHANT.voice : CHANT.fish));
+  el.querySelectorAll('.opt [data-s]').forEach(b => b.classList.toggle('on', +b.dataset.s === CHANT.speed));
+  el.querySelectorAll('.opt [data-r]').forEach(b => b.classList.toggle('on', +b.dataset.r === CHANT.rounds));
+}
+function stopChant() {
+  CHANT.gen++; CHANT.on = false; CHANT.paused = false; clearTimeout(CHANT.timer); CHANT.utt = null;
+  try { speechSynthesis.cancel(); } catch (e) {}
+  Object.values(tablets).forEach(t => t.chanting = false);
+}
+function openSutra(pid) {
+  stopTour(); closeCard(); stopChant();
+  CHANT.pid = pid; CHANT.si = 0; CHANT.ci = 0; CHANT.round = 1;
+  const p = pid === 'all' ? null : byId[pid];
+  const el = document.getElementById('sutra');
+  el.querySelector('h3').textContent = `為 ${p ? p.name : '歷代祖先'} 誦《心經》超渡`;
+  el.querySelector('.done-msg').textContent = '';
+  buildSutraDom(); updChantUI(); el.classList.add('on');
+  // 經文面板佔下方 2/3：鏡頭讓牌位（名諱）落在畫面上方
+  const q = p || root, d = Math.max(9, fitDist(2.6, 7)), tgtY = q.y + 1.9 + .25 - Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * d;
+  setGen(q.gen); flyTo([V(q.x + .4, tgtY + .5, d), V(q.x, tgtY, 0)], 1.2);
+  if (window.speechSynthesis) speechSynthesis.getVoices();   // 預先載入語音清單
+}
+function toggleChant() {
+  if (!CHANT.on) {
+    if (CHANT.ci >= CHANT.total) { CHANT.si = 0; CHANT.ci = 0; CHANT.round = 1; CHANT.spans.forEach(s => s.className = ''); document.querySelector('#sutra .done-msg').textContent = ''; }
+    CHANT.on = true; CHANT.paused = false; CHANT.gen++;
+    if (CHANT.fish) { fishKnock(); }   // iOS：在點擊當下啟用音效
+    const ids = CHANT.pid === 'all' ? [root.id] : [CHANT.pid];
+    ids.forEach(id => tablets[id] && (tablets[id].chanting = true));
+    chantSegment();
+  } else if (!CHANT.paused) {
+    CHANT.paused = true; CHANT.gen++; clearTimeout(CHANT.timer); CHANT.utt = null;
+    try { speechSynthesis.cancel(); } catch (e) {}
+    // 暫停時回到本句開頭，繼續時整句重念
+    const seg = CHANT.seg[CHANT.si]; if (seg) { for (let k = seg.start; k < seg.end; k++) CHANT.spans[k].className = ''; CHANT.ci = seg.start; }
+  } else { CHANT.paused = false; CHANT.gen++; chantSegment(); }
+  updChantUI();
+}
+async function recordSutra(pid, n) {
+  const who = await getWho(); if (who === null) return;
+  const p = pid === 'all' ? null : byId[pid], name = p ? p.name : '歷代祖先', st = RITE.state, day = twDay().s;
+  st.od = st.od || {};
+  if (st.od[day] && typeof Object.values(st.od[day])[0] === 'number') st.od[day] = { all: st.od[day] };
+  st.od[day] = st.od[day] || {}; st.od[day][pid] = st.od[day][pid] || {};
+  st.od[day][pid].sutra = (st.od[day][pid].sutra || 0) + n;
+  st.recent = [{ pid, name, who: who || '族人', type: 'sutra', types: ['sutra'], n, at: Date.now() }, ...(st.recent || [])].slice(0, 40);
+  if (RITE.online) {
+    try { const r = await riteFetch('/offer', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pid, name, who: who || '族人', types: ['sutra'], n }) }); if (r && r.state) RITE.state = { ...RITE.state, ...r.state }; }
+    catch (e) { RITE.online = false; saveLocal(); }
+  } else saveLocal();
+  toast(`${who || '族人'} 為 ${name} 誦心經 ${n} 卷・功德圓滿`);
+}
+(() => {
+  const el = document.getElementById('sutra');
+  el.querySelector('.go').onclick = toggleChant;
+  el.querySelector('.x').onclick = () => { stopChant(); el.classList.remove('on'); };
+  el.querySelectorAll('.opt [data-v]').forEach(b => b.onclick = () => {
+    if (b.dataset.v === 'voice') { CHANT.voice = !CHANT.voice; if (!CHANT.voice) try { speechSynthesis.cancel(); } catch (e) {} }
+    else CHANT.fish = !CHANT.fish;
+    if (CHANT.on && !CHANT.paused) { toggleChant(); toggleChant(); }   // 重新從本句開始，套用設定
+    updChantUI();
+  });
+  el.querySelectorAll('.opt [data-s]').forEach(b => b.onclick = () => { CHANT.speed = +b.dataset.s; if (CHANT.on && !CHANT.paused) { toggleChant(); toggleChant(); } updChantUI(); });
+  el.querySelectorAll('.opt [data-r]').forEach(b => b.onclick = () => { if (!CHANT.on) { CHANT.rounds = +b.dataset.r; CHANT.round = 1; updChantUI(); } });
+})();
 
 /* 沿革展讀 */
 function openHistory() {
@@ -1815,6 +2066,7 @@ function openCard(p) {
   card.querySelector('.tw').style.display = (towerHall && placementOf(p)) ? '' : 'none';
   card.querySelector('.inc').style.display = (p.empty || p.alive) ? 'none' : '';
   card.querySelector('.ofr').style.display = (p.empty || p.alive) ? 'none' : '';
+  card.querySelector('.chn').style.display = (p.empty || p.alive) ? 'none' : '';
   card.querySelector('.rec').style.display = p.empty ? 'none' : '';
   renderVoices(p);
   card.querySelector('dl').innerHTML = rows.map(([a, b]) => `<dt>${a}</dt><dd>${esc(b)}</dd>`).join('');
@@ -1833,6 +2085,7 @@ function closeCard() {
 }
 card.querySelector('.inc').onclick = () => selected && offerIncense(selected);
 card.querySelector('.ofr').onclick = () => selected && openOfferSheet(selected);
+card.querySelector('.chn').onclick = () => selected && openSutra(selected);
 card.querySelector('.rec').onclick = () => selected && openRecorder(selected);
 card.querySelector('.tw').onclick = () => {
   if (!selected) return;
@@ -1963,6 +2216,7 @@ function loop() {
     if (id !== selected) {
       let e = 0;
       if (t.memorial) e = .22 + .16 * Math.sin(T * 2);
+      if (t.chanting) e = Math.max(e, .3 + .18 * Math.sin(T * 1.6));
       if (t.offerGlow) { const k = (now - t.offerGlow) / 3000; if (k < 1) e = Math.max(e, .5 * (1 - k)); else t.offerGlow = 0; }
       t.front.emissiveIntensity = e;
     }
