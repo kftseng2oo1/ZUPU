@@ -2250,7 +2250,7 @@ function hipRoof(w, d, h, color, flare = .08) {   // 四坡頂（簡化）＋翹
   [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz]) => { const t = new THREE.Mesh(new THREE.ConeGeometry(.02, flare, 6), rtMat(color, .45)); t.position.set(sx * w / 2, -h / 2 + flare * .4, sz * d / 2); t.rotation.z = -sx * .9; g.add(t); });
   return g;
 }
-/* 眾靈祠：紅柱綠瓦正殿＋舊塔（殿後，黃牆紅欄綠瓦樓閣）＋新塔（右側，灰色五層、梯間、藍瓦頂） */
+/* 眾靈祠：紅柱綠瓦正殿＋舊塔（殿後，黃牆紅欄綠瓦樓閣）＋新塔（另一側，灰色五層、梯間、藍瓦頂） */
 function buildZhongling() {
   const g = new THREE.Group();
   const red = rtMat('#b0262a', .5), cream = rtMat('#e8dcc0'), green = '#3f7d5a';
@@ -2282,10 +2282,10 @@ function buildZhongling() {
     const core = new THREE.Mesh(new THREE.BoxGeometry(.42, .18, .38), dark); core.position.y = y + .09; ot.add(core);
     [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz]) => { const c = new THREE.Mesh(new THREE.BoxGeometry(.025, .18, .025), red); c.position.set(sx * .2, y + .09, sz * .18); ot.add(c); });
   }
-  const stair = new THREE.Mesh(new THREE.BoxGeometry(.16, 1.22, .16), rtMat('#7f817c')); stair.position.set(.36, .61, .05); ot.add(stair);
+  const stair = new THREE.Mesh(new THREE.BoxGeometry(.16, 1.22, .16), rtMat('#7f817c')); stair.position.set(-.36, .61, .05); ot.add(stair);   // 梯間在外側
   const broof = hipRoof(.66, .6, .2, '#2d4f8e', .1); broof.position.y = 1.15; ot.add(broof);
   const bsp = new THREE.Mesh(new THREE.ConeGeometry(.025, .16, 8), rtMat('#2a2a2a')); bsp.position.y = 1.32; ot.add(bsp);
-  ot.position.set(1.3, 0, .3); g.add(ot);   // 新塔：面對眾靈祠的右側，與正殿並列
+  ot.position.set(-1.3, 0, .3); g.add(ot);   // 新塔：依空照圖在眾靈祠另一側（面對眾靈祠的左側），與正殿並列
   g.userData.newTower = ot; g.userData.oldTower = nt;   // 藍瓦頂＝新塔；殿後黃牆綠瓦＝舊塔
   return g;
 }
@@ -2342,7 +2342,7 @@ function buildRoute() {
   ROUTE.stops = [
     { key: 'start', name: '口湖鄉成龍納骨堂', sub: '紀念堂 A 塔', at: ROUTE.startPos, dir: new THREE.Vector3(2.2, 2.6, 4.4), keys: ['A'] },
     { key: 'way', name: '沿途', sub: '往南接台61旁道路，轉雲131往東北', at: wp(rtV(640, 1450, .2)), dir: new THREE.Vector3(.5, 7.5, 6), keys: [] },
-    { key: 'end', name: '眾靈祠（男公女媽廟）', sub: '紀念堂 B 新塔／B 舊塔', at: ROUTE.endPos.clone().add(new THREE.Vector3(.65, 0, .2)), dir: new THREE.Vector3(-.3, 3.4, 6.4), keys: ['B_new', 'B_old'] },   // 取景在正殿與新塔之間
+    { key: 'end', name: '眾靈祠（男公女媽廟）', sub: '紀念堂 B 新塔／B 舊塔', at: ROUTE.endPos.clone().add(new THREE.Vector3(-.65, 0, .2)), dir: new THREE.Vector3(.4, 3.4, 6.4), keys: ['B_new', 'B_old'] },   // 取景在正殿與新塔之間
   ];
   ROUTE.occ = occ;
   tMax.x = Math.max(tMax.x, hx + 8); tMin.y = Math.min(tMin.y, cy - 4);
