@@ -1289,9 +1289,9 @@
     <div class="columbarium-wrap">
       <div class="columbarium-header-bar">
         <div class="col-tabs">
-          <button class="col-tab active" onclick="switchTower('A',this)">🏛️ A｜口湖鄉公所靈骨塔</button>
-          <button class="col-tab" onclick="switchTower('B_new',this)">🏛️ B｜蚵寮新塔</button>
-          <button class="col-tab" onclick="switchTower('B_old',this)">🏛️ B｜蚵寮舊塔</button>
+          <button class="col-tab active" onclick="switchTower('A',this)">🏛️ A｜口湖鄉成龍納骨塔</button>
+          <button class="col-tab" onclick="switchTower('B_new',this)">🏛️ B｜眾靈祠新塔</button>
+          <button class="col-tab" onclick="switchTower('B_old',this)">🏛️ B｜眾靈祠舊塔</button>
         </div>
       </div>
       <div class="columbarium-body">
@@ -1579,9 +1579,9 @@
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
           <select class="form-input" id="f-origin-tower" onchange="updateFloorOptions('f-origin-tower','f-origin-floor','f-origin-slot')">
             <option value="">選擇靈骨塔</option>
-            <option value="A">A｜口湖鄉公所靈骨塔</option>
-            <option value="B_new">B｜蚵寮新塔</option>
-            <option value="B_old">B｜蚵寮舊塔</option>
+            <option value="A">A｜口湖鄉成龍納骨塔</option>
+            <option value="B_new">B｜眾靈祠新塔</option>
+            <option value="B_old">B｜眾靈祠舊塔</option>
           </select>
           <select class="form-input" id="f-origin-floor" onchange="updateSlotOptions('f-origin-tower','f-origin-floor','f-origin-slot')">
             <option value="">選擇樓層</option>
@@ -1604,9 +1604,9 @@
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
           <select class="form-input" id="f-spouse-origin-tower" onchange="updateFloorOptions('f-spouse-origin-tower','f-spouse-origin-floor','f-spouse-origin-slot')">
             <option value="">選擇靈骨塔</option>
-            <option value="A">A｜口湖鄉公所靈骨塔</option>
-            <option value="B_new">B｜蚵寮新塔</option>
-            <option value="B_old">B｜蚵寮舊塔</option>
+            <option value="A">A｜口湖鄉成龍納骨塔</option>
+            <option value="B_new">B｜眾靈祠新塔</option>
+            <option value="B_old">B｜眾靈祠舊塔</option>
           </select>
           <select class="form-input" id="f-spouse-origin-floor" onchange="updateSlotOptions('f-spouse-origin-tower','f-spouse-origin-floor','f-spouse-origin-slot')">
             <option value="">選擇樓層</option>
@@ -1818,9 +1818,9 @@ const TOWER_FLOORS = {
   B_old: ['第一樓','第二樓','第三樓','第四樓','第五樓'],
 };
 const TOWER_NAMES = {
-  A:     'A｜口湖鄉公所靈骨塔',
-  B_new: 'B｜蚵寮新塔',
-  B_old: 'B｜蚵寮舊塔',
+  A:     'A｜口湖鄉成龍納骨塔',
+  B_new: 'B｜眾靈祠新塔',
+  B_old: 'B｜眾靈祠舊塔',
 };
 
 function updateFloorOptions(towerId='f-origin-tower', floorId='f-origin-floor', slotId='f-origin-slot') {
@@ -2264,7 +2264,7 @@ async function deleteAncestor(id) {
 // ─── Columbarium (靈骨塔) ─────────────────────────────────────
 const TOWERS = {
   A: {
-    name: 'A｜口湖鄉公所靈骨塔',
+    name: 'A｜口湖鄉成龍納骨塔',
     color: '#1a5276',
     floors: [
       { label: '第一樓', slots: 12 },
@@ -2273,7 +2273,7 @@ const TOWERS = {
     ]
   },
   B_new: {
-    name: 'B｜蚵寮新塔',
+    name: 'B｜眾靈祠新塔',
     color: '#2d6a4f',
     floors: [
       { label: '第一樓', slots: 12 },
@@ -2282,7 +2282,7 @@ const TOWERS = {
     ]
   },
   B_old: {
-    name: 'B｜蚵寮舊塔',
+    name: 'B｜眾靈祠舊塔',
     color: '#7d6608',
     floors: [
       { label: '第一樓', slots: 12 },

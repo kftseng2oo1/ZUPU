@@ -603,7 +603,7 @@ measure(root); place(root, -root.w / 2);
 /* ---------- 字型就緒後才畫牌位文字（iOS 必要） ---------- */
 async function waitFonts() {
   const txt = PEOPLE.map(p => p.name + p.tabletText + (p.tag || '') + (p.lines || []).join('') + (p.bio || '') + (p.alias || '')).join('')
-            + '眾志成城寶塔莊嚴為報本靈魂奉厝禪堂肅穆慎追終' + '眾靈祠男公女媽廟恭奉庇佑鄉里闡草萊保國家功不泯守貞堅護土德長昭雲線沿魚塭而行正殿轉' + '闔家平安祖先安息身體健康事業順利學業進步消災解厄' + '成龍納骨塔一樓地藏殿南無大願地藏王菩薩香案供奉誦心經瞻仰聖像回掃墓路線進入祭拜於前迴向法界眾生' + '掃墓路線口湖鄉成龍納骨堂眾靈祠男公女媽廟起點終點沿途安奉位新舊塔往南接台旁道路轉雲往東北開車約分鐘全圖導覽停止地圖導航抵達紀念堂尚未登記此處溼地村牛挑灣溪烏麻園豐樺水產行縣' + '依族譜資料整理可於紀念堂補寫生平祖先名冊' + '祠堂全景香案燭火清香奉茶供果餅乾鮮花來台祖神位三省堂匾額家族沿革碑攝影離開自動掃描停止繼續拍攝下載' + SUTRA.title + SUTRA.open + SUTRA.body + SUTRA.close + '念經超渡誦心卷語音木魚慢中快開始暫停繼續再一次圓滿功德迴向偈為' + HALL.plaque + HALL.plaqueSub + HALL.couplet.join('') + HALL.zibei + '龍山字輩大宗曾氏沿革輕觸展讀塔位側殿樓號口湖鄉公所靈骨塔蚵寮新舊' + historyText().split('\n').filter(s => /^[一二三四五六七八九十]+、/.test(s)).join('') + '第一二三四五六七八九十世配偶︵︶無—年生仙逝之本支在世農曆卒生平待補於紀念堂祖先名冊填寫字號0123456789.';
+            + '口湖鄉成龍納骨塔眾靈祠新舊' + '眾志成城寶塔莊嚴為報本靈魂奉厝禪堂肅穆慎追終' + '眾靈祠男公女媽廟恭奉庇佑鄉里闡草萊保國家功不泯守貞堅護土德長昭雲線沿魚塭而行正殿轉' + '闔家平安祖先安息身體健康事業順利學業進步消災解厄' + '成龍納骨塔一樓地藏殿南無大願地藏王菩薩香案供奉誦心經瞻仰聖像回掃墓路線進入祭拜於前迴向法界眾生' + '掃墓路線口湖鄉成龍納骨堂眾靈祠男公女媽廟起點終點沿途安奉位新舊塔往南接台旁道路轉雲往東北開車約分鐘全圖導覽停止地圖導航抵達紀念堂尚未登記此處溼地村牛挑灣溪烏麻園豐樺水產行縣' + '依族譜資料整理可於紀念堂補寫生平祖先名冊' + '祠堂全景香案燭火清香奉茶供果餅乾鮮花來台祖神位三省堂匾額家族沿革碑攝影離開自動掃描停止繼續拍攝下載' + SUTRA.title + SUTRA.open + SUTRA.body + SUTRA.close + '念經超渡誦心卷語音木魚慢中快開始暫停繼續再一次圓滿功德迴向偈為' + HALL.plaque + HALL.plaqueSub + HALL.couplet.join('') + HALL.zibei + '龍山字輩大宗曾氏沿革輕觸展讀塔位側殿樓號口湖鄉成龍納骨塔蚵寮新舊' + historyText().split('\n').filter(s => /^[一二三四五六七八九十]+、/.test(s)).join('') + '第一二三四五六七八九十世配偶︵︶無—年生仙逝之本支在世農曆卒生平待補於紀念堂祖先名冊填寫字號0123456789.';
   try {
     await Promise.race([
       Promise.all([
@@ -1569,9 +1569,9 @@ function buildStele(pos) {
 
 /* 塔位側殿：只有紀念堂登記過塔位才建立 */
 const TOWERS = {
-  A: { name: 'A｜口湖鄉公所靈骨塔', place: '成龍納骨塔', floors: 3 },   // 口湖鄉成龍納骨堂
-  B_new: { name: 'B｜蚵寮新塔', place: '眾靈祠新塔', floors: 3 },          // 藍瓦頂、灰色五層
-  B_old: { name: 'B｜蚵寮舊塔', place: '眾靈祠舊塔', floors: 5 },          // 黃牆綠瓦、正殿後方
+  A: { name: 'A｜口湖鄉成龍納骨塔', place: '成龍納骨塔', floors: 3 },   // 口湖鄉成龍納骨堂
+  B_new: { name: 'B｜眾靈祠新塔', place: '眾靈祠新塔', floors: 3 },          // 藍瓦頂、灰色五層
+  B_old: { name: 'B｜眾靈祠舊塔', place: '眾靈祠舊塔', floors: 5 },          // 黃牆綠瓦、正殿後方
 };
 const SLOTS = 12;
 /* 已知安奉處（紀念堂未登記時使用；樓層號位待紀念堂補登） */
@@ -2467,9 +2467,9 @@ function buildRoute() {
   ROUTE.center = wp(new THREE.Vector3(.2, 0, -.6));
   ROUTE.startPos = wp(rtV(215, 1140, .5)); ROUTE.endPos = wp(rtV(1056, 800, .5));
   ROUTE.stops = [
-    { key: 'start', name: '口湖鄉成龍納骨堂', sub: '紀念堂 A 塔', at: ROUTE.startPos, dir: new THREE.Vector3(2.2, 2.6, 4.4), keys: ['A'] },
+    { key: 'start', name: '口湖鄉成龍納骨堂', sub: 'A｜口湖鄉成龍納骨塔', at: ROUTE.startPos, dir: new THREE.Vector3(2.2, 2.6, 4.4), keys: ['A'] },
     { key: 'way', name: '沿途', sub: '往南接台61旁道路，轉雲131往東北', at: wp(rtV(640, 1450, .2)), dir: new THREE.Vector3(.5, 7.5, 6), keys: [] },
-    { key: 'end', name: '眾靈祠（男公女媽廟）', sub: '紀念堂 B 新塔／B 舊塔', at: ROUTE.endPos.clone().add(new THREE.Vector3(-.65, 0, .2)), dir: new THREE.Vector3(.4, 3.4, 6.4), keys: ['B_new', 'B_old'] },   // 取景在正殿與新塔之間
+    { key: 'end', name: '眾靈祠（男公女媽廟）', sub: 'B｜眾靈祠新塔／舊塔', at: ROUTE.endPos.clone().add(new THREE.Vector3(-.65, 0, .2)), dir: new THREE.Vector3(.4, 3.4, 6.4), keys: ['B_new', 'B_old'] },   // 取景在正殿與新塔之間
   ];
   ROUTE.occ = occ;
   tMax.x = Math.max(tMax.x, hx + 8); tMin.y = Math.min(tMin.y, cy - 4);
