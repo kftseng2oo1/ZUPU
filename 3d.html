@@ -589,7 +589,7 @@ measure(root); place(root, -root.w / 2);
 /* ---------- 字型就緒後才畫牌位文字（iOS 必要） ---------- */
 async function waitFonts() {
   const txt = PEOPLE.map(p => p.name + p.tabletText + (p.tag || '') + (p.lines || []).join('') + (p.bio || '') + (p.alias || '')).join('')
-            + '闔家平安祖先安息身體健康事業順利學業進步消災解厄' + '成龍納骨塔一樓地藏殿南無大願地藏王菩薩香案供奉誦心經瞻仰聖像回掃墓路線進入祭拜於前迴向法界眾生' + '掃墓路線口湖鄉成龍納骨堂眾靈祠男公女媽廟起點終點沿途安奉位新舊塔往南接台旁道路轉雲往東北開車約分鐘全圖導覽停止地圖導航抵達紀念堂尚未登記此處溼地村牛挑灣溪烏麻園豐樺水產行縣' + '依族譜資料整理可於紀念堂補寫生平祖先名冊' + '祠堂全景香案燭火清香奉茶供果餅乾鮮花來台祖神位三省堂匾額家族沿革碑攝影離開自動掃描停止繼續拍攝下載' + SUTRA.title + SUTRA.open + SUTRA.body + SUTRA.close + '念經超渡誦心卷語音木魚慢中快開始暫停繼續再一次圓滿功德迴向偈為' + HALL.plaque + HALL.plaqueSub + HALL.couplet.join('') + HALL.zibei + '龍山字輩大宗曾氏沿革輕觸展讀塔位側殿樓號口湖鄉公所靈骨塔蚵寮新舊' + historyText().split('\n').filter(s => /^[一二三四五六七八九十]+、/.test(s)).join('') + '第一二三四五六七八九十世配偶︵︶無—年生仙逝之本支在世農曆卒生平待補於紀念堂祖先名冊填寫字號0123456789.';
+            + '眾靈祠男公女媽廟恭奉庇佑鄉里闡草萊保國家功不泯守貞堅護土德長昭雲線沿魚塭而行正殿轉' + '闔家平安祖先安息身體健康事業順利學業進步消災解厄' + '成龍納骨塔一樓地藏殿南無大願地藏王菩薩香案供奉誦心經瞻仰聖像回掃墓路線進入祭拜於前迴向法界眾生' + '掃墓路線口湖鄉成龍納骨堂眾靈祠男公女媽廟起點終點沿途安奉位新舊塔往南接台旁道路轉雲往東北開車約分鐘全圖導覽停止地圖導航抵達紀念堂尚未登記此處溼地村牛挑灣溪烏麻園豐樺水產行縣' + '依族譜資料整理可於紀念堂補寫生平祖先名冊' + '祠堂全景香案燭火清香奉茶供果餅乾鮮花來台祖神位三省堂匾額家族沿革碑攝影離開自動掃描停止繼續拍攝下載' + SUTRA.title + SUTRA.open + SUTRA.body + SUTRA.close + '念經超渡誦心卷語音木魚慢中快開始暫停繼續再一次圓滿功德迴向偈為' + HALL.plaque + HALL.plaqueSub + HALL.couplet.join('') + HALL.zibei + '龍山字輩大宗曾氏沿革輕觸展讀塔位側殿樓號口湖鄉公所靈骨塔蚵寮新舊' + historyText().split('\n').filter(s => /^[一二三四五六七八九十]+、/.test(s)).join('') + '第一二三四五六七八九十世配偶︵︶無—年生仙逝之本支在世農曆卒生平待補於紀念堂祖先名冊填寫字號0123456789.';
   try {
     await Promise.race([
       Promise.all([
@@ -1238,7 +1238,7 @@ function refreshOfferings() {
     if (set.mini) set.R.visible = any;
   };
   if (OFFER_SETS.main) apply(OFFER_SETS.main, ['all', root.id]);
-  if (OFFER_SETS.dizang) apply(OFFER_SETS.dizang, ['dizang']);
+  Object.keys(HS).forEach(k => OFFER_SETS[k] && apply(OFFER_SETS[k], [k]));
   const od = RITE.state.od || {}, active = new Set();
   for (let i = 0; i < 8; i++) { const d = od[twDay(-i).s]; if (!d || typeof Object.values(d)[0] === 'number') continue; Object.keys(d).forEach(k => active.add(k)); }
   active.forEach(pid => { const p = byId[pid]; if (p && p !== root && !p.alive && !p.empty) apply(personSet(p), [pid]); });
@@ -1805,7 +1805,7 @@ async function makeOfferings(types, pid) {
   if (types.includes('incense')) {   // 剛上的香：香煙加濃兩分鐘（三支香常駐於香爐）
     targets.forEach(tp => {
       const q = byId[tp], set = q ? personSet(q) : OFFER_SETS.main;
-      if (tp === 'dizang') addSmoke(DZ.censerTip, 8, 120e3, { sz: .45, op: .26, h: 2 });
+      if (HS[tp]) HS[tp].censerTip && addSmoke(HS[tp].censerTip, 8, 120e3, { sz: .45, op: .26, h: 2 });
       else if (set === OFFER_SETS.main) addSmoke(altarTip, 8, 120e3, { sz: .45, op: .26, h: 2 });
       else if (set.censerTip) { set.R.updateMatrixWorld(true); addSmoke(set.R.localToWorld(new THREE.Vector3(0, .74, 0)), 6, 120e3, { h: 1.2, sz: .3, op: .24 }); }
     });
@@ -1820,7 +1820,7 @@ async function makeOfferings(types, pid) {
   } else saveLocal();
   toast(`${who || '族人'} 為 ${name} ${types.map(t => OFFER[t].verb).join('、')}`);
   closeCard();
-  if (pid === 'dizang') flyTo(dzView('altar'), 1.2);
+  if (HS[pid]) flyTo(dzView('altar'), 1.2);
   else if (every) { setGen(0); flyTo(overviewView(), 1.4); }
   else { setGen(p ? p.gen : 1); flyTo(p && p !== root ? personAltarView(p) : altarView(), 1.2); }
 }
@@ -2119,7 +2119,7 @@ function chantRoundEnd() {
   CHANT.on = false; updChantUI();
   const p = CHANT.pid === 'all' ? null : byId[CHANT.pid];
   recordSutra(CHANT.pid, CHANT.rounds);
-  document.querySelector('#sutra .done-msg').textContent = `《心經》${CHANT.rounds} 卷圓滿・功德迴向 ${CHANT.pid === 'dizang' ? '法界眾生、歷代祖先' : p ? p.name : '歷代祖先'}`;
+  document.querySelector('#sutra .done-msg').textContent = `《心經》${CHANT.rounds} 卷圓滿・功德迴向 ${HALLS[CHANT.pid] ? HALLS[CHANT.pid].dedic : p ? p.name : '歷代祖先'}`;
 }
 function updChantUI() {
   const el = document.getElementById('sutra');
@@ -2142,11 +2142,11 @@ function openSutra(pid) {
   CHANT.pid = pid; CHANT.si = 0; CHANT.ci = 0; CHANT.round = 1;
   const p = (pid === 'all' || SPECIAL_NAMES[pid]) ? null : byId[pid];
   const el = document.getElementById('sutra');
-  el.querySelector('h3').textContent = pid === 'dizang' ? '於地藏王菩薩前誦《心經》迴向' : `為 ${p ? p.name : '歷代祖先'} 誦《心經》超渡`;
+  el.querySelector('h3').textContent = HALLS[pid] ? `於${HALLS[pid].deity}前誦《心經》迴向` : `為 ${p ? p.name : '歷代祖先'} 誦《心經》超渡`;
   el.querySelector('.done-msg').textContent = '';
   buildSutraDom(); updChantUI(); el.classList.add('on');
   // 經文面板佔下方 2/3：鏡頭讓牌位（名諱）落在畫面上方
-  if (pid === 'dizang') flyTo([dzW(.2, 2.6, 4.2), dzW(.1, .3, -2)], 1.4);   // 經文面板在下：菩薩落在畫面上方
+  if (HS[pid]) flyTo([dzW(.2, 2.6, 4.2), dzW(.1, .3, -2)], 1.4);   // 經文面板在下：菩薩落在畫面上方
   else {
     const q = p || root, d = Math.max(9, fitDist(2.6, 7)), tgtY = q.y + 1.9 + .25 - Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * d;
     setGen(q.gen); flyTo([V(q.x + .4, tgtY + .5, d), V(q.x, tgtY, 0)], 1.2);
@@ -2455,10 +2455,10 @@ function openRoute() {
   el.querySelector('.steps').innerHTML = ROUTE.stops.map((st, i) => {
     const ppl = ROUTE.occ(st.keys);
     const list = st.keys.length ? (ppl.length ? ppl.map(p => `<span>${escH(p.name)}<small>${st.keys.length > 1 ? (placementOf(p).tower === 'B_new' ? '新塔' : '舊塔') + '・' : ''}${slot(p)}</small></span>`).join('') : '<em>紀念堂尚未登記此處塔位</em>') : '';
-    return `<li data-i="${i}"><b>${i === 0 ? '起' : i === 2 ? '終' : '經'}</b><div><h4>${escH(st.name)}</h4><p>${escH(st.sub)}</p>${list ? `<div class="ppl">${list}</div>` : ''}${i === 0 ? '<div class="dzs"><button class="dz drv">開車前往祈福</button><button class="dz">直接入殿</button></div>' : ''}</div></li>`;
+    return `<li data-i="${i}"><b>${i === 0 ? '起' : i === 2 ? '終' : '經'}</b><div><h4>${escH(st.name)}</h4><p>${escH(st.sub)}</p>${list ? `<div class="ppl">${list}</div>` : ''}${i !== 1 ? `<div class="dzs"><button class="dz drv" data-h="${i ? 'zhongling' : 'dizang'}">開車前往祈福</button><button class="dz" data-h="${i ? 'zhongling' : 'dizang'}">直接入殿</button></div>` : ''}</div></li>`;
   }).join('');
   el.querySelectorAll('.steps li').forEach(li => li.onclick = () => { ROUTE.anim = null; flyTo(routeStopView(ROUTE.stops[+li.dataset.i]), 1.4); });
-  el.querySelectorAll('.steps .dz').forEach(b => b.onclick = e => { e.stopPropagation(); if (b.classList.contains('drv')) openCharPick(); else openDizang(); });
+  el.querySelectorAll('.steps .dz').forEach(b => b.onclick = e => { e.stopPropagation(); if (b.classList.contains('drv')) openCharPick(b.dataset.h); else openHall(b.dataset.h); });
   el.classList.add('on');
   setGen(0); flyTo(routeOverview(), 2);
 }
@@ -2515,8 +2515,9 @@ function tickRoute(now, dt) {
 /* ================= 成龍納骨塔一樓・地藏殿 =================
    依現場照片：藍天彩繪背板（日光、金色蓮花拱）、地藏王菩薩（金袍紅袈裟、五佛冠、錫杖、明珠）、
    金獅（按繡球）、回紋石座、木作雕花頂框、兩側燈座、右側牌位牆；殿前香案可供奉、誦經。 */
-const SPECIAL_NAMES = { dizang: '地藏王菩薩' };
-const DZ = { built: false, g: null, set: null, censerTip: null };
+const SPECIAL_NAMES = { dizang: '地藏王菩薩', zhongling: '男公女媽' };
+const HS = { dizang: { built: false }, zhongling: { built: false } };
+let HK = 'dizang', DZ = HS.dizang;
 function dzMural() {
   const W = 1600, H = 720, c = document.createElement('canvas'); c.width = W; c.height = H;
   const g = c.getContext('2d');
@@ -2587,7 +2588,7 @@ function dzTabletWall() {   // 牌位牆
   return toTex(c);
 }
 function buildDizang() {
-  if (DZ.built) return; DZ.built = true;
+  const DZ = HS.dizang; if (DZ.built) return; DZ.built = true;
   const ox = (ROUTE.built ? ROUTE.g.position.x : bounds.maxX + 15) + 30, oy = -14;
   const D = new THREE.Group(); D.position.set(ox, oy, 0); scene.add(D); DZ.g = D;
   const wood = rtMat('#9a5a32', .55), woodD = rtMat('#6e3a1e', .5), stone = rtMat('#b9b6ae', .6), gold = M.gold, skin = rtMat('#ecc9a6', .55);
@@ -2690,7 +2691,7 @@ function buildDizang() {
   const ttop = new THREE.Mesh(new THREE.BoxGeometry(3.3, .06, 1.12), woodD); ttop.position.set(AX, AY + .01, AZ); D.add(ttop);
   const knot = boardTexture(512, 256, (x, w, h) => { x.fillStyle = '#9a5a32'; x.fillRect(0, 0, w, h); x.strokeStyle = '#6e3a1e'; x.lineWidth = 8; x.strokeRect(20, 20, w / 2 - 30, h - 40); x.strokeRect(w / 2 + 10, 20, w / 2 - 30, h - 40); x.fillStyle = '#d4a843'; [w / 4, w * 3 / 4].forEach(cx => { x.beginPath(); x.arc(cx, h / 2, 26, 0, 7); x.fill(); }); });
   const front = new THREE.Mesh(new THREE.PlaneGeometry(3.1, .85), new THREE.MeshStandardMaterial({ map: knot, roughness: .55 })); front.position.set(AX, AY / 2, AZ + .53); D.add(front);
-  [front, ttop].forEach(o => { o.userData.action = 'dizang-offer'; pickables.push(o); });
+  [front, ttop].forEach(o => { o.userData.action = 'hall-offer:dizang'; pickables.push(o); });
   const pot = new THREE.Mesh(new THREE.CylinderGeometry(.22, .17, .24, 24), M.bronze); pot.position.set(AX, AY + .16, AZ); D.add(pot);
   const rim = new THREE.Mesh(new THREE.TorusGeometry(.22, .022, 8, 24), gold); rim.rotation.x = Math.PI / 2; rim.position.set(AX, AY + .28, AZ); D.add(rim);
   [-.06, 0, .06].forEach(dx => { const st = new THREE.Mesh(new THREE.CylinderGeometry(.008, .008, .5, 6), rtMat('#a8321e')); st.position.set(AX + dx, AY + .49, AZ); D.add(st); makeEmber(D, AX + dx, AY + .74, AZ); });
@@ -2716,14 +2717,210 @@ function dzView(kind) {   // 下方有面板：主體放在畫面上半
   if (kind === 'statue') return [dzW(.3, 2.4, 2.4), dzW(.1, 1.75, -2.2)];
   return [dzW(0, 2.6, 8), dzW(0, 1.5, -1.5)];   // 入殿
 }
-function openDizang() {
-  stopTour(); closeCard(); buildDizang();
+/* ================= 眾靈祠（男公女媽廟）正殿 =================
+   依現場照片：深色木作天花與匾額、紅漆雕花神龕＋格窗、青綠底金麒麟彩繪背板、
+   一排金身神尊（男公、女媽居中）、龕緣彩色小燈、紅柱對聯、深色雕花供桌（金字）、
+   桌上金紙、黃色紙錢、紅盤供品、八寶粥、紅花瓶插向日葵與百合。 */
+function zlMural() {
+  const W = 1024, H = 680, c = document.createElement('canvas'); c.width = W; c.height = H;
+  const g = c.getContext('2d');
+  const bg = g.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, '#1d6a66'); bg.addColorStop(1, '#2f8a7c'); g.fillStyle = bg; g.fillRect(0, 0, W, H);
+  const cloud = (x, y, s, col) => { g.strokeStyle = col; g.lineWidth = 6 * s; for (let k = 0; k < 3; k++) { g.beginPath(); g.arc(x + k * 34 * s, y, 18 * s, Math.PI * .9, Math.PI * 2.4); g.stroke(); } };
+  [[90, 90, 1.3], [820, 80, 1.1], [130, 600, 1.2], [760, 610, 1.3], [430, 70, .9], [900, 400, 1], [60, 360, .9]].forEach(([x, y, s]) => { cloud(x, y, s, '#e8c868'); cloud(x + 8, y + 4, s * .7, '#c94a3a'); });
+  g.save(); g.translate(40, 20);
+  g.lineJoin = 'round'; g.lineCap = 'round';
+  const gold = g.createLinearGradient(300, 200, 700, 560); gold.addColorStop(0, '#f6dc7a'); gold.addColorStop(1, '#d9a83a');
+  const out = '#6a3a10';
+  // 火焰鬃（背上）
+  for (let i = 0; i < 16; i++) {
+    const x = 330 + i * 26, y = 300 - Math.sin(i / 15 * Math.PI) * 40 + (i > 12 ? (i - 12) * -18 : 0);
+    g.fillStyle = i % 2 ? '#e86a2a' : '#f2b640'; g.beginPath(); g.moveTo(x - 14, y + 20); g.quadraticCurveTo(x - 22, y - 30, x + 6, y - 64 - (i % 3) * 10); g.quadraticCurveTo(x + 4, y - 20, x + 16, y + 20); g.fill();
+  }
+  // 尾（火焰）
+  g.fillStyle = '#f2b640'; g.strokeStyle = out; g.lineWidth = 4;
+  g.beginPath(); g.moveTo(320, 330); g.bezierCurveTo(240, 300, 220, 220, 270, 190); g.bezierCurveTo(250, 250, 300, 280, 330, 300); g.fill(); g.stroke();
+  // 腿
+  const leg = (x0, y0, x1, y1, x2, y2) => { g.strokeStyle = out; g.lineWidth = 34; g.beginPath(); g.moveTo(x0, y0); g.quadraticCurveTo(x1, y1, x2, y2); g.stroke(); g.strokeStyle = gold; g.lineWidth = 26; g.stroke(); g.fillStyle = '#3a2210'; g.beginPath(); g.ellipse(x2 + 8, y2 + 6, 20, 10, 0, 0, 7); g.fill(); };
+  leg(390, 400, 330, 470, 300, 560); leg(440, 400, 470, 480, 430, 570); leg(640, 400, 700, 450, 760, 470); leg(610, 410, 600, 500, 650, 580);
+  // 身
+  g.fillStyle = gold; g.strokeStyle = out; g.lineWidth = 5;
+  g.beginPath(); g.ellipse(510, 360, 200, 78, -.12, 0, 7); g.fill(); g.stroke();
+  g.strokeStyle = 'rgba(120,70,20,.55)'; g.lineWidth = 3;
+  for (let r = 0; r < 3; r++) for (let i = 0; i < 10; i++) { g.beginPath(); g.arc(380 + i * 28 + r * 10, 330 + r * 26, 12, 0, Math.PI); g.stroke(); }   // 鱗
+  // 頸、頭
+  g.fillStyle = gold; g.strokeStyle = out; g.lineWidth = 5;
+  g.beginPath(); g.moveTo(640, 320); g.quadraticCurveTo(700, 250, 740, 200); g.lineTo(790, 230); g.quadraticCurveTo(740, 300, 700, 380); g.closePath(); g.fill(); g.stroke();
+  g.beginPath(); g.ellipse(780, 190, 66, 44, -.2, 0, 7); g.fill(); g.stroke();
+  g.beginPath(); g.moveTo(820, 170); g.quadraticCurveTo(880, 170, 890, 200); g.quadraticCurveTo(860, 215, 830, 210); g.fill(); g.stroke();   // 吻
+  g.fillStyle = '#c8282a'; g.beginPath(); g.moveTo(830, 212); g.quadraticCurveTo(870, 220, 885, 206); g.quadraticCurveTo(860, 240, 826, 228); g.fill();   // 張口
+  g.fillStyle = '#fff'; g.beginPath(); g.arc(792, 178, 10, 0, 7); g.fill(); g.fillStyle = '#1a1208'; g.beginPath(); g.arc(795, 178, 5, 0, 7); g.fill();
+  g.strokeStyle = '#e86a2a'; g.lineWidth = 8; [[760, 150, 700, 90], [740, 158, 690, 120]].forEach(([a, b, c2, d]) => { g.beginPath(); g.moveTo(a, b); g.quadraticCurveTo(c2 + 30, b - 30, c2, d); g.stroke(); });   // 角
+  g.strokeStyle = '#f2b640'; g.lineWidth = 5; for (let i = 0; i < 5; i++) { g.beginPath(); g.moveTo(860, 205); g.quadraticCurveTo(900 + i * 6, 250 + i * 8, 880 + i * 12, 280 + i * 6); g.stroke(); }   // 鬚
+  g.restore();
+  return toTex(c);
+}
+function zlCouplet(text) {
+  const W = 128, H = 1024, c = document.createElement('canvas'); c.width = W; c.height = H;
+  const g = c.getContext('2d'); g.fillStyle = '#b4161c'; g.fillRect(0, 0, W, H);
+  g.strokeStyle = '#e8c060'; g.lineWidth = 4; g.strokeRect(8, 8, W - 16, H - 16);
+  g.fillStyle = '#f2d27a'; g.font = `900 78px ${FONT}`; g.textAlign = 'center'; g.textBaseline = 'middle';
+  [...text].forEach((ch, i) => g.fillText(ch, W / 2, 60 + i * (H - 100) / text.length + 30));
+  return toTex(c);
+}
+function buildZhonglingHall() {
+  const DZ = HS.zhongling; if (DZ.built) return; DZ.built = true;
+  const ox = (ROUTE.built ? ROUTE.g.position.x : bounds.maxX + 15) + 60, oy = -14;
+  const D = new THREE.Group(); D.position.set(ox, oy, 0); scene.add(D); DZ.g = D;
+  const darkW = rtMat('#3a1e12', .5), darkW2 = rtMat('#2a160c', .55), redL = rtMat('#9a1a18', .45), gold = M.gold;
+  const floorTex = boardTexture(512, 512, (x, w, h) => { x.fillStyle = '#c9bfae'; x.fillRect(0, 0, w, h); const r = mulberry32(9); for (let i = 0; i < 5000; i++) { x.fillStyle = ['rgba(90,70,50,.25)', 'rgba(255,255,255,.25)', 'rgba(150,60,40,.18)'][i % 3]; x.fillRect(r() * w, r() * h, 3, 3); } x.strokeStyle = 'rgba(80,60,40,.3)'; x.lineWidth = 3; for (let i = 0; i <= 2; i++) { x.beginPath(); x.moveTo(i * 256, 0); x.lineTo(i * 256, h); x.stroke(); x.beginPath(); x.moveTo(0, i * 256); x.lineTo(w, i * 256); x.stroke(); } });
+  floorTex.wrapS = floorTex.wrapT = THREE.RepeatWrapping; floorTex.repeat.set(5, 5);
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(14, 13), new THREE.MeshStandardMaterial({ map: floorTex, roughness: .4 })); floor.rotation.x = -Math.PI / 2; floor.position.z = 3.5; D.add(floor);
+  const wallTex = boardTexture(256, 256, (x, w, h) => { x.fillStyle = '#d8cbb0'; x.fillRect(0, 0, w, h); x.fillStyle = '#5a2a18'; x.fillRect(0, h - 60, w, 60); });
+  wallTex.wrapS = THREE.RepeatWrapping; wallTex.repeat.set(5, 1);
+  const wallM = new THREE.MeshStandardMaterial({ map: wallTex, roughness: .8 });
+  [-1, 1].forEach(sx => { const w = new THREE.Mesh(new THREE.PlaneGeometry(13, 5.4), wallM); w.rotation.y = -sx * Math.PI / 2; w.position.set(sx * 7, 2.7, 3.5); D.add(w); });
+  const back = new THREE.Mesh(new THREE.PlaneGeometry(14, 5.4), darkW2); back.position.set(0, 2.7, -3.1); D.add(back);
+  const ceil = new THREE.Mesh(new THREE.PlaneGeometry(14, 13), rtMat('#3a3a3c', .8)); ceil.rotation.x = Math.PI / 2; ceil.position.set(0, 5.4, 3.5); D.add(ceil);
+  for (let i = 0; i < 5; i++) { const bm = new THREE.Mesh(new THREE.BoxGeometry(14, .22, .26), darkW); bm.position.set(0, 5.25, -2.6 + i * 2.6); D.add(bm); }
+  // 匾額
+  const plq = boardTexture(1024, 256, (x, w, h) => { x.fillStyle = '#2e1a10'; x.fillRect(0, 0, w, h); x.strokeStyle = '#6a4a2a'; x.lineWidth = 14; x.strokeRect(10, 10, w - 20, h - 20); x.fillStyle = '#c9a050'; x.font = `900 150px ${FONT}`; x.fillText('眾 靈 祠', w / 2, h / 2 + 8); });
+  const plaque = new THREE.Mesh(new THREE.BoxGeometry(4.6, 1.1, .14), [darkW, darkW, darkW, darkW, new THREE.MeshStandardMaterial({ map: plq, roughness: .5 }), darkW]); plaque.position.set(0, 4.7, -2.75); plaque.rotation.x = .08; D.add(plaque);
+  // 神龕：紅漆雕花外框＋格窗
+  const carve = boardTexture(512, 512, (x, w, h) => {
+    x.fillStyle = '#7a1414'; x.fillRect(0, 0, w, h); const r = mulberry32(17);
+    for (let i = 0; i < 260; i++) { x.strokeStyle = r() < .5 ? 'rgba(220,170,80,.55)' : 'rgba(40,10,6,.6)'; x.lineWidth = 3; x.beginPath(); x.arc(r() * w, r() * h, 6 + r() * 16, r() * 6, r() * 6 + 3); x.stroke(); }
+    x.strokeStyle = '#d4a843'; x.lineWidth = 8; x.strokeRect(14, 14, w - 28, h - 28);
+  });
+  carve.wrapS = carve.wrapT = THREE.RepeatWrapping;
+  const carveM = new THREE.MeshStandardMaterial({ map: carve, roughness: .55 });
+  const top = new THREE.Mesh(new THREE.BoxGeometry(7, .8, .4), carveM); top.position.set(0, 3.95, -2.7); D.add(top);
+  [-1, 1].forEach(sx => {
+    const side = new THREE.Mesh(new THREE.BoxGeometry(1.7, 2.4, .3), carveM); side.position.set(sx * 2.55, 2.4, -2.75); D.add(side);
+    const pil = new THREE.Mesh(new THREE.BoxGeometry(.22, 3.4, .3), redL); pil.position.set(sx * 3.55, 2.2, -2.6); D.add(pil);
+    const cp = new THREE.Mesh(new THREE.PlaneGeometry(.42, 3.1), new THREE.MeshStandardMaterial({ map: zlCouplet(sx > 0 ? '男闡草萊保國保家功不泯' : '女守貞堅護鄉護土德長昭'), roughness: .6 })); cp.position.set(sx * 3.95, 2.3, -2.95); D.add(cp);
+    const inner = new THREE.Mesh(new THREE.PlaneGeometry(.22, 2.1), new THREE.MeshStandardMaterial({ map: zlCouplet('　　　　　'), roughness: .6 })); inner.position.set(sx * 1.6, 2.5, -2.58); D.add(inner);
+  });
+  // 龕緣小燈（紅綠藍紫）
+  const ledCols = ['#ff3a3a', '#3aff6a', '#4a8aff', '#c060ff'], ledN = 60;
+  const leds = new THREE.InstancedMesh(new THREE.SphereGeometry(.03, 6, 5), new THREE.MeshBasicMaterial({ color: '#fff' }), ledN), tmpO = new THREE.Object3D();
+  for (let i = 0; i < ledN; i++) {
+    const t = i / (ledN - 1); let x, y;
+    if (t < .3) { x = -3.4; y = 1.3 + t / .3 * 3; } else if (t < .7) { x = -3.4 + (t - .3) / .4 * 6.8; y = 4.33; } else { x = 3.4; y = 4.3 - (t - .7) / .3 * 3; }
+    tmpO.position.set(x, y, -2.42); tmpO.updateMatrix(); leds.setMatrixAt(i, tmpO.matrix); leds.setColorAt(i, new THREE.Color(ledCols[i % 4]));
+  }
+  D.add(leds); DZ.leds = leds;
+  // 麒麟彩繪背板
+  const mural = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 2.25), new THREE.MeshStandardMaterial({ map: zlMural(), roughness: .7 })); mural.position.set(0, 2.62, -2.9); D.add(mural);
+  const mFrame = new THREE.Mesh(new THREE.BoxGeometry(3.6, .1, .12), gold); mFrame.position.set(0, 3.78, -2.84); D.add(mFrame);
+  // 神桌（紅漆＋回紋）與神尊
+  const fret = boardTexture(1024, 64, (x, w, h) => { x.fillStyle = '#8a1414'; x.fillRect(0, 0, w, h); fretBand(x, 0, 6, w, h - 12, h - 12, '#e0b050'); });
+  const ledge = new THREE.Mesh(new THREE.BoxGeometry(5.4, 1.2, 1.1), [redL, redL, redL, redL, new THREE.MeshStandardMaterial({ map: carve, roughness: .55 }), redL]); ledge.position.set(0, .6, -2.4); D.add(ledge);
+  const lTop = new THREE.Mesh(new THREE.BoxGeometry(5.6, .14, 1.2), [redL, redL, redL, redL, new THREE.MeshStandardMaterial({ map: fret }), redL]); lTop.position.set(0, 1.27, -2.4); D.add(lTop);
+  const robeM = new THREE.MeshStandardMaterial({ color: '#d6a43a', metalness: .55, roughness: .35 }), faceM = rtMat('#3a2418', .4);
+  const deity = (x, z, s, fem, main) => {
+    const G = new THREE.Group(); G.position.set(x, 1.34, z); G.scale.setScalar(s); D.add(G);
+    const seat = new THREE.Mesh(new THREE.BoxGeometry(.5, .2, .4), redL); seat.position.y = .1; G.add(seat);
+    const body = lathe([[0, 0], [.24, 0], [.25, .15], [.2, .45], [.12, .6], [0, .6]], robeM, 20); body.position.y = .18; G.add(body);
+    const belt = new THREE.Mesh(new THREE.TorusGeometry(.205, .022, 6, 24), rtMat(fem ? '#c8282a' : '#2a6a4a', .4)); belt.rotation.x = Math.PI / 2; belt.position.y = .55; G.add(belt);
+    const hd = new THREE.Mesh(new THREE.SphereGeometry(.1, 14, 12), faceM); hd.position.y = .88; G.add(hd);
+    const crown = new THREE.Mesh(new THREE.CylinderGeometry(.1, .11, .1, 14), M.gold); crown.position.y = 1.0; G.add(crown);
+    for (let k = 0; k < (fem ? 7 : 3); k++) { const a = (k - (fem ? 3 : 1)) * (fem ? .4 : .7), pk = new THREE.Mesh(fem ? new THREE.SphereGeometry(.025, 6, 5) : new THREE.ConeGeometry(.035, .12, 6), fem ? rtMat('#e8c060', .3, { metalness: .5 }) : M.gold); pk.position.set(Math.sin(a) * .1, fem ? 1.08 : 1.1, Math.cos(a) * .1); G.add(pk); }
+    if (fem) { [-1, 1].forEach(s2 => { const tas = new THREE.Mesh(new THREE.CylinderGeometry(.008, .008, .16, 5), M.gold); tas.position.set(s2 * .12, .95, .02); G.add(tas); }); }
+    else { const beard = new THREE.Mesh(new THREE.ConeGeometry(.06, .2, 8), rtMat('#111', .5)); beard.rotation.x = Math.PI; beard.position.set(0, .74, .07); G.add(beard); }
+    if (main) { const halo = new THREE.Mesh(new THREE.TorusGeometry(.17, .012, 6, 30), M.gold); halo.position.set(0, .92, -.1); G.add(halo); }
+  };
+  deity(-.42, -2.25, 1.15, false, true); deity(.42, -2.25, 1.1, true, true);   // 男公、女媽
+  [[-1.3, .85, 0], [1.3, .85, 1], [-.95, .72, 1], [.95, .72, 0], [-1.75, .72, 0], [1.75, .72, 1]].forEach(([x, s, f]) => deity(x, -2.55, s, !!f, false));
+  // 紅色蓮花燈
+  [-1, 1].forEach(sx => {
+    const st = new THREE.Mesh(new THREE.CylinderGeometry(.02, .05, .5, 8), M.gold); st.position.set(sx * 2.2, 1.6, -2.1); D.add(st);
+    const lamp = new THREE.Mesh(new THREE.SphereGeometry(.13, 14, 10), new THREE.MeshStandardMaterial({ color: '#ff6a5a', emissive: '#ff2a1a', emissiveIntensity: .8 })); lamp.scale.y = 1.3; lamp.position.set(sx * 2.2, 1.98, -2.1); D.add(lamp);
+  });
+  // 供桌（深色雕花，金字）
+  const AX = 0, AZ = .2, AY = .95;
+  const tbl = new THREE.Mesh(new THREE.BoxGeometry(4.2, AY, 1.5), darkW); tbl.position.set(AX, AY / 2, AZ - .2); D.add(tbl);
+  const ttop = new THREE.Mesh(new THREE.BoxGeometry(4.4, .07, 1.62), rtMat('#2a120a', .25)); ttop.position.set(AX, AY + .01, AZ - .2); D.add(ttop);
+  const ftex = boardTexture(1024, 220, (x, w, h) => {
+    x.fillStyle = '#2e140a'; x.fillRect(0, 0, w, h); const r = mulberry32(31);
+    for (let i = 0; i < 180; i++) { x.strokeStyle = 'rgba(120,70,30,.5)'; x.lineWidth = 3; x.beginPath(); x.arc(r() * w, r() * h, 5 + r() * 12, r() * 6, r() * 6 + 3); x.stroke(); }
+    x.strokeStyle = '#8a5a26'; x.lineWidth = 8; x.strokeRect(14, 14, w - 28, h - 28);
+    x.fillStyle = '#d8b04a'; x.font = `900 120px ${FONT}`; x.fillText('眾', w * .2, h / 2 + 6); x.fillText('靈', w * .5, h / 2 + 6); x.fillText('祠', w * .8, h / 2 + 6);
+  });
+  const front = new THREE.Mesh(new THREE.PlaneGeometry(4.1, .86), new THREE.MeshStandardMaterial({ map: ftex, roughness: .5 })); front.position.set(AX, AY / 2, AZ + .56); D.add(front);
+  [front, ttop].forEach(o => { o.userData.action = 'hall-offer:zhongling'; pickables.push(o); });
+  // 金紙堆（印花紙包）＋黃色紙錢
+  const paper = boardTexture(256, 256, (x, w, h) => {   // 印花金紙：黃底紅框、神仙人物
+    x.fillStyle = '#f4d860'; x.fillRect(0, 0, w, h); x.strokeStyle = '#c8282a'; x.lineWidth = 10; x.strokeRect(8, 8, w - 16, h - 16);
+    for (let i = 0; i < 3; i++) { const cx = 52 + i * 76; x.fillStyle = '#f6e6c8'; x.beginPath(); x.arc(cx, 92, 16, 0, 7); x.fill(); x.fillStyle = ['#c8282a', '#2a7ac8', '#2a9a4a'][i]; x.beginPath(); x.moveTo(cx - 28, 196); x.lineTo(cx - 16, 110); x.lineTo(cx + 16, 110); x.lineTo(cx + 28, 196); x.fill(); x.fillStyle = '#e8a030'; x.fillRect(cx - 12, 66, 24, 10); }
+    x.fillStyle = '#c8282a'; x.fillRect(20, 208, w - 40, 26);
+  });
+  const paperM = new THREE.MeshStandardMaterial({ map: paper, roughness: .6, transparent: true, opacity: .95 });
+  [-.5, 0, .5].forEach((x, i) => { const h = i === 1 ? .7 : .55, pk = new THREE.Mesh(new THREE.BoxGeometry(.42, h, .3), paperM); pk.position.set(AX + x, AY + .04 + h / 2, AZ - .72); D.add(pk); });
+  const ribM = rtMat('#f0d04a', .7);
+  [-1.15, 1.15].forEach(x => { for (let k = 0; k < 7; k++) { const r = new THREE.Mesh(new THREE.TorusGeometry(.09 + (k % 3) * .02, .025, 5, 14), ribM); r.position.set(AX + x + (k % 3 - 1) * .1, AY + .07 + Math.floor(k / 3) * .04, AZ - .7 + (k % 2) * .08); r.rotation.set(Math.PI / 2 + (k % 2) * .4, 0, k); D.add(r); } });
+  // 紅盤袋裝供品、八寶粥
+  const plateM = rtMat('#c8201a', .35), bagM = new THREE.MeshStandardMaterial({ color: '#f2e6d8', transparent: true, opacity: .75, roughness: .2 });
+  [[-1.75, .25], [1.75, .25], [-1.75, -.25], [1.75, -.25]].forEach(([x, z], i) => {
+    const pl = new THREE.Mesh(new THREE.CylinderGeometry(.24, .2, .03, 20), plateM); pl.position.set(AX + x, AY + .05, AZ + z - .2); D.add(pl);
+    if (i < 2) { const bag = new THREE.Mesh(new THREE.SphereGeometry(.17, 12, 10), bagM); bag.scale.set(1, .7, 1); bag.position.set(AX + x, AY + .16, AZ + z - .2); D.add(bag); }
+    else for (let k = 0; k < 4; k++) { const can = new THREE.Mesh(new THREE.CylinderGeometry(.045, .045, .12, 12), rtMat(k % 2 ? '#c8282a' : '#e8e0d0', .3, { metalness: .4 })); can.position.set(AX + x + (k % 2 - .5) * .11, AY + .13, AZ + z - .2 + (Math.floor(k / 2) - .5) * .11); D.add(can); }
+  });
+  // 紅花瓶：向日葵、百合
+  [-1, 1].forEach(sx => {
+    const v = lathe([[0, 0], [.1, 0], [.14, .12], [.08, .32], [.11, .42], [0, .42]], rtMat('#b81a1a', .25, { metalness: .2 })); v.position.set(sx * 2.0, AY + .04, AZ - .75); D.add(v);
+    for (let k = 0; k < 5; k++) {
+      const a = k / 5 * Math.PI * 2, st = new THREE.Mesh(new THREE.CylinderGeometry(.008, .008, .6, 4), rtMat('#3a7a2a')); st.position.set(sx * 2.0 + Math.cos(a) * .06, AY + .72, AZ - .75 + Math.sin(a) * .06); st.rotation.set(Math.sin(a) * .25, 0, -Math.cos(a) * .25); D.add(st);
+      const fl = new THREE.Mesh(new THREE.CylinderGeometry(k % 2 ? .07 : .05, .02, .04, 12), rtMat(k % 2 ? '#f2b81a' : (k ? '#f2a0c0' : '#f8f4f0'), .6)); fl.position.set(sx * 2.0 + Math.cos(a) * .14, AY + 1.02, AZ - .75 + Math.sin(a) * .14); fl.rotation.x = .5; D.add(fl);
+      if (k % 2) { const ctr = new THREE.Mesh(new THREE.SphereGeometry(.03, 8, 6), rtMat('#4a2a10')); ctr.position.copy(fl.position).add(new THREE.Vector3(0, .02, .01)); D.add(ctr); }
+    }
+  });
+  // 香爐
+  const pot = new THREE.Mesh(new THREE.CylinderGeometry(.24, .19, .26, 24), M.bronze); pot.position.set(AX, AY + .17, AZ + .05); D.add(pot);
+  const rim = new THREE.Mesh(new THREE.TorusGeometry(.24, .022, 8, 24), gold); rim.rotation.x = Math.PI / 2; rim.position.set(AX, AY + .3, AZ + .05); D.add(rim);
+  [-.06, 0, .06].forEach(dx => { const st = new THREE.Mesh(new THREE.CylinderGeometry(.008, .008, .5, 6), rtMat('#a8321e')); st.position.set(AX + dx, AY + .5, AZ + .05); D.add(st); makeEmber(D, AX + dx, AY + .75, AZ + .05); });
+  D.updateMatrixWorld(true);
+  DZ.censerTip = D.localToWorld(new THREE.Vector3(AX, AY + .77, AZ + .05));
+  addSmoke(DZ.censerTip, 14, 0, { sz: .45, op: .3, h: 2 });
+  DZ.set = buildOfferSet('zhongling', ox + AX, oy + AY + .03, AZ - .05, 1, false);
+  const l1 = new THREE.PointLight('#ffe2c0', 2.6, 14, 1); l1.position.set(0, 4.6, 1.5); D.add(l1);
+  const l2 = new THREE.PointLight('#ffd8b0', 1.8, 7, 1); l2.position.set(0, 3, -1); D.add(l2);
+  DZ.origin = D.position.clone();
+  tMax.x = Math.max(tMax.x, ox + 8); tMin.y = Math.min(tMin.y, oy - 2);
+  refreshOfferings();
+}
+const HALLS = {
+  dizang: {
+    title: '成龍納骨塔・一樓地藏殿', sub: '南無大願地藏王菩薩', deity: '地藏王菩薩', dedic: '法界眾生、歷代祖先', see: '瞻仰聖像',
+    done: '祈福圓滿・南無大願地藏王菩薩', build: () => buildDizang(),
+    wishes: ['闔家平安', '祖先安息', '身體健康', '事業順利', '學業進步', '消災解厄'],
+    drive: [[960, 1925, .2], [850, 1825, .2], [700, 1690, .2], [560, 1606, .2], [470, 1552, .19], [445, 1500, .13], [432, 1440, .06], [428, 1395, .05], [432, 1300, .05], [440, 1235, .05], [380, 1222, .05], [305, 1218, .05]],
+    caps: [[.3, '下交流道・匝道下橋'], [.55, '沿地方道路往北・成龍納骨塔就在前方']],
+    arrive: '抵達成龍納骨塔・停車', door: [222, 1212], parkView: [[420, 1420, 2.4], [250, 1200, .1]], walkCap: '步行進入一樓・地藏殿',
+  },
+  zhongling: {
+    title: '眾靈祠・男公女媽廟', sub: '恭奉男公女媽', deity: '男公女媽', dedic: '男公女媽、歷代祖先', see: '瞻仰神尊',
+    done: '祈福圓滿・男公女媽庇佑', build: () => buildZhonglingHall(),
+    wishes: ['闔家平安', '祖先安息', '庇佑鄉里', '身體健康', '事業順利', '消災解厄'],
+    drive: [[1100, 2075, .2], [1000, 1960, .2], [880, 1846, .2], [780, 1758, .19], [720, 1700, .14], [680, 1660, .08], [645, 1610, .05], [670, 1560, .05], [700, 1482, .05], [742, 1416, .05], [790, 1322, .05], [860, 1180, .05], [930, 1042, .05], [975, 945, .05], [1000, 905, .05]],
+    caps: [[.2, '下交流道・轉雲131線'], [.5, '雲131往東北・沿魚塭而行'], [.82, '眾靈祠就在前方']],
+    arrive: '抵達眾靈祠・停車', door: [1046, 872], parkView: [[960, 1170, 3.4], [1030, 890, .1]], walkCap: '步行進入眾靈祠正殿',
+  },
+};
+function openHall(k) {
+  HK = k; DZ = HS[k];
+  stopTour(); closeCard(); HALLS[k].build(); setHallUI();
   document.getElementById('routeBox').classList.remove('on');
   document.body.classList.remove('route'); document.body.classList.add('dizang');
   controls.minDistance = .5; controls.minPolarAngle = .05;
   document.getElementById('dzBox').classList.add('on');
   setGen(0); flyTo(dzView('enter'), 2.2);
 }
+function setHallUI() {
+  const el = document.getElementById('dzBox'), h = HALLS[HK];
+  el.querySelector('h3').textContent = h.title; el.querySelector('.sub').textContent = h.sub; el.querySelector('.see').textContent = h.see;
+}
+
+function openDizang() { openHall('dizang'); }
 function closeDizang(back) {
   pilCancel(); pilCap('', false); document.getElementById('pilBox').classList.remove('on');
   if (PIL.ch) { PIL.ch.parent.remove(PIL.ch); PIL.ch = null; }
@@ -2735,8 +2932,8 @@ function closeDizang(back) {
 }
 (() => {
   const el = document.getElementById('dzBox');
-  el.querySelector('.ofr').onclick = () => { flyTo(dzView('altar'), 1.2); openOfferSheet('dizang'); };
-  el.querySelector('.chn').onclick = () => openSutra('dizang');
+  el.querySelector('.ofr').onclick = () => { flyTo(dzView('altar'), 1.2); openOfferSheet(HK); };
+  el.querySelector('.chn').onclick = () => openSutra(HK);
   el.querySelector('.wsh').onclick = () => { el.classList.remove('on'); flyTo(WISH_VIEW(), 1.2); openWish(); };
   el.querySelector('.see').onclick = () => flyTo(dzView('statue'), 1.4);
   el.querySelector('.bk').onclick = () => closeDizang(true);
@@ -2837,7 +3034,8 @@ function blessFx(text) {
 function pilCap(text, show = true) {
   const el = document.getElementById('pilCap'); el.classList.toggle('on', show); document.body.classList.toggle('pil', show); if (text) el.querySelector('span').textContent = text;
 }
-function openCharPick() {
+function openCharPick(hall = 'dizang') {
+  PIL.hall = hall;
   const el = document.getElementById('charBox');
   let cur = ''; try { cur = localStorage.getItem('zupu_char') || ''; } catch (e) {}
   el.querySelector('.grid').innerHTML = Object.entries(CHARS).map(([k, c]) => `<button data-k="${k}" class="${k === cur ? 'on' : ''}"><i style="--t:${c.top};--b:${c.bot};--h:${c.hair};--s:${c.s}"><em></em></i>${c.name}</button>`).join('');
@@ -2845,10 +3043,10 @@ function openCharPick() {
   el.classList.add('on'); document.getElementById('routeBox').classList.remove('on');
 }
 // 行車路線（截圖像素座標＋高度）：台61高架 → 匝道下橋 → 沿地方道路 → 納骨塔前停車
-const PIL_DRIVE = [[960, 1925, .2], [850, 1825, .2], [700, 1690, .2], [560, 1606, .2], [470, 1552, .19], [445, 1500, .13], [432, 1440, .06], [428, 1395, .05], [432, 1300, .05], [440, 1235, .05], [380, 1222, .05], [305, 1218, .05]];
 async function startPilgrim(key) {
   pilCancel(); const id = PIL.id; PIL.key = key;
-  stopTour(); closeCard(); buildRoute(); buildDizang();
+  const H = HALLS[PIL.hall || 'dizang']; HK = PIL.hall || 'dizang'; DZ = HS[HK];
+  stopTour(); closeCard(); buildRoute(); H.build(); setHallUI();
   document.getElementById('routeBox').classList.remove('on'); document.getElementById('dzBox').classList.remove('on'); document.getElementById('pilBox').classList.remove('on');
   document.body.classList.add('route'); document.body.classList.remove('dizang');
   controls.enabled = false; controls.minDistance = .5; controls.minPolarAngle = .05;
@@ -2864,7 +3062,7 @@ async function startPilgrim(key) {
     car.scale.setScalar(1.5); G.add(car); PIL.car = car;
   }
   if (PIL.mini) { PIL.mini.parent.remove(PIL.mini); PIL.mini = null; }
-  const curve = new THREE.CatmullRomCurve3(PIL_DRIVE.map(([x, y, h]) => rtV(x, y, h)), false, 'centripetal', .4);
+  const curve = new THREE.CatmullRomCurve3(H.drive.map(([x, y, h]) => rtV(x, y, h)), false, 'centripetal', .4);
   const car = PIL.car; car.visible = true; car.position.copy(curve.getPointAt(0)); car.lookAt(wp(curve.getPointAt(.01)));
   await flyTo([wp(rtV(1080, 2050, 2.6)), wp(curve.getPointAt(.02))], 1.6); if (id !== PIL.id) return;
   pilCap(`${CHARS[key].name}開車上路・台61線往口湖方向`);
@@ -2872,22 +3070,21 @@ async function startPilgrim(key) {
   await pAnim(12500, k => {
     const now = performance.now(), rdt = Math.min(.5, (now - last) / 1000), al = 1 - Math.exp(-rdt * 3.2); last = now;
     const e = rtEase(k), p = curve.getPointAt(e), ah = curve.getPointAt(Math.min(1, e + .012));
-    if (k > .3 && k < .32) pilCap('下交流道・匝道下橋');
-    if (k > .55 && k < .57) pilCap('沿地方道路往北・成龍納骨塔就在前方');
+    H.caps.forEach(([t, c]) => { if (k > t && k < t + .02) pilCap(c); });
     car.position.copy(p); if (e < .995) car.lookAt(wp(ah));
     const w = wp(p), dir = ah.clone().sub(p).setY(0).normalize();
     camera.position.lerp(w.clone().addScaledVector(dir, -2.4).add(new THREE.Vector3(.4, 1.9, 0)), al);
     controls.target.lerp(w.clone().addScaledVector(dir, .8), al); camera.lookAt(controls.target);
   });
   if (id !== PIL.id) return;
-  pilCap('抵達成龍納骨塔・停車');
+  pilCap(H.arrive);
   // 下車走向一樓入口
   const mini = makeChar(key); mini.scale.multiplyScalar(.13); G.add(mini); PIL.mini = mini;
-  const p0 = car.position.clone().add(new THREE.Vector3(-.12, -.05, .12)).setY(.012), door = rtV(222, 1212, .012);
+  const p0 = car.position.clone().add(new THREE.Vector3(-.12, -.05, .12)).setY(.012), door = rtV(H.door[0], H.door[1], .012);
   mini.position.copy(p0); mini.rotation.y = Math.atan2(door.x - p0.x, door.z - p0.z);
   PIL.cam = false;
-  await flyTo([wp(rtV(420, 1420, 2.4)), wp(rtV(250, 1200, .1))], 1.4); if (id !== PIL.id) return;
-  pilCap('步行進入一樓・地藏殿');
+  await flyTo([wp(rtV(...H.parkView[0])), wp(rtV(...H.parkView[1]))], 1.4); if (id !== PIL.id) return;
+  pilCap(H.walkCap);
   await pAnim(2400, (k, dt) => { mini.position.lerpVectors(p0, door, k); mini.userData.walkT += dt; poseChar(mini, { walk: 1 }); });
   if (id !== PIL.id) return;
   await pilInterior(id, true);
@@ -2905,7 +3102,7 @@ async function pilInterior(id, walkIn) {
   const chase = () => { const w = DZ.origin.clone().add(ch.position); camera.position.copy(w).add(new THREE.Vector3(.9, 2.5, 3.4)); controls.target.copy(w).add(new THREE.Vector3(-.15, 1.15, -3)); camera.lookAt(controls.target); };
   if (walkIn) {
     chase(); veil.classList.remove('on');
-    pilCap(`${CHARS[PIL.key].name}走向地藏王菩薩`);
+    pilCap(`${CHARS[PIL.key].name}走向${HALLS[HK].deity}`);
     await pAnim(5200, (k, dt) => { ch.position.lerpVectors(A, B, k); ch.userData.walkT += dt; poseChar(ch, { walk: k < .96 ? 1 : 0 }); chase(); });
     if (id !== PIL.id) return;
   }
@@ -2926,7 +3123,8 @@ async function pilInterior(id, walkIn) {
 }
 function openWish() {
   const el = document.getElementById('pilBox');
-  el.querySelector('.chips').innerHTML = WISHES.map((w, i) => `<button class="${i === 0 ? 'on' : ''}">${w}</button>`).join('');
+  el.querySelector('.sub').textContent = `${HALLS[HK].deity}・可複選`;
+  el.querySelector('.chips').innerHTML = HALLS[HK].wishes.map((w, i) => `<button class="${i === 0 ? 'on' : ''}">${w}</button>`).join('');
   el.querySelectorAll('.chips button').forEach(b => b.onclick = () => { b.classList.toggle('on'); });
   let list = []; try { list = JSON.parse(localStorage.getItem('zupu_wishes') || '[]'); } catch (e) {}
   el.querySelector('.hist').innerHTML = list.slice(-3).reverse().map(w => `<li><b>${escH(w.who)}</b>・${escH(w.wish)}${w.text ? `：${escH(w.text)}` : ''}<i>${new Date(w.at).toLocaleDateString('zh-TW')}</i></li>`).join('') || '<li class="none">尚無祈福紀錄</li>';
@@ -2940,13 +3138,13 @@ async function doWish() {
   const text = el.querySelector('textarea').value.trim().slice(0, 60);
   const who = await getWho(); if (who === null) return;
   el.classList.remove('on');
-  const rec = { who: who || CHARS[PIL.key || 'baba'].name, char: PIL.key, wish: ws.join('、'), text, at: Date.now() };
+  const rec = { who: who || CHARS[PIL.key || 'baba'].name, char: PIL.key, hall: HK, wish: ws.join('、'), text, at: Date.now() };
   try { const l = JSON.parse(localStorage.getItem('zupu_wishes') || '[]'); l.push(rec); localStorage.setItem('zupu_wishes', JSON.stringify(l.slice(-50))); } catch (e) {}
   flyTo([dzW(.4, 2.6, 5.2), dzW(0, 2, -1.2)], 1.4);
   if (PIL.ch) { const ch = PIL.ch; pAnim(900, k => poseChar(ch, { pray: Math.sin(k * Math.PI) })); }
   ws.forEach((w, i) => setTimeout(() => blessFx(w), i * 900));
   if (text) setTimeout(() => toast(`心願：${text}`), ws.length * 900);
-  setTimeout(() => { toast(`祈福圓滿・南無大願地藏王菩薩`); document.getElementById('dzBox').classList.add('on'); }, ws.length * 900 + 3800);
+  setTimeout(() => { toast(HALLS[HK].done); document.getElementById('dzBox').classList.add('on'); }, ws.length * 900 + 3800);
 }
 (() => {
   const cb = document.getElementById('charBox');
@@ -2957,7 +3155,7 @@ async function doWish() {
   document.querySelector('#pilCap .skip').onclick = () => {
     if (!PIL.key) return;
     pilCancel(); const id = PIL.id; pilCap('', false);
-    if (PIL.car) PIL.car.position.copy(rtV(305, 1218, .05));
+    if (PIL.car) { const d = HALLS[HK].drive.at(-1); PIL.car.position.copy(rtV(d[0], d[1], .05)); }
     pilInterior(id, false);
   };
 })();
@@ -3212,7 +3410,7 @@ canvas.addEventListener('pointerup', e => {
   if (act === 'incense-all') offerIncense('all');
   else if (act === 'altar') { flyTo(altarView(), 1.1); openOfferSheet('all'); }
   else if (act.startsWith('altar:')) { const p = byId[act.slice(6)]; if (p) { flyTo(personAltarView(p), 1.1); openOfferSheet(p.id); } }
-  else if (act === 'dizang-offer') { flyTo(dzView('altar'), 1.1); openOfferSheet('dizang'); }
+  else if (act.startsWith('hall-offer:')) { HK = act.slice(11); DZ = HS[HK]; flyTo(dzView('altar'), 1.1); openOfferSheet(HK); }
   else if (act === 'history') openHistory();
   else if (act === 'plaque') openPlaque();
   else if (act.startsWith('zibei')) openZibei(+act.split(':')[1] || 0);
