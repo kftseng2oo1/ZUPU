@@ -245,6 +245,18 @@
   #twBox .detail .acts{display:flex;gap:6px;margin-top:6px}
   #twBox .detail .acts button{flex:1;min-height:calc(36px * var(--fs));border:1px solid var(--gold);border-radius:3px;font-family:var(--font);font-weight:900;font-size:calc(14px * var(--fs));background:#8b1a1a;color:#f6d98a}
   #twBox .detail .acts .tab{background:#fff;color:#5a0d0d}
+  /* 噴水池 */
+  #fountBox{position:fixed;left:0;right:0;bottom:0;z-index:14;display:none;padding:0 8px}
+  #fountBox.on{display:block;animation:fadeIn .35s}
+  #fountBox .sheet{background:linear-gradient(170deg,#faf3e0,#ede0b8);border:2px solid var(--gold);border-bottom:0;border-radius:6px 6px 0 0;box-shadow:0 -6px 24px rgba(0,0,0,.35);padding:10px 14px calc(var(--sb) + 12px)}
+  #fountBox h3{color:var(--red);font-size:calc(16px * var(--fs));font-weight:900;letter-spacing:.1em;text-align:center;margin-bottom:6px}
+  #fountBox .ctl{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-weight:900;color:#5a0d0d;font-size:calc(14px * var(--fs))}
+  #fountBox input{flex:1;accent-color:#2a6a9a;height:28px}
+  #fountBox .lv{min-width:2em;text-align:center;color:#2a6a9a}
+  #fountBox .row{display:flex;gap:6px;margin-bottom:6px}
+  #fountBox .row button,#fountBox .bk{flex:1;min-height:calc(40px * var(--fs));border:1px solid var(--gold);border-radius:3px;font-family:var(--font);font-weight:900;font-size:calc(14px * var(--fs));background:#fff;color:#5a0d0d}
+  #fountBox .sw{background:#2a6a9a!important;color:#fff!important;border-color:#2a6a9a!important}
+  #fountBox .bk{width:100%;border-style:dashed;background:#fff8ec}
   /* 祈福之旅 */
   #veil{position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;z-index:30;transition:opacity .6s}
   #veil.on{opacity:1}
@@ -457,6 +469,14 @@
     <button class="bk">選擇其他塔</button>
   </div>
 </div>
+<div id="fountBox">
+  <div class="sheet">
+    <h3>眾靈祠新塔・噴水池</h3>
+    <div class="ctl"><span>噴水</span><input type="range" min="0" max="100" step="1" value="60"><b class="lv">中</b></div>
+    <div class="row"><button class="sw">關閉噴水</button><button class="tt">看烏龜</button><button class="all">全池</button></div>
+    <button class="bk">回掃墓路線</button>
+  </div>
+</div>
 <div id="veil"></div>
 <div id="pilCap"><span></span><button class="skip">略過 ›</button></div>
 <div id="charBox">
@@ -657,7 +677,7 @@ measure(root); place(root, -root.w / 2);
 /* ---------- 字型就緒後才畫牌位文字（iOS 必要） ---------- */
 async function waitFonts() {
   const txt = PEOPLE.concat(typeof memExtras === 'function' ? memExtras() : []).map(p => p.name + p.tabletText + (p.tag || '') + (p.lines || []).join('') + (p.bio || '') + (p.alias || '')).join('')
-            + '口湖鄉成龍納骨塔眾靈祠新舊號樓・一二三四五六七八九十' + '眾志成城寶塔莊嚴為報本靈魂奉厝禪堂肅穆慎追終' + '眾靈祠男公女媽廟恭奉庇佑鄉里闡草萊保國家功不泯守貞堅護土德長昭雲線沿魚塭而行正殿轉' + '闔家平安祖先安息身體健康事業順利學業進步消災解厄' + '成龍納骨塔一樓地藏殿南無大願地藏王菩薩香案供奉誦心經瞻仰聖像回掃墓路線進入祭拜於前迴向法界眾生' + '掃墓路線口湖鄉成龍納骨堂眾靈祠男公女媽廟起點終點沿途安奉位新舊塔往南接台旁道路轉雲往東北開車約分鐘全圖導覽停止地圖導航抵達紀念堂尚未登記此處溼地村牛挑灣溪烏麻園豐樺水產行縣' + '依族譜資料整理可於紀念堂補寫生平祖先名冊' + '祠堂全景香案燭火清香奉茶供果餅乾鮮花來台祖神位三省堂匾額家族沿革碑攝影離開自動掃描停止繼續拍攝下載' + SUTRA.title + SUTRA.open + SUTRA.body + SUTRA.close + '念經超渡誦心卷語音木魚慢中快開始暫停繼續再一次圓滿功德迴向偈為' + HALL.plaque + HALL.plaqueSub + HALL.couplet.join('') + HALL.zibei + '龍山字輩大宗曾氏沿革輕觸展讀塔位側殿樓號口湖鄉成龍納骨塔蚵寮新舊' + historyText().split('\n').filter(s => /^[一二三四五六七八九十]+、/.test(s)).join('') + '第一二三四五六七八九十世配偶︵︶無—年生仙逝之本支在世農曆卒生平待補於紀念堂祖先名冊填寫字號0123456789.';
+            + '噴水池烏龜開啟關閉大中小全看回掃墓路線' + '口湖鄉成龍納骨塔眾靈祠新舊號樓・一二三四五六七八九十' + '眾志成城寶塔莊嚴為報本靈魂奉厝禪堂肅穆慎追終' + '眾靈祠男公女媽廟恭奉庇佑鄉里闡草萊保國家功不泯守貞堅護土德長昭雲線沿魚塭而行正殿轉' + '闔家平安祖先安息身體健康事業順利學業進步消災解厄' + '成龍納骨塔一樓地藏殿南無大願地藏王菩薩香案供奉誦心經瞻仰聖像回掃墓路線進入祭拜於前迴向法界眾生' + '掃墓路線口湖鄉成龍納骨堂眾靈祠男公女媽廟起點終點沿途安奉位新舊塔往南接台旁道路轉雲往東北開車約分鐘全圖導覽停止地圖導航抵達紀念堂尚未登記此處溼地村牛挑灣溪烏麻園豐樺水產行縣' + '依族譜資料整理可於紀念堂補寫生平祖先名冊' + '祠堂全景香案燭火清香奉茶供果餅乾鮮花來台祖神位三省堂匾額家族沿革碑攝影離開自動掃描停止繼續拍攝下載' + SUTRA.title + SUTRA.open + SUTRA.body + SUTRA.close + '念經超渡誦心卷語音木魚慢中快開始暫停繼續再一次圓滿功德迴向偈為' + HALL.plaque + HALL.plaqueSub + HALL.couplet.join('') + HALL.zibei + '龍山字輩大宗曾氏沿革輕觸展讀塔位側殿樓號口湖鄉成龍納骨塔蚵寮新舊' + historyText().split('\n').filter(s => /^[一二三四五六七八九十]+、/.test(s)).join('') + '第一二三四五六七八九十世配偶︵︶無—年生仙逝之本支在世農曆卒生平待補於紀念堂祖先名冊填寫字號0123456789.';
   try {
     await Promise.race([
       Promise.all([
@@ -2502,7 +2522,7 @@ function buildRoute() {
   g.add(dm); ROUTE.dots = dm; ROUTE.N = N;
   // 起訖建築
   const s = buildChenglong(); s.position.copy(rtV(215, 1140)); s.rotation.y = Math.PI * .05; s.scale.setScalar(1.15); g.add(s);
-  const e = buildZhongling(); e.position.copy(rtV(1056, 800)); e.rotation.y = -Math.PI * .08; e.scale.setScalar(1.05); g.add(e);
+  const e = buildZhongling(); e.position.copy(rtV(1056, 800)); e.rotation.y = -Math.PI * .08; e.scale.setScalar(1.05); g.add(e); ROUTE.zl = e; buildFountain(e); tMin.z = Math.min(tMin.z, -8); tMax.z = Math.max(tMax.z, 8);   // 沙盤縱深較大，放寬鏡頭目標範圍
   const occ = keys => PEOPLE.concat(memExtras()).filter(p => { const pl = placementOf(p); return pl && keys.includes(pl.tower); });
   const la = rtLabel('成龍納骨堂', `起點・安奉 ${occ(['A']).length} 位`); la.position.copy(rtV(215, 1140, 2.25)); g.add(la);
   const lb = rtLabel('眾靈祠', `終點・安奉 ${occ(['B_new', 'B_old']).length} 位`); lb.position.copy(rtV(1056, 800, 2.1)); g.add(lb);
@@ -2548,15 +2568,15 @@ function openRoute() {
   el.querySelector('.steps').innerHTML = ROUTE.stops.map((st, i) => {
     const ppl = ROUTE.occ(st.keys);
     const list = st.keys.length ? (ppl.length ? ppl.map(p => `<span>${escH(p.name)}<small>${st.keys.length > 1 ? (placementOf(p).tower === 'B_new' ? '新塔' : '舊塔') + '・' : ''}${slot(p)}</small></span>`).join('') : '<em>紀念堂尚未登記此處塔位</em>') : '';
-    return `<li data-i="${i}"><b>${i === 0 ? '起' : i === 2 ? '終' : '經'}</b><div><h4>${escH(st.name)}</h4><p>${escH(st.sub)}</p>${list ? `<div class="ppl">${list}</div>` : ''}${i !== 1 ? `<div class="dzs"><button class="dz drv" data-h="${i ? 'zhongling' : 'dizang'}">開車前往祈福</button><button class="dz" data-h="${i ? 'zhongling' : 'dizang'}">直接入殿</button></div>` : ''}</div></li>`;
+    return `<li data-i="${i}"><b>${i === 0 ? '起' : i === 2 ? '終' : '經'}</b><div><h4>${escH(st.name)}</h4><p>${escH(st.sub)}</p>${list ? `<div class="ppl">${list}</div>` : ''}${i !== 1 ? `<div class="dzs"><button class="dz drv" data-h="${i ? 'zhongling' : 'dizang'}">開車前往祈福</button><button class="dz" data-h="${i ? 'zhongling' : 'dizang'}">直接入殿</button>${i ? '<button class="dz fnt">新塔噴水池</button>' : ''}</div>` : ''}</div></li>`;
   }).join('');
   el.querySelectorAll('.steps li').forEach(li => li.onclick = () => { ROUTE.anim = null; flyTo(routeStopView(ROUTE.stops[+li.dataset.i]), 1.4); });
-  el.querySelectorAll('.steps .dz').forEach(b => b.onclick = e => { e.stopPropagation(); if (b.classList.contains('drv')) openCharPick(b.dataset.h); else openHall(b.dataset.h); });
+  el.querySelectorAll('.steps .dz').forEach(b => b.onclick = e => { e.stopPropagation(); if (b.classList.contains('fnt')) openFountain(); else if (b.classList.contains('drv')) openCharPick(b.dataset.h); else openHall(b.dataset.h); });
   el.classList.add('on');
   setGen(0); flyTo(routeOverview(), 2);
 }
 function closeRoute() {
-  ROUTE.anim = null; document.body.classList.remove('route');
+  ROUTE.anim = null; document.body.classList.remove('route'); document.getElementById('fountBox').classList.remove('on');
   document.getElementById('routeBox').classList.remove('on');
   controls.minDistance = 3; controls.minPolarAngle = Math.PI * 0.22; flyTo(overviewView(), 1.6);
 }
@@ -3455,6 +3475,180 @@ function openTowerPick() {
   document.querySelector('#twBox .bk').onclick = () => { document.getElementById('twBox').classList.remove('on'); document.body.classList.remove('tower'); openTowerPick(); };
 })();
 
+/* ================= 眾靈祠新塔前噴水池（依現場照片：磁磚池壁、粉紅花崗石池緣、不鏽鋼欄杆、黃色球燈） =================
+   中央噴水管四周疊岩石，噴水大小可調；池中 10 隻大小烏龜，會游水、爬上岩石曬太陽。 */
+const FOUNT = { built: false, P: null, power: .6, drops: null, vel: null, core: null, water: null, wbase: null, turtles: [], spots: [], R: .3, WY: .07 };
+function buildFountain(zl) {
+  if (FOUNT.built) return; FOUNT.built = true;
+  const P = new THREE.Group(); P.position.set(-1.3, 0, 1.08); zl.add(P); FOUNT.P = P;
+  const R = FOUNT.R, WY = FOUNT.WY, TOP = .105;
+  const pink = rtMat('#b98a80', .35), steel = new THREE.MeshStandardMaterial({ color: '#d8dce0', metalness: .95, roughness: .18, envMapIntensity: 1.2 });
+  const tile = boardTexture(256, 64, (g, W, H) => { g.fillStyle = '#e4dccb'; g.fillRect(0, 0, W, H); g.strokeStyle = 'rgba(90,80,60,.45)'; g.lineWidth = 2; for (let x = 0; x <= W; x += 16) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, H); g.stroke(); } for (let y = 0; y <= H; y += 16) { g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke(); } const gr = g.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(.6, 'rgba(60,70,30,.15)'); gr.addColorStop(1, 'rgba(50,60,20,.45)'); g.fillStyle = gr; g.fillRect(0, 0, W, H); });
+  tile.wrapS = THREE.RepeatWrapping; tile.repeat.set(8, 1);
+  const outer = new THREE.Mesh(new THREE.CylinderGeometry(R + .05, R + .055, TOP, 48, 1, true), pink); outer.position.y = TOP / 2; P.add(outer);
+  const inner = new THREE.Mesh(new THREE.CylinderGeometry(R, R, TOP - .015, 48, 1, true), new THREE.MeshStandardMaterial({ map: tile, side: THREE.BackSide, roughness: .5 })); inner.position.y = .015 + (TOP - .015) / 2; P.add(inner);
+  const rim = new THREE.Mesh(new THREE.RingGeometry(R, R + .055, 48), pink); rim.rotation.x = -Math.PI / 2; rim.position.y = TOP; P.add(rim);
+  const bottom = new THREE.Mesh(new THREE.CircleGeometry(R, 32), rtMat('#3a4a20', .9)); bottom.rotation.x = -Math.PI / 2; bottom.position.y = .016; P.add(bottom);
+  // 水面（可起漣漪）
+  const wg = new THREE.RingGeometry(.002, R, 48, 10); wg.rotateX(-Math.PI / 2);
+  const water = new THREE.Mesh(wg, new THREE.MeshStandardMaterial({ color: '#56702c', roughness: .12, metalness: .15, transparent: true, opacity: .86 }));
+  water.position.y = WY; P.add(water); FOUNT.water = water; FOUNT.wbase = Float32Array.from(wg.attributes.position.array);
+  // 欄杆：圓頭立柱＋上下橫桿＋拱形
+  const rr = R + .04, NP = 28;
+  for (let i = 0; i < NP; i++) {
+    const a = i / NP * Math.PI * 2, x = Math.cos(a) * rr, z = Math.sin(a) * rr;
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(.0045, .0055, .075, 8), steel); post.position.set(x, TOP + .0375, z); P.add(post);
+    const ball = new THREE.Mesh(new THREE.SphereGeometry(.0085, 10, 8), steel); ball.position.set(x, TOP + .078, z); P.add(ball);
+  }
+  [.07, .03].forEach(h => { const rail = new THREE.Mesh(new THREE.TorusGeometry(rr, .003, 6, 96), steel); rail.rotation.x = Math.PI / 2; rail.position.y = TOP + h; P.add(rail); });
+  // 黃色球燈
+  [.4, 2.0, 3.6, 5.2].forEach(a => {
+    const st = new THREE.Mesh(new THREE.CylinderGeometry(.006, .009, .02, 8), rtMat('#222')); st.position.set(Math.cos(a) * (R + .025), TOP + .01, Math.sin(a) * (R + .025)); P.add(st);
+    const gl = new THREE.Mesh(new THREE.SphereGeometry(.016, 12, 10), new THREE.MeshStandardMaterial({ color: '#ffd23a', emissive: '#ffb000', emissiveIntensity: .5, roughness: .3 })); gl.position.set(st.position.x, TOP + .03, st.position.z); P.add(gl);
+  });
+  // 噴水管＋四周岩石
+  const pipe = new THREE.Mesh(new THREE.CylinderGeometry(.006, .006, .08, 8), rtMat('#1a1a1a', .4)); pipe.position.y = WY + .015; P.add(pipe);
+  const rockM = [rtMat('#5a564c', .95), rtMat('#6a6254', .95), rtMat('#4a463e', .95)], rnd = mulberry32(21);
+  const addRock = (x, z, s, h, spot) => {
+    const rk = new THREE.Mesh(new THREE.DodecahedronGeometry(s, 0), rockM[Math.floor(rnd() * 3)]);
+    rk.scale.set(1, h, 1 + rnd() * .3); rk.rotation.set(rnd(), rnd() * 6, rnd() * .4); rk.position.set(x, WY - s * h * .35, z); P.add(rk);
+    if (spot) FOUNT.spots.push({ p: new THREE.Vector3(x, WY - s * h * .35 + s * h * .82, z), r: s * .5, n: 0 });
+  };
+  for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2 + rnd() * .3, d = .045 + rnd() * .03; addRock(Math.cos(a) * d, Math.sin(a) * d, .02 + rnd() * .01, .75 + rnd() * .3, i % 2 === 0); }
+  // 池邊大塊曬背石（照片右側那片）
+  addRock(R - .07, .06, .04, .55, true); addRock(R - .09, -.025, .032, .5, true); addRock(-R + .07, -.12, .036, .5, true);
+  // 噴水：中央水柱＋水滴粒子
+  const core = new THREE.Mesh(new THREE.CylinderGeometry(.0015, .006, 1, 10, 1, true), new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: true, opacity: .32, depthWrite: false, blending: THREE.AdditiveBlending }));
+  core.position.y = WY + .5; P.add(core); FOUNT.core = core;
+  const N = 700, pos = new Float32Array(N * 3), vel = new Float32Array(N * 3);
+  for (let i = 0; i < N; i++) { pos[i * 3 + 1] = -10; vel[i * 3 + 1] = -1; }
+  const dg = new THREE.BufferGeometry(); dg.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  const drops = new THREE.Points(dg, new THREE.PointsMaterial({ color: '#ffffff', size: .011, transparent: true, opacity: .8, depthWrite: false, map: softTex('rgba(255,255,255,1)', 'rgba(255,255,255,0)') }));
+  drops.frustumCulled = false; P.add(drops); FOUNT.drops = drops; FOUNT.vel = vel;
+  // 烏龜
+  for (let i = 0; i < 10; i++) {
+    const s = .55 + (i % 5) * .2 + rnd() * .15, t = makeTurtle(s, rnd);
+    const a = rnd() * 6.28, d = .12 + rnd() * (R - .17);
+    t.position.set(Math.cos(a) * d, WY, Math.sin(a) * d); t.rotation.y = rnd() * 6.28; P.add(t);
+    t.userData.tur = { s, state: 'swim', tgt: null, wait: rnd() * 2, spot: null, ph: rnd() * 6, spd: .025 + rnd() * .015 };
+    FOUNT.turtles.push(t);
+  }
+  [outer, rim, water].forEach(o => { o.userData.action = 'fountain'; pickables.push(o); });
+}
+function makeTurtle(s, rnd) {
+  const T = new THREE.Group(), L = .03 * s;
+  const shellM = new THREE.MeshStandardMaterial({ color: rnd() < .5 ? '#4a5a2a' : '#5a4a2a', roughness: .45 }), skinM = rtMat('#5f6a3a', .6), stripe = rtMat('#c9b030', .5);
+  const shell = new THREE.Mesh(new THREE.SphereGeometry(L * .5, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2), shellM); shell.scale.set(.85, .55, 1); T.add(shell);
+  const scute = new THREE.Mesh(new THREE.TorusGeometry(L * .32, L * .03, 4, 6), rtMat('#2e3618', .6)); scute.rotation.x = Math.PI / 2; scute.scale.set(.85, 1, 1); scute.position.y = L * .2; T.add(scute);
+  const plas = new THREE.Mesh(new THREE.CylinderGeometry(L * .43, L * .43, L * .06, 14), rtMat('#c8b878', .6)); plas.scale.set(.85, 1, 1); T.add(plas);
+  const head = new THREE.Group(); head.position.set(0, L * .04, L * .55); T.add(head);
+  const hd = new THREE.Mesh(new THREE.SphereGeometry(L * .14, 10, 8), skinM); hd.scale.set(1, .85, 1.3); head.add(hd);
+  [-1, 1].forEach(k => { const ear = new THREE.Mesh(new THREE.SphereGeometry(L * .05, 6, 5), rtMat('#c8282a', .5)); ear.position.set(k * L * .12, L * .02, -L * .02); head.add(ear); });   // 紅耳
+  const nk = new THREE.Mesh(new THREE.CylinderGeometry(L * .09, L * .1, L * .14, 8), stripe); nk.rotation.x = Math.PI / 2; nk.position.z = -L * .1; head.add(nk);
+  const legs = [];
+  [[-1, 1], [1, 1], [-1, -1], [1, -1]].forEach(([x, z]) => {
+    const pv = new THREE.Group(); pv.position.set(x * L * .33, -L * .02, z * L * .3); T.add(pv);
+    const lg = new THREE.Mesh(new THREE.BoxGeometry(L * .22, L * .05, L * .12), skinM); lg.position.x = x * L * .1; pv.add(lg);
+    legs.push(pv);
+  });
+  const tail = new THREE.Mesh(new THREE.ConeGeometry(L * .04, L * .14, 6), skinM); tail.rotation.x = -Math.PI / 2; tail.position.z = -L * .55; T.add(tail);
+  T.userData.legs = legs; T.userData.head = head; T.userData.L = L;
+  return T;
+}
+function fountRandWater() {
+  const R = FOUNT.R, a = Math.random() * 6.28, d = .1 + Math.random() * (R - .14);
+  return new THREE.Vector3(Math.cos(a) * d, FOUNT.WY, Math.sin(a) * d);
+}
+function tickFountain(dt, now) {
+  if (!FOUNT.built || !ROUTE.g || !ROUTE.g.visible) return;
+  if (!FOUNT._c) FOUNT._c = new THREE.Vector3();
+  FOUNT.P.getWorldPosition(FOUNT._c); if (camera.position.distanceTo(FOUNT._c) > 7) return;   // 鏡頭遠離就不算
+  dt = Math.min(dt, .05);
+  const pw = FOUNT.power, WY = FOUNT.WY, t = now / 1000;
+  // 水柱
+  const H = pw * .55;
+  FOUNT.core.visible = pw > .02; FOUNT.core.scale.set(.6 + pw * .6, Math.max(.001, H), .6 + pw * .6); FOUNT.core.position.y = WY + H / 2;
+  // 水滴：從噴口向上、散開、落回水面
+  const pa = FOUNT.drops.geometry.attributes.position, p = pa.array, v = FOUNT.vel, N = p.length / 3;
+  const spawn = pw > .02 ? Math.ceil(N * dt * (1.2 + pw * 2)) : 0; let sp = 0;
+  for (let i = 0; i < N; i++) {
+    const j = i * 3;
+    if (p[j + 1] < WY) {
+      if (sp < spawn && Math.random() < .9) {
+        sp++; const vy = Math.sqrt(2 * 9.8 * .1 * H) * (.85 + Math.random() * .3) * 1.0, sa = Math.random() * 6.28, sr = .03 + pw * .1 * Math.random();
+        p[j] = 0; p[j + 1] = WY + H * (.7 + Math.random() * .3); p[j + 2] = 0; v[j] = Math.cos(sa) * sr; v[j + 1] = vy * .25; v[j + 2] = Math.sin(sa) * sr;
+      } else { p[j + 1] = -10; continue; }
+    }
+    v[j + 1] -= .98 * dt; p[j] += v[j] * dt; p[j + 1] += v[j + 1] * dt; p[j + 2] += v[j + 2] * dt;
+  }
+  pa.needsUpdate = true;
+  // 漣漪
+  const wp = FOUNT.water.geometry.attributes.position, wa = wp.array, b = FOUNT.wbase, amp = .0012 + pw * .003;
+  for (let i = 0; i < wa.length; i += 3) { const r = Math.hypot(b[i], b[i + 2]); wa[i + 1] = Math.sin(r * 90 - t * 6) * amp * Math.max(0, 1 - r / FOUNT.R) + Math.sin(b[i] * 40 + t * 1.3) * .0006; }
+  wp.needsUpdate = true;
+  // 烏龜
+  FOUNT.turtles.forEach(T => {
+    const u = T.userData.tur, L = T.userData.L;
+    if (u.wait > 0) { u.wait -= dt; T.userData.legs.forEach(l => l.rotation.y *= .9); T.userData.head.rotation.y = Math.sin(t * .7 + u.ph) * .4; return; }
+    if (!u.tgt) {
+      if (u.spot) { u.spot.n--; u.spot = null; }
+      if (Math.random() < .4) {   // 爬上岩石曬背
+        const free = FOUNT.spots.filter(s => s.n < 3); const s = free[Math.floor(Math.random() * free.length)];
+        if (s) { u.spot = s; s.n++; const off = new THREE.Vector3((Math.random() - .5) * s.r, 0, (Math.random() - .5) * s.r); u.tgt = s.p.clone().add(off); u.tgt.y += L * .15 * (s.n - 1); u.state = 'climb'; }
+      }
+      if (!u.tgt) { u.tgt = fountRandWater(); u.state = 'swim'; }
+    }
+    const d = new THREE.Vector3(u.tgt.x - T.position.x, 0, u.tgt.z - T.position.z), dist = d.length();
+    const want = Math.atan2(d.x, d.z); let dy = want - T.rotation.y; dy = Math.atan2(Math.sin(dy), Math.cos(dy));
+    T.rotation.y += dy * Math.min(1, dt * 3);
+    const step = Math.min(dist, u.spd * dt * (Math.abs(dy) < 1 ? 1 : .3));
+    T.position.x += Math.sin(T.rotation.y) * step; T.position.z += Math.cos(T.rotation.y) * step;
+    // 避開池壁
+    const r = Math.hypot(T.position.x, T.position.z), lim = FOUNT.R - L * .6; if (r > lim) { T.position.x *= lim / r; T.position.z *= lim / r; }
+    const nearT = dist < .06 && u.state === 'climb';
+    const ty = nearT ? u.tgt.y : WY - L * .12;
+    T.position.y += (ty - T.position.y) * Math.min(1, dt * 4);
+    T.rotation.x = nearT && T.position.y < u.tgt.y - .002 ? -.35 : 0;
+    const sw = Math.sin(t * (u.state === 'swim' ? 7 : 5) + u.ph) * .6;
+    T.userData.legs.forEach((l, i) => l.rotation.y = (i % 2 ? sw : -sw) * (i < 2 ? 1 : .6));
+    if (dist < .004) { u.tgt = null; u.wait = u.state === 'climb' ? 5 + Math.random() * 10 : .5 + Math.random() * 2.5; }
+  });
+}
+function fountView(kind) {
+  const P = FOUNT.P; P.updateMatrixWorld(true);
+  const c = P.localToWorld(new THREE.Vector3(0, FOUNT.WY, 0));
+  if (kind === 'turtle') {   // 對準池邊曬背石：從池中央上方斜看過去
+    const ws = new THREE.Vector3(); P.getWorldScale(ws); const Rw = FOUNT.R * ws.x;
+    const sp = FOUNT.spots[FOUNT.spots.length - 3], t = P.localToWorld(sp.p.clone());
+    const dir = t.clone().sub(c).setY(0).normalize();
+    return [t.clone().addScaledVector(dir, -.62 * Rw).add(new THREE.Vector3(0, .62 * Rw, 0)), t.clone().add(new THREE.Vector3(0, -.12 * Rw, 0))];
+  }
+  return [c.clone().add(new THREE.Vector3(.2, .95, 2.2)), c.clone().add(new THREE.Vector3(0, -.22, 0))];
+}
+function openFountain() {
+  buildRoute(); ROUTE.anim = null;
+  document.getElementById('routeBox').classList.remove('on');
+  document.body.classList.add('route');
+  controls.minDistance = .15; controls.minPolarAngle = .05;
+  const el = document.getElementById('fountBox'); el.classList.add('on'); fountUI();
+  flyTo(fountView(), 1.8);
+}
+function fountUI() {
+  const el = document.getElementById('fountBox'), v = Math.round(FOUNT.power * 100);
+  el.querySelector('input').value = v;
+  el.querySelector('.lv').textContent = v === 0 ? '關' : v < 34 ? '小' : v < 67 ? '中' : '大';
+  el.querySelector('.sw').textContent = v === 0 ? '開啟噴水' : '關閉噴水';
+}
+(() => {
+  const el = document.getElementById('fountBox');
+  let last = .6;
+  el.querySelector('input').oninput = e => { FOUNT.power = e.target.value / 100; if (FOUNT.power > 0) last = FOUNT.power; fountUI(); };
+  el.querySelector('.sw').onclick = () => { FOUNT.power = FOUNT.power > 0 ? 0 : (last || .6); fountUI(); };
+  el.querySelector('.tt').onclick = () => flyTo(fountView('turtle'), 1.4);
+  el.querySelector('.all').onclick = () => flyTo(fountView(), 1.4);
+  el.querySelector('.bk').onclick = () => { el.classList.remove('on'); openRoute(); };
+})();
+
 /* 沿革展讀 */
 function openHistory() {
   const el = document.getElementById('scrollReader');
@@ -3705,6 +3899,7 @@ canvas.addEventListener('pointerup', e => {
   if (act === 'incense-all') offerIncense('all');
   else if (act === 'altar') { flyTo(altarView(), 1.1); openOfferSheet('all'); }
   else if (act.startsWith('altar:')) { const p = byId[act.slice(6)]; if (p) { flyTo(personAltarView(p), 1.1); openOfferSheet(p.id); } }
+  else if (act === 'fountain') openFountain();
   else if (act.startsWith('niche:')) { const [, k, fi, si] = act.split(':'); selectNiche(k, +fi, +si); }
   else if (act.startsWith('hall-offer:')) { HK = act.slice(11); DZ = HS[HK]; flyTo(dzView('altar'), 1.1); openOfferSheet(HK); }
   else if (act === 'history') openHistory();
@@ -3938,7 +4133,7 @@ function loop() {
     for (const k in set.types) { const g = set.types[k].group; if (g.visible && g.scale.x < .999) g.scale.setScalar(Math.min(1, g.scale.x + dt * 2.2)); else if (!g.visible) g.scale.setScalar(.01); }
   }
   chantAudioTick();
-  tickRoute(now, dt); tickPilgrim(now, dt);
+  tickRoute(now, dt); tickPilgrim(now, dt); tickFountain(dt, now);
   tickEmbers(T, dt);
   if (steleFront) { steleFront.emissiveIntensity = .05 + .04 * Math.sin(T * 1.3); steleHalo.material.opacity = .42 + .12 * Math.sin(T * 1.3); }
   for (const id in tablets) {
