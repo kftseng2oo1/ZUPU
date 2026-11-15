@@ -1717,6 +1717,26 @@ const DOC_DB = (() => {
 })();
 const _docSaved = new Set();
 let _quotaWarned = false;
+/* 名冊雲端副本（arcar /zupu/family）：讓 3D 祠堂從主畫面直接開啟也讀得到祖先與塔位。
+   不含上傳的文件；第一台上傳的裝置會登記編輯金鑰，之後只有這台能更新。 */
+const FAMILY_API = 'https://arcar.kftseng2oo1.workers.dev/zupu/family?f=longshan';
+let _famTimer = null;
+function familyEditKey() {
+  let k = ''; try { k = localStorage.getItem('zupu_edit_key') || ''; } catch (e) {}
+  if (!k) { k = Array.from(crypto.getRandomValues(new Uint8Array(18)), b => b.toString(16).padStart(2, '0')).join(''); try { localStorage.setItem('zupu_edit_key', k); } catch (e) {} }
+  return k;
+}
+function pushFamilyCloud(now) {
+  clearTimeout(_famTimer);
+  _famTimer = setTimeout(async () => {
+    try {
+      const d = Object.assign({}, appData); delete d.documents;
+      if (!Array.isArray(d.ancestors) || !d.ancestors.length) return;
+      const r = await fetch(FAMILY_API, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Edit-Key': familyEditKey() }, body: JSON.stringify(d) });
+      if (r.status === 403) console.warn('名冊雲端：這台裝置不是登記的編輯裝置，未上傳');
+    } catch (e) {}
+  }, now ? 300 : 3000);
+}
 function saveData() {
   const docs = appData.documents || [];
   docs.forEach(d => {   // 新文件先寫進 IndexedDB
@@ -1725,6 +1745,7 @@ function saveData() {
   const lite = Object.assign({}, appData, { documents: docs.map(d => { const o = Object.assign({}, d); delete o.data; return o; }) });
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(lite));
+    pushFamilyCloud();
     return true;
   } catch (e) {
     if (!_quotaWarned) { _quotaWarned = true; setTimeout(() => _quotaWarned = false, 8000); }
@@ -1768,6 +1789,7 @@ function getDefaultHistory() {
 }
 
 let appData = loadData();
+setTimeout(() => pushFamilyCloud(true), 2500);   // 開啟時同步一次
 (function normalizePlacements() {   // 舊資料或匯入的樓層／號位可能是字串，統一成數字
   let ch = false;
   Object.values(appData.placements || {}).forEach(p => {
