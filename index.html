@@ -1732,7 +1732,10 @@ function pushFamilyCloud(now) {
     try {
       const d = Object.assign({}, appData); delete d.documents;
       if (!Array.isArray(d.ancestors) || !d.ancestors.length) return;
+      if (_famPulling) return;   // 正在換成雲端較新的版本，不要把舊的傳上去
+      d.savedAt = Date.now();   // 讓其他裝置／主畫面 App 判斷哪份比較新
       const r = await fetch(FAMILY_API, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Edit-Key': familyEditKey() }, body: JSON.stringify(d) });
+      if (r.ok) { appData.cloudAt = d.savedAt; try { const l = JSON.parse(localStorage.getItem(STORAGE_KEY)); l.cloudAt = d.savedAt; localStorage.setItem(STORAGE_KEY, JSON.stringify(l)); } catch (e) {} }
       if (r.status === 403) console.warn('名冊雲端：這台裝置不是登記的編輯裝置，未上傳');
     } catch (e) {}
   }, now ? 300 : 3000);
@@ -1789,7 +1792,33 @@ function getDefaultHistory() {
 }
 
 let appData = loadData();
-setTimeout(() => pushFamilyCloud(true), 2500);   // 開啟時同步一次
+/* 開啟時：雲端若比本機新（例如主畫面 App 與 Safari 儲存分開，這邊只有預設名冊），換成雲端版本；
+   本機才是最新的編輯裝置時，則把本機上傳一次 */
+let _famPulling = false;
+(async () => {
+  try {
+    const ctl = new AbortController(); setTimeout(() => ctl.abort(), 8000);
+    const r = await fetch(FAMILY_API, { cache: 'no-store', signal: ctl.signal });
+    if (r.ok) {
+      const cloud = await r.json();
+      const nPl = d => Object.values(d.placements || {}).filter(x => x && x.tower).length;
+      const newer = cloud && Array.isArray(cloud.ancestors) && cloud.ancestors.length && (
+        (cloud.savedAt || 0) > (appData.cloudAt || 0) ||
+        (nPl(appData) === 0 && nPl(cloud) > 0) || cloud.ancestors.length > (appData.ancestors || []).length);
+      if (newer && sessionStorage.getItem('zupu_pulled') !== String(cloud.savedAt || cloud.ancestors.length)) {
+        _famPulling = true;
+        sessionStorage.setItem('zupu_pulled', String(cloud.savedAt || cloud.ancestors.length));
+        const keep = appData.documents || [];
+        appData = Object.assign(cloud, { documents: keep, cloudAt: cloud.savedAt || 0 });
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(Object.assign({}, appData, { documents: keep.map(d => { const o = Object.assign({}, d); delete o.data; return o; }) }))); } catch (e) {}
+        showNotif('已取得雲端最新名冊（含塔位），重新載入中…');
+        setTimeout(() => location.reload(), 900);
+        return;
+      }
+    }
+  } catch (e) {}
+  setTimeout(() => pushFamilyCloud(true), 1500);   // 開啟時同步一次
+})();
 (function normalizePlacements() {   // 舊資料或匯入的樓層／號位可能是字串，統一成數字
   let ch = false;
   Object.values(appData.placements || {}).forEach(p => {
