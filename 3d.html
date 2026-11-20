@@ -257,6 +257,16 @@
   #fountBox .row button,#fountBox .bk{flex:1;min-height:calc(40px * var(--fs));border:1px solid var(--gold);border-radius:3px;font-family:var(--font);font-weight:900;font-size:calc(14px * var(--fs));background:#fff;color:#5a0d0d}
   #fountBox .sw{background:#2a6a9a!important;color:#fff!important;border-color:#2a6a9a!important}
   #fountBox .bk{width:100%;border-style:dashed;background:#fff8ec}
+  /* 導覽字幕 */
+  #tourCap{position:fixed;left:10px;right:10px;bottom:calc(var(--sb) + 76px * var(--fs));z-index:13;display:none;background:rgba(30,16,6,.86);border:1px solid var(--gold);border-radius:6px;padding:10px 12px;color:#f3e6c4;font-size:calc(14px * var(--fs));max-height:42vh;overflow:auto}
+  #tourCap.on{display:block;animation:fadeIn .3s}
+  #tourCap b{display:block;color:#f6d98a;font-size:calc(16px * var(--fs));letter-spacing:.12em;margin-bottom:4px}
+  #tourCap .tx div{display:flex;justify-content:space-between;gap:10px;padding:3px 0;border-top:1px dashed rgba(246,217,138,.25)}
+  #tourCap .tx span{font-weight:900;color:#fff4d6;white-space:nowrap}
+  #tourCap .tx small{font-size:.75em;color:#c9a86a;margin-left:4px;font-weight:400}
+  #tourCap .tx i{font-style:normal;color:#b8a888}
+  #tourCap .stop{position:absolute;top:6px;right:8px;border:0;border-radius:14px;background:#f6d98a;color:#4a0e0e;font-family:var(--font);font-weight:900;font-size:calc(12px * var(--fs));padding:4px 10px}
+  body.tower #tourCap{bottom:calc(var(--sb) + 14px)}
   /* 祈福之旅 */
   #veil{position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;z-index:30;transition:opacity .6s}
   #veil.on{opacity:1}
@@ -477,6 +487,7 @@
     <button class="bk">回掃墓路線</button>
   </div>
 </div>
+<div id="tourCap"><div class="tx"></div><button class="stop">停止導覽</button></div>
 <div id="veil"></div>
 <div id="pilCap"><span></span><button class="skip">略過 ›</button></div>
 <div id="charBox">
@@ -3400,7 +3411,7 @@ function tvNicheView(k, fi, si) {
   return [w.clone().add(new THREE.Vector3(.2, .55, d)), w.clone().add(new THREE.Vector3(0, -1.05, 0))];
 }
 function openTowerVisit(k, fi, si) {
-  stopTour(); closeCard(); buildRoute(); buildTowerVisit(k);
+  if (!openTowerVisit.keepTour) stopTour(); closeCard(); buildRoute(); buildTowerVisit(k);
   document.getElementById('towerPick').classList.remove('on');
   document.getElementById('routeBox').classList.remove('on');
   document.body.classList.remove('route', 'dizang'); document.body.classList.add('tower');
@@ -3764,21 +3775,58 @@ function flyTo([pos, tgt], dur = 1.2) {
 }
 
 let tourId = 0, touring = false;
+/* 導覽：逐世介紹每位祖先的塔位，最後依序進入各納骨塔、逐格瞻仰 */
+function tourCap(html, show = true) {
+  const el = document.getElementById('tourCap');
+  el.classList.toggle('on', show); if (html != null) el.querySelector('.tx').innerHTML = html;
+}
+function personPlaceLine(p) {
+  if (p.alive) return '<i>健在</i>';
+  const pl = placementOf(p);
+  if (!pl || !pl.tower || !TOWERS[pl.tower]) return '<i>塔位尚未登記</i>';
+  return `${escH(TOWERS[pl.tower].place)}・${placeText(pl)}`;
+}
 async function tour() {
   const my = ++tourId; touring = true;
+  const alive = () => my === tourId;
+  tourCap('', false);
   await flyTo(genView(1), 1.4);
   for (let g = 1; g <= MAX_GEN; g++) {
-    if (my !== tourId) return;
+    if (!alive()) return;
     setGen(g);
+    const ppl = PEOPLE.filter(p => p.gen === g && !p.empty);
+    tourCap(`<b>第${CN[g]}世</b>` + ppl.map(p => `<div><span>${escH(p.name)}${p.role === 'spouse' ? '<small>配偶</small>' : ''}</span>${personPlaceLine(p)}</div>`).join(''));
     if (g > 1) await flyTo(genView(g), 1.1);
-    if (my !== tourId) return;
-    await sleep(650);
+    if (!alive()) return;
+    await sleep(1400 + ppl.length * 700);
   }
-  if (my !== tourId) return;
-  touring = false; setGen(0);
-  await flyTo(overviewView(), 1.8);
+  if (!alive()) return;
+  // 進入各納骨塔
+  const towers = Object.keys(TOWERS).map(k => { const occ = tvOccupants(k), list = []; Object.entries(occ).forEach(([fi, o]) => Object.entries(o).forEach(([si, p]) => list.push([+fi, +si, p]))); list.sort((a, b) => a[0] - b[0] || a[1] - b[1]); return [k, list]; }).filter(([, l]) => l.length);
+  for (const [k, list] of towers) {
+    if (!alive()) return;
+    tourCap(`<b>前往 ${escH(TOWERS[k].name)}</b><div><span>安奉 ${list.length} 位</span>${escH(TV_THEME[k].sub)}</div>`);
+    openTowerVisit.keepTour = true; openTowerVisit(k, list[0][0]); openTowerVisit.keepTour = false;
+    document.getElementById('twBox').classList.remove('on');
+    await sleep(2400);
+    for (const [fi, si, p] of list) {
+      if (!alive()) return;
+      selectNiche(k, fi, si, 1.3); document.getElementById('twBox').classList.remove('on');
+      tourCap(`<b>${escH(TOWERS[k].place)}</b><div><span>${escH(p.name)}</span>${CN[fi + 1]}樓${slotLabel(k, fi, si)}號${tvUrn(k, fi, si) ? `・骨灰編號 ${escH(tvUrn(k, fi, si))}` : ''}</div>`);
+      await sleep(2800);
+    }
+  }
+  if (!alive()) return;
+  touring = false; tourCap('', false);
+  if (document.body.classList.contains('tower')) { document.body.classList.remove('tower'); controls.minDistance = 3; controls.minPolarAngle = Math.PI * 0.22; }
+  setGen(0); await flyTo(overviewView(), 1.8);
 }
-function stopTour() { if (touring) { tourId++; touring = false; } }
+function stopTour() { if (touring) { tourId++; touring = false; } tourCap('', false); }
+document.querySelector('#tourCap .stop').onclick = () => {
+  const inTower = document.body.classList.contains('tower');
+  stopTour();
+  if (inTower) renderTowerBox();   // 停在塔內就留下塔位面板，可繼續瀏覽
+};
 
 /* ================= UI ================= */
 const genTag = document.getElementById('genTag');
